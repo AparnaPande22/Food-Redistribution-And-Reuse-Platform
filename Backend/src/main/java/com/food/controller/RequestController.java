@@ -22,7 +22,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/request")
+@RequestMapping("/api/request")
 @RequiredArgsConstructor
 @Validated
 public class RequestController {

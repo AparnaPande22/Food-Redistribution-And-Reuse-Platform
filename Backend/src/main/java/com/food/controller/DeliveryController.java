@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/deliveries")
+@RequestMapping("/api/deliveries")
 @RequiredArgsConstructor
 @Validated
 public class DeliveryController {

@@ -11,7 +11,7 @@ import com.food.service.AdminService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/Admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
