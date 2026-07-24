@@ -52,7 +52,8 @@ public class SecurityConfig {
             
             // Only DONOR can create donation
             .requestMatchers("/api/donor/**").hasRole("DONOR")
-
+            .requestMatchers("/api/users/**").hasRole("ADMIN")  
+            
             // Only NGO can create food requests
             .requestMatchers("/api/receiver/**").hasRole("RECEIVER")
             
