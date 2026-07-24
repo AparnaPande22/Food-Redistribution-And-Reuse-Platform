@@ -80,9 +80,9 @@ public class DashboardServiceImpl implements DashboardService {
 
 		dto.setTotalCompletedDeliveries(deliveryRepo.countByStatus(DeliveryStatus.COMPLETED));
 
-//		dto.setTotalDonors(userRepo.countByRole(Role.DONOR));
-//
-//		dto.setTotalReceivers(userRepo.countByRole(Role.RECEIVER));
+		dto.setTotalDonors(userRepo.countByAccountType(Role.DONOR));
+
+		dto.setTotalReceivers(userRepo.countByAccountType(Role.RECEIVER));
 
 		dto.setTotalMatches(matchRepo.count());
 

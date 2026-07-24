@@ -64,9 +64,10 @@ public class User {
 	@Column(length = 15, nullable = false, unique = true)
 	private String phone;
 
-	@NotBlank(message = "Role is required")
+	@NotNull(message = "Role is required")
 	@Column(name = "account_type", length = 20, nullable = false)
-	private String accountType;
+	@Enumerated(EnumType.STRING)
+	private Role accountType;
 
 	@Column(name = "team_role", length = 30)
 	private String teamRole;
@@ -74,7 +75,7 @@ public class User {
 	@NotBlank(message = "Status is required")
 	@Column(length = 20, nullable = false)
 	@Enumerated(EnumType.STRING)
-	private UserStatus  status;
+	private UserStatus status;
 
 	@NotBlank(message = "Address is required")
 	@Column(length = 300, nullable = false)
