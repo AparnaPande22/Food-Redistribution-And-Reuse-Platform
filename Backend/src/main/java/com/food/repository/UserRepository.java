@@ -1,5 +1,6 @@
 package com.food.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,5 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	long countByStatus(UserStatus status);
 
 	long countByAccountType(Role accountType);
+
+	public List<User> findByStatus(UserStatus status);
 
 }
