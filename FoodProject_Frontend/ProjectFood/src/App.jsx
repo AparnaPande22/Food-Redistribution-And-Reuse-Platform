@@ -2,12 +2,13 @@
 import { Routes, Route } from "react-router-dom";
 
 import Login from "./Component/Login";
-import AdminDashboard from "./pages/AdminDashboard";
-import DonorDashboard from "./pages/DonorDashboard";
-import ReceiverDashboard from "./pages/ReceiverDashboard";
-import VolunteerDashboard from "./pages/VolunteerDashboard";
-import ForgotPassword from "./pages/ForgotPassword";
+import AdminDashboard from "./Pages/AdminDashboard";
+import DonorDashboard from "./Pages/DonorDashboard";
+import ReceiverDashboard from "./Pages/ReceiverDashboard";
+import VolunteerDashboard from "./Pages/VolunteerDashboard";
+import ForgotPassword from "./Pages/ForgotPassword";
 import Register from "./Component/Register";
+import CreateDonation from "./Pages/donor/CreateDonation";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path="/volunteer" element={<VolunteerDashboard />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/register" element={<Register />} />
+    <Route path="/donor/create-donation" element={<CreateDonation />} />
     </Routes>
   );
 }

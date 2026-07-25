@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./DonorDashboard.css";
+import { useNavigate } from "react-router-dom";
 
 import {
   FaSearch,
@@ -107,7 +108,7 @@ const activities = [
 const DonorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState("");
-
+const navigate = useNavigate();
   // Load the logged-in user's name once, when the page first opens
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -227,9 +228,14 @@ const DonorDashboard = () => {
                 <div className="quick-actions-row">
                   {quickActions.map((action) => (
                     <button
-                      className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
-                      key={action.title}
-                    >
+    key={action.title}
+    className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
+    onClick={() => {
+        if (action.title === "Create Donation") {
+            navigate("/donor/create-donation");
+        }
+    }}
+>
                       <span className="action-icon">{action.icon}</span>
                       <div>
                         <h6>{action.title}</h6>
