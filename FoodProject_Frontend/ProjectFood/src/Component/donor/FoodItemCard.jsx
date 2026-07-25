@@ -1,148 +1,167 @@
-import { FaStar, FaTrash } from "react-icons/fa";
+import { FaTrash, FaStar } from "react-icons/fa";
 
 function FoodItemCard({
-    item,
-    index,
-    handleChange,
-    handleRating,
-    removeItem,
-    handleImage
+  item,
+  index,
+  handleChange,
+  handleRating,
+  removeItem,
+  handleImage,
 }) {
+  return (
+    <div className="food-item-card">
 
-    return (
+      <div className="food-grid">
 
-        <div className="food-item-card">
+        {/* Food Name */}
 
-            <div className="food-grid">
+        <div>
+          <label>Food Name</label>
 
-                <div>
+          <input
+            type="text"
+            placeholder="Enter food name"
+            value={item.name}
+            onChange={(e) =>
+              handleChange(index, "name", e.target.value)
+            }
+          />
+        </div>
 
-                    <label>Name</label>
+        {/* Category */}
 
-                    <input
-                        type="text"
-                        value={item.name}
-                        placeholder="Food Name"
-                        onChange={(e) =>
-                            handleChange(index, "name", e.target.value)
-                        }
-                    />
+        <div>
+          <label>Category</label>
 
-                </div>
+          <select
+            value={item.category}
+            onChange={(e) =>
+              handleChange(index, "category", e.target.value)
+            }
+          >
+            <option>Cooked Meals</option>
+            <option>Bakery</option>
+            <option>Vegetables</option>
+            <option>Fruits</option>
+            <option>Dairy</option>
+            <option>Beverages</option>
+          </select>
+        </div>
 
-                <div>
+        {/* Quantity */}
 
-                    <label>Category</label>
+        <div>
+          <label>Quantity</label>
 
-                    <select
-                        value={item.category}
-                        onChange={(e) =>
-                            handleChange(index, "category", e.target.value)
-                        }
-                    >
+          <input
+            type="number"
+            placeholder="0"
+            value={item.quantity}
+            onChange={(e) =>
+              handleChange(index, "quantity", e.target.value)
+            }
+          />
+        </div>
 
-                        <option>Cooked Meals</option>
-                        <option>Bakery</option>
-                        <option>Vegetables</option>
-                        <option>Fruits</option>
-                        <option>Dairy</option>
+        {/* Unit */}
 
-                    </select>
+        <div>
+          <label>Unit</label>
 
-                </div>
+          <select
+            value={item.unit}
+            onChange={(e) =>
+              handleChange(index, "unit", e.target.value)
+            }
+          >
+            <option>Kg</option>
+            <option>Grams</option>
+            <option>Packets</option>
+            <option>Boxes</option>
+            <option>Pieces</option>
+            <option>Litres</option>
+          </select>
+        </div>
 
-                <div>
+      </div>
 
-                    <label>Quantity</label>
+      {/* Rating */}
 
-                    <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) =>
-                            handleChange(index, "quantity", e.target.value)
-                        }
-                    />
+      <div className="rating-row">
 
-                </div>
+        <label>Food Quality</label>
 
-                <div>
+        <div>
 
-                    <label>Unit</label>
+          {[1, 2, 3, 4, 5].map((star) => (
 
-                    <select
-                        value={item.unit}
-                        onChange={(e) =>
-                            handleChange(index, "unit", e.target.value)
-                        }
-                    >
+            <FaStar
+              key={star}
+              className={
+                star <= item.rating
+                  ? "star active"
+                  : "star"
+              }
+              onClick={() =>
+                handleRating(index, star)
+              }
+            />
 
-                        <option>Kg</option>
-                        <option>Packets</option>
-                        <option>Boxes</option>
-                        <option>Litres</option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <div className="rating-row">
-
-                <label>Freshness Rating</label>
-
-                <div className="stars">
-
-                    {[1,2,3,4,5].map((star)=>(
-                        <FaStar
-                            key={star}
-                            className={
-                                star<=item.rating
-                                    ? "star active"
-                                    : "star"
-                            }
-                            onClick={()=>handleRating(index,star)}
-                        />
-                    ))}
-
-                </div>
-
-            </div>
-
-            <div className="upload-row">
-
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e)=>handleImage(index,e)}
-                />
-
-                {
-                    item.image &&
-                    <img
-                        src={item.image}
-                        alt=""
-                        className="preview"
-                    />
-                }
-
-            </div>
-
-            <button
-                className="delete-btn"
-                onClick={()=>removeItem(index)}
-            >
-
-                <FaTrash />
-
-                Remove Item
-
-            </button>
+          ))}
 
         </div>
 
-    );
+      </div>
 
+      {/* Image Upload */}
+
+ <div className="upload-row">
+
+<label className="upload-box">
+
+<input
+type="file"
+accept="image/*"
+onChange={(e)=>handleImage(index,e)}
+/>
+
+<div className="upload-icon">
+📷
+</div>
+
+<div className="upload-text">
+Click to Upload
+</div>
+
+</label>
+
+{item.image && (
+<img
+src={item.image}
+alt="preview"
+className="preview"
+/>
+)}
+
+</div>
+
+      {/* Delete Button */}
+
+      {index > 0 && (
+
+        <button
+          className="delete-btn"
+          onClick={() => removeItem(index)}
+        >
+          <FaTrash />
+          {" "}
+          Remove Item
+        </button>
+
+      )}
+
+    </div>
+  );
 }
 
 export default FoodItemCard;
