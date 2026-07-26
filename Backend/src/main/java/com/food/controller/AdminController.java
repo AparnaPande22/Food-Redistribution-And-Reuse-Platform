@@ -11,15 +11,18 @@ import com.food.service.AdminService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/Admin")
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
 	private final AdminService adminService;
 
-	@GetMapping("/pending")
+	// pending users
+	@GetMapping("/pending-users")
 	public ResponseEntity<?> findPendingUsers() {
 		return ResponseEntity.ok(adminService.findPendingUsers(UserStatus.PENDING));
 	}
+
+	// pending donations
 
 }
