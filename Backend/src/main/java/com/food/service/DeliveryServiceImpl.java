@@ -20,7 +20,7 @@ import com.food.entities.DeliveryStatus;
 import com.food.entities.Matches;
 import com.food.entities.Status;
 import com.food.entities.User;
-import com.food.repository.DelieveryRepository;
+import com.food.repository.DeliveryRepository;
 import com.food.repository.MatchesRepository;
 import com.food.repository.UserRepository;
 
@@ -34,7 +34,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	@Autowired
 	private UserRepository userRepo;
 	@Autowired
-	private DelieveryRepository deliveryRepo;
+	private DeliveryRepository deliveryRepo;
 
 	@Override
 	public String createDelivery(DeliveryDTO request) {

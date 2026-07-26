@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
+
 //4
 @Configuration // Declares this class as Spring Configuration
 @EnableWebSecurity // Enables Spring Security customization
@@ -22,74 +23,66 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomJwtVerificationFilter jwtAuthenticationFilter;
+	private final CustomJwtVerificationFilter jwtAuthenticationFilter;
 
-     //Configure Spring Security Filter Chain
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	// Configure Spring Security Filter Chain
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // 1. Disable CSRF protection (REST APIs are stateless)
-        http.csrf(csrf -> csrf.disable());
+		// 1. Disable CSRF protection (REST APIs are stateless)
+		http.csrf(csrf -> csrf.disable());
 
-        // 2. Make application stateless (No HttpSession)
-        http.sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		// 2. Make application stateless (No HttpSession)
+		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 3. Configure Authorization Rules
-        http.authorizeHttpRequests(request ->
+		// 3. Configure Authorization Rules
+		http.authorizeHttpRequests(request ->
 
-            request
+		request
 
-            // Public Endpoints
-            .requestMatchers(
-                    "/api/auth/**",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui.html")
-            
-            .permitAll()
-         // Only ADMIN can access admin APIs
-            .requestMatchers("/api/users/**").hasRole("ADMIN")
-            .requestMatchers("/api/match/**").hasRole("ADMIN")
-            .requestMatchers("/api/documents/**").hasRole("ADMIN")
-            .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
-            
-            // Only DONOR can create donation
-            .requestMatchers("/api/donor/**").hasRole("DONOR")
-            
-            // Only RECEIVER can create food requests
-            .requestMatchers("/api/request/**").hasRole("RECEIVER")
-            .requestMatchers("/api/request-item/**").hasRole("RECEIVER")
-            
-            // Only VOLUNTEER can update delivery status
-            .requestMatchers("/api/media/**").hasRole("VOLUNTEER")            
+				// Public Endpoints
+				.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html")
 
-            // All authenticated users
-            .requestMatchers("/api/notification/**").authenticated()
+				.permitAll()
+				// Only ADMIN can access admin APIs
+				.requestMatchers("/api/users/**").hasRole("ADMIN")
+				.requestMatchers("/api/match/**").hasRole("ADMIN")
+				.requestMatchers("/api/documents/**").hasRole("ADMIN")
+				.requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
+				.requestMatchers("/api/request/**").hasRole("ADMIN")
 
-            // All remaining requests require authentication
-            .anyRequest()
-            .authenticated()
-        );
+				// Only DONOR can create donation
+				.requestMatchers("/api/donor/**").hasRole("DONOR")
 
-        // 4. Add JWT Filter before UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+				// Only RECEIVER can create food requests
+				.requestMatchers("/api/request/**").hasRole("RECEIVER")
+				.requestMatchers("/api/request-item/**").hasRole("RECEIVER")
 
-        return http.build();
-    }
-    
-    // Configure Password Encoder
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+				// Only VOLUNTEER can update delivery status
+				.requestMatchers("/api/media/**").hasRole("VOLUNTEER")
 
-     // Configure AuthenticationManager
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
+				// All authenticated users
+				.requestMatchers("/api/notification/**").authenticated()
 
-        return config.getAuthenticationManager();
-    }
+				// All remaining requests require authentication
+				.anyRequest().authenticated());
+
+		// 4. Add JWT Filter before UsernamePasswordAuthenticationFilter
+		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
+
+	// Configure Password Encoder
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	// Configure AuthenticationManager
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+
+		return config.getAuthenticationManager();
+	}
 }

@@ -1,6 +1,7 @@
 package com.food.DTO;
 
 import com.food.entities.Role;
+import com.food.entities.UserStatus;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -38,4 +39,8 @@ public class UserDTO {
 
 	@NotBlank(message = "City is required")
 	private String city;
+
+	@NotNull(message = "Status is required")
+	private UserStatus status;
+
 }

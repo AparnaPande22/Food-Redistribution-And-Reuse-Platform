@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional;
 
 @Repository
 @Transactional
-public interface DelieveryRepository extends JpaRepository<Deliveries, Long> {
+public interface DeliveryRepository extends JpaRepository<Deliveries, Long> {
 	List<Deliveries> findByStatus(DeliveryStatus assigned);
 
 

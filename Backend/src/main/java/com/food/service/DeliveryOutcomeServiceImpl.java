@@ -11,7 +11,7 @@ import com.food.DTO.DeliveryOutcomeDTO;
 import com.food.Exception.ResourceNotFoundException;
 import com.food.entities.Deliveries;
 import com.food.entities.DeliveryOutcomes;
-import com.food.repository.DelieveryRepository;
+import com.food.repository.DeliveryRepository;
 import com.food.repository.DeliveryOutcomesRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,7 +20,7 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class DeliveryOutcomeServiceImpl implements DeliveryOutcomesService {
 	@Autowired
-	private DelieveryRepository deliveriesRepo;
+	private DeliveryRepository deliveriesRepo;
 	@Autowired
 	private DeliveryOutcomesRepository deliveryOutcomeRepo;
 

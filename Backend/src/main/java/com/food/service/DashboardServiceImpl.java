@@ -13,7 +13,7 @@ import com.food.entities.DeliveryStatus;
 import com.food.entities.RequestStatus;
 import com.food.entities.Role;
 import com.food.entities.UserStatus;
-import com.food.repository.DelieveryRepository;
+import com.food.repository.DeliveryRepository;
 import com.food.repository.MatchesRepository;
 import com.food.repository.RequestItemRepository;
 import com.food.repository.RequestRepository;
@@ -30,7 +30,7 @@ public class DashboardServiceImpl implements DashboardService {
 	private final UserRepository userRepo;
 	private final RequestRepository reqRepo;
 	private final MatchesRepository matchRepo;
-	private final DelieveryRepository deliveryRepo;
+	private final DeliveryRepository deliveryRepo;
 	private final RequestItemRepository itemRepo;
 
 	@Override

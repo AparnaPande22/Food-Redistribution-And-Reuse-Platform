@@ -2,6 +2,8 @@ package com.food.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +25,46 @@ public class AdminController {
 		return ResponseEntity.ok(adminService.findPendingUsers(UserStatus.PENDING));
 	}
 
-	// pending donations
+	// approve user
+	@PutMapping("/users/{id}/approve")
+	public ResponseEntity<?> approveUser(@PathVariable Long id) {
+		return ResponseEntity.ok(adminService.approveUser(id));
+	}
+
+	// reject user
+	@PutMapping("/users/{id}/reject")
+	public ResponseEntity<?> rejectUser(@PathVariable Long id) {
+		return ResponseEntity.ok(adminService.rejectUser(id));
+	}
+
+	// pending request
+	@GetMapping("/pending-requests")
+	public ResponseEntity<?> pendingRequests() {
+		return ResponseEntity.ok(adminService.findPendingRequests());
+	}
+
+	// approve request
+	@PutMapping("/requests/{id}/approve")
+	public ResponseEntity<?> approveRequest(@PathVariable Long id) {
+		return ResponseEntity.ok(adminService.approveRequest(id));
+	}
+
+	// reject request
+	@PutMapping("/requests/{id}/reject")
+	public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
+		return ResponseEntity.ok(adminService.rejectRequest(id));
+	}
+
+	// matching queue
+	@GetMapping("/matching-queue")
+	public ResponseEntity<?> matchingQueue() {
+		return ResponseEntity.ok(adminService.getMatchingQueue());
+	}
+
+	// admin analytics
+	@GetMapping("/analytics")
+	public ResponseEntity<?> analytics() {
+		return ResponseEntity.ok(adminService.getAnalytics());
+	}
 
 }
