@@ -9,7 +9,7 @@ import VolunteerDashboard from "./Pages/VolunteerDashboard";
 import ForgotPassword from "./Pages/ForgotPassword";
 import Register from "./Component/Register";
 import CreateDonation from "./Pages/donor/CreateDonation";
-
+import DonationSubmitted from "./Pages/donor/DonationSubmitted";
 function App() {
   return (
     <Routes>
@@ -22,6 +22,8 @@ function App() {
     <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/register" element={<Register />} />
     <Route path="/donor/create-donation" element={<CreateDonation />} />
+    <Route path="/donor/donation-submitted" element={<DonationSubmitted />}
+/>
     </Routes>
   );
 }

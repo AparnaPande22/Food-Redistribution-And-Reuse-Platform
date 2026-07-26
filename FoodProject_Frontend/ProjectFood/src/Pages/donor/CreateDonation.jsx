@@ -174,8 +174,7 @@ function CreateDonation() {
       resetForm();
 
       alert("Request Created Successfully!");
-
-      navigate("/donor/dashboard");
+navigate("/donor/donation-submitted");
     } catch (error) {
       console.error(error);
 
