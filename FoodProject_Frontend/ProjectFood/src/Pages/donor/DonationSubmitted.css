@@ -1,0 +1,363 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    background:#F8F8F5;
+}
+
+.submitted-page{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    background:#F8F8F5;
+}
+
+/* Main Card */
+
+.submitted-card{
+    width:100%;
+    max-width:700px;
+    margin:40px auto;
+    background:#fff;
+    border-radius:18px;
+    padding:45px 60px;
+    text-align:center;
+    box-shadow:0 8px 30px rgba(0,0,0,.06);
+}
+
+/* Badge */
+
+.impact-badge{
+
+    position:absolute;
+
+    top:25px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:#B35A35;
+
+    color:white;
+
+    padding:9px 22px;
+
+    border-radius:30px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+
+}
+
+/* Image */
+
+.success-image{
+
+    width:210px;
+    height:210px;
+
+    margin:55px auto 30px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    border:8px solid white;
+
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+
+}
+
+.success-image img{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+/* Heading */
+
+.submitted-card h1{
+
+    color:#184B37;
+
+    font-size:46px;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+
+}
+
+/* Message */
+
+.message{
+
+    width:520px;
+
+    max-width:100%;
+
+    margin:auto;
+
+    margin-bottom:45px;
+
+    color:#7A7A7A;
+
+    line-height:1.9;
+
+    font-size:16px;
+
+}
+
+/* Progress */
+
+.progress-wrapper{
+    margin-bottom:45px;
+}
+
+.progress-bar{
+
+    width:280px;
+
+    height:7px;
+
+    background:#ECECEC;
+
+    margin:auto;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+}
+.progress-bar{
+
+    width:280px;
+
+    height:7px;
+
+    background:#ECECEC;
+
+    margin:auto;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+}
+
+@keyframes progressAnimation{
+
+    0%{
+        width:15%;
+    }
+
+    50%{
+        width:75%;
+    }
+
+    100%{
+        width:100%;
+    }
+
+}
+
+.progress-text{
+
+    margin-top:14px;
+
+    color:#9A9A9A;
+
+    letter-spacing:3px;
+
+    font-size:11px;
+
+    font-weight:600;
+
+}
+
+@keyframes loading{
+
+    0%{
+        width:25%;
+    }
+
+    50%{
+        width:70%;
+    }
+
+    100%{
+        width:100%;
+    }
+
+}
+
+/* Button */
+
+.dashboard-btn{
+
+    width:280px;
+
+    height:54px;
+
+    border:none;
+
+    border-radius:40px;
+
+    background:#184B37;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+.dashboard-btn:hover{
+
+    background:#0E3828;
+
+    transform:translateY(-3px);
+
+    box-shadow:0 10px 25px rgba(24,75,55,.25);
+
+}
+
+/* Footer */
+.submitted-footer{
+
+    background:white;
+
+    height:70px;
+
+    border-top:1px solid #ECECEC;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 40px;
+
+    font-size:13px;
+
+    color:#777;
+
+}
+
+.footer-left{
+
+    font-weight:700;
+
+    color:#184B37;
+
+}
+
+.footer-right{
+
+    display:flex;
+
+    gap:30px;
+
+}
+
+
+
+.footer-center{
+    color:#999;
+}
+
+
+.footer-right span{
+    cursor:pointer;
+}
+
+.footer-right span:hover{
+    color:#184B37;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    .submitted-card{
+        margin:20px;
+        padding:30px 20px;
+    }
+
+    .submitted-card h1{
+        font-size:32px;
+    }
+
+    .success-image{
+        width:140px;
+        height:140px;
+    }
+
+    .submitted-footer{
+        flex-direction:column;
+        gap:10px;
+        height:auto;
+        padding:20px;
+    }
+
+    .footer-right{
+        gap:15px;
+    }
+
+}
+.submitted-card{
+    width:700px;
+    max-width:95%;
+
+    margin:60px auto;
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:50px 70px;
+
+    text-align:center;
+
+    box-shadow:0 15px 45px rgba(0,0,0,.08);
+
+    position:relative;
+
+    animation:fadeIn .7s ease;
+}
+
+@keyframes fadeIn{
+
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}

@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/notification")
+@RequestMapping("/api/notification")
 @RequiredArgsConstructor
 @Validated
 public class NotificationController {

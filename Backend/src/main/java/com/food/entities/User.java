@@ -72,7 +72,7 @@ public class User {
 	@Column(name = "team_role", length = 30)
 	private String teamRole;
 
-	@NotBlank(message = "Status is required")
+	@NotNull(message = "Status is required")
 	@Column(length = 20, nullable = false)
 	@Enumerated(EnumType.STRING)
 	private UserStatus status;

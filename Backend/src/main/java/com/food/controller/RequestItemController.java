@@ -16,7 +16,7 @@ import com.food.service.RequestItemService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/request_Item")
+@RequestMapping("/api/request-item")
 @RequiredArgsConstructor
 public class RequestItemController {
 

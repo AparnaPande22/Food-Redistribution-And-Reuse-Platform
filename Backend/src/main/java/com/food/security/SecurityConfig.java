@@ -46,20 +46,27 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-ui.html")
+            
             .permitAll()
          // Only ADMIN can access admin APIs
-            .requestMatchers("/food/api/admin/**").hasRole("ADMIN")
+            .requestMatchers("/api/users/**").hasRole("ADMIN")
+            .requestMatchers("/api/match/**").hasRole("ADMIN")
+            .requestMatchers("/api/documents/**").hasRole("ADMIN")
+            .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
             
             // Only DONOR can create donation
-            .requestMatchers("/food/api/donor/**").hasRole("DONOR")
-
-            // Only NGO can create food requests
-            .requestMatchers("/food/api/receiver/**").hasRole("RECEIVER")
+            .requestMatchers("/api/donor/**").hasRole("DONOR")
+            
+            // Only RECEIVER can create food requests
+            .requestMatchers("/api/request/**").hasRole("RECEIVER")
+            .requestMatchers("/api/request-item/**").hasRole("RECEIVER")
             
             // Only VOLUNTEER can update delivery status
-            .requestMatchers("/food/api/volunteer/**").hasRole("VOLUNTEER")
-            
-            .requestMatchers("/food/api/auth/**").permitAll()
+            .requestMatchers("/api/media/**").hasRole("VOLUNTEER")            
+
+            // All authenticated users
+            .requestMatchers("/api/notification/**").authenticated()
+
             // All remaining requests require authentication
             .anyRequest()
             .authenticated()

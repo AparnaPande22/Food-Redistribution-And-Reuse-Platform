@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/match")
+@RequestMapping("/api/match")
 @RequiredArgsConstructor
 @Validated
 public class MatchesController {
