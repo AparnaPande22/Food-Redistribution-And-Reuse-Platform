@@ -69,7 +69,7 @@ public class SecurityConfig {
 
                     // RECEIVER
                     .requestMatchers("/api/request/**")
-                    .hasAnyRole("DONOR", "RECEIVER")
+                    .hasAnyRole("ADMIN","DONOR", "RECEIVER")
 
                     .requestMatchers("/api/request-item/**")
                     .hasRole("RECEIVER")
