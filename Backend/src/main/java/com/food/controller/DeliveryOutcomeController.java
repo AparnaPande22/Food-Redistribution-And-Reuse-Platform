@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/delivery-outcomes")
+@RequestMapping("/api/delivery-outcomes")
 @RequiredArgsConstructor
 public class DeliveryOutcomeController {
 

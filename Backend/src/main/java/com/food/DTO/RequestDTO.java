@@ -21,13 +21,13 @@ public class RequestDTO {
 	@NotNull(message = "Request type is required")
 	private RequestType requestType;
 
-	@NotNull(message = "Status is required")
+	@NotNull
 	private RequestStatus status;
 
 	@NotBlank(message = "Meal preference is required")
 	private String mealPreference;
 
-	@NotBlank(message = "Estimated meals is required")
+	@NotNull(message = "Estimated meals is required")
 	private Long estimatedMeals;
 
 	@NotBlank(message = "Pickup address is required")
@@ -43,4 +43,6 @@ public class RequestDTO {
 	private String notes;
 
 	private LocalDateTime createdAt;
+	
+	
 }

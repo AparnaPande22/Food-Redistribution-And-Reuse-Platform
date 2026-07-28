@@ -39,17 +39,19 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 			// Authorization : Bearer eyJhbGciOiJIUzI1NiJ9...
 
 			String headerValue = request.getHeader("Authorization");
-
+			System.out.println("Authorization = " + headerValue);
+			
 			if (headerValue != null && headerValue.startsWith("Bearer ")) {
 				// 2. Remove "Bearer " from the header
 
 				String jwt = headerValue.substring(7);
+				System.out.println("JWT = " + jwt);
 				log.info("JWT : {}", jwt);
 
 				// 3. Extract email from JWT
 
 				String email = jwtUtils.extractEmail(jwt);
-
+				System.out.println("Email = " + email);
 				// 4. Authenticate only if email exists and user is not already authenticated
 
 				if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -57,7 +59,9 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 					// 5. Load user details from database
 
 					UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-
+					System.out.println("Authorities = " + userDetails.getAuthorities());
+					
+					System.out.println("Token Valid = " + jwtUtils.isTokenValid(jwt));
 					// 6. Validate JWT
 					if (jwtUtils.isTokenValid(jwt)) {
 
@@ -84,15 +88,14 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 
 		} catch (Exception e) {
 
-			log.error("JWT Validation Failed : {}", e.getMessage());
+		    e.printStackTrace();   // VERY IMPORTANT
 
-			// Clear Security Context
-			SecurityContextHolder.clearContext();
+		    log.error("JWT Validation Failed", e);
 
-			// Return 401 Unauthorized
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Invalid JWT");
+		    SecurityContextHolder.clearContext();
 
+		    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		    response.getWriter().write("Invalid JWT");
 		}
 	}
 }

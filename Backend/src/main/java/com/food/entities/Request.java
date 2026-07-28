@@ -64,7 +64,6 @@ public class Request {
 	@Column(name = "needed_by")
 	private LocalDateTime neededBy;
 
-	@NotBlank(message = "Notes are required")
 	@Column(name = "notes")
 	private String notes;
 
@@ -76,5 +75,6 @@ public class Request {
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+	
 
 }
