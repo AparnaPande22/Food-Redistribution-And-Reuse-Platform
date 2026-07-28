@@ -143,10 +143,22 @@ const navigate = useNavigate();
 
         <div className="menu">
           {menuItems.map((item, i) => (
-            <div className={`menu-item ${i === 0 ? "active" : ""}`} key={item.label}>
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
+       <div
+  className={`menu-item ${i === 0 ? "active" : ""}`}
+  key={item.label}
+  onClick={() => {
+    if (item.label === "Dashboard") {
+      navigate("/donor");
+    } else if (item.label === "Create Donation") {
+      navigate("/donor/create-donation");
+    } else if (item.label === "History") {
+      navigate("/donor/history");
+    }
+  }}
+>
+  {item.icon}
+  <span>{item.label}</span>
+</div>
           ))}
         </div>
 
@@ -225,25 +237,28 @@ const navigate = useNavigate();
                 <div className="section-title">
                   <h4>Quick Actions</h4>
                 </div>
-                <div className="quick-actions-row">
-                  {quickActions.map((action) => (
-                    <button
-    key={action.title}
-    className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
-    onClick={() => {
+          <div className="quick-actions-row">
+  {quickActions.map((action) => (
+    <button
+      key={action.title}
+      className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
+      onClick={() => {
         if (action.title === "Create Donation") {
-            navigate("/donor/create-donation");
+          navigate("/donor/create-donation");
+        } else if (action.title === "Donation History") {
+          navigate("/donor/history");
         }
-    }}
->
-                      <span className="action-icon">{action.icon}</span>
-                      <div>
-                        <h6>{action.title}</h6>
-                        <small>{action.subtitle}</small>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+      }}
+    >
+      <span className="action-icon">{action.icon}</span>
+
+      <div>
+        <h6>{action.title}</h6>
+        <small>{action.subtitle}</small>
+      </div>
+    </button>
+  ))}
+</div>
               </div>
 
               {/* Recent activity */}

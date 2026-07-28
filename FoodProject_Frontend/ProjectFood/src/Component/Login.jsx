@@ -28,15 +28,15 @@ function Login() {
             localStorage.setItem("token", response.data.token);
 
             // Save User Details
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    id: response.data.id,
-                    name: response.data.name,
-                    email: response.data.email,
-                    accountType: response.data.accountType
-                })
-            );
+           localStorage.setItem(
+    "user",
+    JSON.stringify({
+        userId: response.data.userId,
+        name: response.data.name,
+        email: response.data.email,
+        accountType: response.data.accountType
+    })
+);
 
             const role = response.data.accountType;
 

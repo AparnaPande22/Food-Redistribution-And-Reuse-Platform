@@ -2,14 +2,15 @@
 import { Routes, Route } from "react-router-dom";
 
 import Login from "./Component/Login";
-import AdminDashboard from "./Pages/AdminDashboard";
-import DonorDashboard from "./Pages/DonorDashboard";
+import AdminDashboard from "./Pages/admin/AdminDashboard";
+import DonorDashboard from "./Pages/donor/DonorDashboard";
 import ReceiverDashboard from "./Pages/ReceiverDashboard";
 import VolunteerDashboard from "./Pages/VolunteerDashboard";
 import ForgotPassword from "./Pages/ForgotPassword";
 import Register from "./Component/Register";
 import CreateDonation from "./Pages/donor/CreateDonation";
 import DonationSubmitted from "./Pages/donor/DonationSubmitted";
+import DonationHistory from "./Pages/donor/DonationHistory";
 function App() {
   return (
     <Routes>
@@ -22,9 +23,8 @@ function App() {
     <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/register" element={<Register />} />
     <Route path="/donor/create-donation" element={<CreateDonation />} />
-    <Route path="/donor/donation-submitted" element={<DonationSubmitted />}
-/>
-    </Routes>
+    <Route path="/donor/donation-submitted" element={<DonationSubmitted />}/>
+<Route path="/donor/history" element={<DonationHistory />} />    </Routes>
   );
 }
 

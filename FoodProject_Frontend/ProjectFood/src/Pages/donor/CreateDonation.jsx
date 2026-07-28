@@ -146,28 +146,29 @@ function CreateDonation() {
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-
-      const requestData = {
-        userId: user.userId,
-        requestType: "DONATION",
-        mealPreference: "Mixed",
-        estimatedMeals: foodItems.reduce(
-          (sum, item) => sum + Number(item.quantity || 0),
-          0
-        ),
-        pickUpAddress: donation.pickupAddress,
-        deliveryAvailable: donation.deliveryAvailable,
-        neededBy: donation.expiryTime,
-        notes: donation.instructions,
-
-        items: foodItems.map((item) => ({
-          itemName: item.name,
-          foodCategory: item.category,
-          quantity: Number(item.quantity),
-          unit: item.unit,
-          expiryTime: donation.expiryTime,
-        })),
-      };
+console.log(user);
+console.log("User ID =", user.userId);
+  const requestData = {
+    userId: user.userId,
+    requestType: "DONATION",
+    status: "DRAFT",
+    mealPreference: "Mixed",
+    estimatedMeals: foodItems.reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+    ),
+    pickUpAddress: donation.pickupAddress,
+    deliveryAvailable: donation.deliveryAvailable,
+    neededBy: donation.expiryTime,
+    notes: donation.instructions,
+    items: foodItems.map(item => ({
+        itemName: item.name,
+        foodCategory: item.category,
+        quantity: Number(item.quantity),
+        unit: item.unit,
+        expiryTime: donation.expiryTime
+    }))
+};
 
       await donationService.createDonation(requestData);
 
@@ -176,12 +177,19 @@ function CreateDonation() {
       alert("Request Created Successfully!");
 navigate("/donor/donation-submitted");
     } catch (error) {
-      console.error(error);
 
-      alert(
-        error.response?.data?.message || "Failed to Create Request"
-      );
-    } finally {
+    console.log(error);
+
+    console.log(error.response);
+
+    console.log(error.response?.data);
+
+if (error.response) {
+    alert(error.response.data.message || error.response.data);
+} else {
+    alert(error.message);
+}
+}finally {
       setLoading(false);
     }
   };

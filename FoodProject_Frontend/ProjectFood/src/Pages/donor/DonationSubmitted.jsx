@@ -15,7 +15,7 @@ function DonationSubmitted() {
     }, []);
 
     const handleDashboard = () => {
-        navigate("/donor/dashboard");
+        navigate("/donor/");
     };
 
     return (
