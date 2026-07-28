@@ -1,8 +1,7 @@
 package com.food.security;
+
 import java.util.List;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,150 +15,112 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
 
-//4
-@Configuration // Declares this class as Spring Configuration
-@EnableWebSecurity // Enables Spring Security customization
-@EnableMethodSecurity // Enables method-level security
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final CustomJwtVerificationFilter jwtAuthenticationFilter;
+    private final CustomJwtVerificationFilter jwtAuthenticationFilter;
 
-	// Configure Spring Security Filter Chain
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-<<<<<<< HEAD
-		// 1. Disable CSRF protection (REST APIs are stateless)
-		http.csrf(csrf -> csrf.disable());
+        http
+            // Enable CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-		// 2. Make application stateless (No HttpSession)
-		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-=======
-        // 1. Disable CSRF protection (REST APIs are stateless)
-    	http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable());
-        // 2. Make application stateless (No HttpSession)
-        http.sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
->>>>>>> a135977 (Fix create donation bugs)
+            // Disable CSRF
+            .csrf(csrf -> csrf.disable())
 
-		// 3. Configure Authorization Rules
-		http.authorizeHttpRequests(request ->
+            // Stateless Session
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-<<<<<<< HEAD
-		request
+            // Authorization
+            .authorizeHttpRequests(request -> request
 
-				// Public Endpoints
-				.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html")
+                    // Allow CORS Preflight
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-				.permitAll()
-				// Only ADMIN can access admin APIs
-				.requestMatchers("/api/users/**").hasRole("ADMIN")
-				.requestMatchers("/api/match/**").hasRole("ADMIN")
-				.requestMatchers("/api/documents/**").hasRole("ADMIN")
-				.requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
-				.requestMatchers("/api/request/**").hasRole("ADMIN")
+                    // Public APIs
+                    .requestMatchers(
+                            "/api/auth/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/v3/api-docs/**"
+                    ).permitAll()
 
-				// Only DONOR can create donation
-				.requestMatchers("/api/donor/**").hasRole("DONOR")
-=======
-            request
-            .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-            // Public Endpoints
-            .requestMatchers(
-                    "/api/auth/**",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui.html"
-            ).permitAll()
+                    // ADMIN
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/users/**").hasRole("ADMIN")
+                    .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
+                    .requestMatchers("/api/documents/**").hasRole("ADMIN")
 
-            // ADMIN
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/users/**").hasRole("ADMIN")
-            .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
-            .requestMatchers("/api/documents/**").hasRole("ADMIN")
+                    // DONOR
+                    .requestMatchers("/api/donor/**").hasRole("DONOR")
+                    .requestMatchers("/api/media/**").hasRole("DONOR")
 
-            // DONOR
-            .requestMatchers("/api/media/**").hasRole("DONOR")
+                    // RECEIVER
+                    .requestMatchers("/api/request/**")
+                    .hasAnyRole("DONOR", "RECEIVER")
 
-            // RECEIVER
-            .requestMatchers("/api/request/**")
-            .hasAnyRole("DONOR","RECEIVER")
-            .requestMatchers("/api/request-item/**").hasRole("RECEIVER")
+                    .requestMatchers("/api/request-item/**")
+                    .hasRole("RECEIVER")
 
-            // VOLUNTEER
-            .requestMatchers("/api/deliveries/**").hasRole("VOLUNTEER")
+                    // VOLUNTEER
+                    .requestMatchers("/api/deliveries/**")
+                    .hasRole("VOLUNTEER")
 
-            // ADMIN + VOLUNTEER
-            .requestMatchers("/api/match/**")
-            .hasAnyRole("ADMIN","VOLUNTEER")
+                    // ADMIN + VOLUNTEER
+                    .requestMatchers("/api/match/**")
+                    .hasAnyRole("ADMIN", "VOLUNTEER")
 
-            // Any logged-in user
-            .requestMatchers("/api/notification/**").authenticated()
-            .requestMatchers("/api/dashboard/**").authenticated()
+                    // Authenticated Users
+                    .requestMatchers("/api/notification/**").authenticated()
+                    .requestMatchers("/api/dashboard/**").authenticated()
+                    .requestMatchers("/api/delivery-outcomes/**").authenticated()
 
-            // Review this controller
-            .requestMatchers("/api/delivery-outcomes/**").authenticated()
+                    // Everything else
+                    .anyRequest().authenticated()
+            );
 
-            .anyRequest().authenticated()
-        );
->>>>>>> a135977 (Fix create donation bugs)
+        // JWT Filter
+        http.addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
 
-				// Only RECEIVER can create food requests
-				.requestMatchers("/api/request/**").hasRole("RECEIVER")
-				.requestMatchers("/api/request-item/**").hasRole("RECEIVER")
+        return http.build();
+    }
 
-				// Only VOLUNTEER can update delivery status
-				.requestMatchers("/api/media/**").hasRole("VOLUNTEER")
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-				// All authenticated users
-				.requestMatchers("/api/notification/**").authenticated()
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
 
-<<<<<<< HEAD
-				// All remaining requests require authentication
-				.anyRequest().authenticated());
-
-		// 4. Add JWT Filter before UsernamePasswordAuthenticationFilter
-		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-	}
-
-	// Configure Password Encoder
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	// Configure AuthenticationManager
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-
-		return config.getAuthenticationManager();
-	}
-=======
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(
+                List.of("http://localhost:5173"));
 
-        configuration.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "OPTIONS"
-        ));
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(List.of("*"));
 
@@ -172,5 +133,4 @@ public class SecurityConfig {
 
         return source;
     }
->>>>>>> a135977 (Fix create donation bugs)
 }
