@@ -1,6 +1,5 @@
 package com.food.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +107,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<RequestResponseDTO> findPendingRequests() {
+
 		List<Request> requests = reqRepo.findByStatus(RequestStatus.PENDING);
 
 		List<RequestResponseDTO> requestList = new ArrayList<>();
@@ -116,15 +116,16 @@ public class AdminServiceImpl implements AdminService {
 
 			RequestResponseDTO dto = new RequestResponseDTO();
 
-			request.setRequestType(dto.getRequestType());
-			request.setStatus(dto.getStatus());
-			request.setMealPreference(dto.getMealPreference());
-			request.setEstimatedMeals(dto.getEstimatedMeals());
-			request.setPickUpAddress(dto.getPickUpAddress());
-			request.setDeliveryAvailable(dto.isDeliveryAvailable());
-			request.setNeededBy(dto.getNeededBy());
-			request.setNotes(dto.getNotes());
-			request.setCreatedAt(LocalDateTime.now());
+			dto.setId(request.getId());
+			dto.setRequestType(request.getRequestType());
+			dto.setStatus(request.getStatus());
+			dto.setMealPreference(request.getMealPreference());
+			dto.setEstimatedMeals(request.getEstimatedMeals());
+			dto.setPickUpAddress(request.getPickUpAddress());
+			dto.setDeliveryAvailable(request.isDeliveryAvailable());
+			dto.setNeededBy(request.getNeededBy());
+			dto.setNotes(request.getNotes());
+			dto.setCreatedAt(request.getCreatedAt());
 
 			requestList.add(dto);
 		}

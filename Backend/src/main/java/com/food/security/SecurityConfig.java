@@ -64,19 +64,19 @@ public class SecurityConfig {
                     .requestMatchers("/api/documents/**").hasRole("ADMIN")
 
                     // DONOR
-                    .requestMatchers("/api/donor/**").hasRole("DONOR")
-                    .requestMatchers("/api/media/**").hasRole("DONOR")
+                    .requestMatchers("/api/donor/**").hasAnyRole("ADMIN","DONOR")
+                    .requestMatchers("/api/media/**").hasAnyRole("ADMIN","DONOR")
 
                     // RECEIVER
                     .requestMatchers("/api/request/**")
                     .hasAnyRole("ADMIN","DONOR", "RECEIVER")
 
                     .requestMatchers("/api/request-item/**")
-                    .hasRole("RECEIVER")
+                    .hasAnyRole("ADMIN","RECEIVER")
 
                     // VOLUNTEER
                     .requestMatchers("/api/deliveries/**")
-                    .hasRole("VOLUNTEER")
+                    .hasAnyRole("ADMIN","VOLUNTEER")
 
                     // ADMIN + VOLUNTEER
                     .requestMatchers("/api/match/**")

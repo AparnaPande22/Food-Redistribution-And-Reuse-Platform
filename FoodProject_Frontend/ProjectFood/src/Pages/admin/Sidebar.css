@@ -1,0 +1,29 @@
+/* .sidebar{
+    width:250px;
+    background:#0b4b36;
+    color:white;
+    height:100vh;
+    padding:30px 20px;
+}
+
+.logo{
+    margin-bottom:40px;
+}
+
+.sidebar ul{
+    list-style:none;
+    padding:0;
+}
+
+.sidebar li{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:15px;
+    cursor:pointer;
+    border-radius:8px;
+}
+
+.sidebar li:hover{
+    background:#14694b;
+} */
