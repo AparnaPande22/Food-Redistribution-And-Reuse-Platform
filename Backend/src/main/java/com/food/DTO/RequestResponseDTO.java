@@ -33,4 +33,20 @@ public class RequestResponseDTO {
 	private LocalDateTime createdAt;
 
 	private String message;
+
+	// Waste Processing Fields
+	private Long wastePartnerId;
+
+	private String wastePartnerName;
+
+	private LocalDateTime wasteAssignedDate;
+
+	private LocalDateTime wasteProcessedDate;
+
+	private Double biogasGenerated;
+
+	private Double fertilizerGenerated;
+
+	private String wasteRemarks;
+
 }

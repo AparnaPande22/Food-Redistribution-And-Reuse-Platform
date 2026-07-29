@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -75,6 +76,27 @@ public class Request {
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "waste_partner_id")
+	private User wastePartner;
+
+	@Column(name = "waste_partner_name")
+	private String wastePartnerName;
+
+	@Column(name = "waste_assigned_date")
+	private LocalDateTime wasteAssignedDate;
+
+	@Column(name = "waste_processed_date")
+	private LocalDateTime wasteProcessedDate;
+
+	@Column(name = "biogas_generated")
+	private Double biogasGenerated;
+
+	@Column(name = "fertilizer_generated")
+	private Double fertilizerGenerated;
+
+	@Column(name = "waste_remark", length = 500)
+	private String wasteRemarks;
 
 }

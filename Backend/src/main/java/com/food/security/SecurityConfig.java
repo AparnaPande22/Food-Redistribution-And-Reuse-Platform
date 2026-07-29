@@ -69,7 +69,7 @@ public class SecurityConfig {
 
                     // RECEIVER
                     .requestMatchers("/api/request/**")
-                    .hasAnyRole("ADMIN","DONOR", "RECEIVER")
+                    .hasAnyRole("ADMIN","DONOR", "RECEIVER","BIOGAS_PARTNER")
 
                     .requestMatchers("/api/request-item/**")
                     .hasAnyRole("ADMIN","RECEIVER")
@@ -86,6 +86,9 @@ public class SecurityConfig {
                     .requestMatchers("/api/notification/**").authenticated()
                     .requestMatchers("/api/dashboard/**").authenticated()
                     .requestMatchers("/api/delivery-outcomes/**").authenticated()
+                    
+                    // Biogas Partner
+                    .requestMatchers("/api/waste/**").hasAnyRole("ADMIN","BIOGAS_PARTNER")
 
                     // Everything else
                     .anyRequest().authenticated()
