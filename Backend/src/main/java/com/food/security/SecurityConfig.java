@@ -71,6 +71,8 @@ public class SecurityConfig {
                     .requestMatchers("/api/request/**")
                     .hasAnyRole("ADMIN","DONOR", "RECEIVER","BIOGAS_PARTNER")
 
+                    //.hasAnyRole("ADMIN","DONOR","RECEIVER")
+
                     .requestMatchers("/api/request-item/**")
                     .hasAnyRole("ADMIN","RECEIVER")
 

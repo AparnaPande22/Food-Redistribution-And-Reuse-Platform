@@ -99,4 +99,10 @@ public class Request {
 	@Column(name = "waste_remark", length = 500)
 	private String wasteRemarks;
 
+	@ManyToOne
+	@JoinColumn(name = "biogas_industry_id")
+	private BiogasIndustry biogasIndustry;
+
+	@Column(name = "waste_reason")
+	private String wasteReason;
 }
