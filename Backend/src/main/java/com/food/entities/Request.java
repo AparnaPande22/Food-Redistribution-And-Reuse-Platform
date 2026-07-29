@@ -76,5 +76,10 @@ public class Request {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 	
-
+	@ManyToOne
+	@JoinColumn(name = "biogas_industry_id")
+	private BiogasIndustry biogasIndustry;
+	
+	@Column(name = "waste_reason")
+	private String wasteReason;
 }
