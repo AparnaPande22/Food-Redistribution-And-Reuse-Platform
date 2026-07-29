@@ -85,6 +85,7 @@ function DonationHistory() {
 
   const [page, setPage] = useState(1);
 
+
   useEffect(() => {
     loadHistory();
   }, []);
@@ -96,7 +97,7 @@ function DonationHistory() {
       const user = JSON.parse(localStorage.getItem("user"));
 
       const response = await donationService.getMyDonations(user.userId);
-
+console.log("History Response =", response);
       if (Array.isArray(response))
         setDonations(response);
       else
@@ -466,17 +467,19 @@ return (
 
 <tbody>
 
-{currentRows.map((donation)=>{
+{currentRows.map((donation) => {
 
-const status=getStatus(donation.status);
+    console.log("Donation Object:", donation);
 
-return(
+    const status = getStatus(donation.status);
 
-<tr key={donation.requestId}>
+    return (
+
+        <tr key={donation.id}>
 
 <td className="id">
 
-{formatDonationId(donation.requestId)}
+{formatDonationId(donation.id)}
 
 </td>
 
@@ -532,7 +535,7 @@ className={`status ${status.className}`}
 <button
 className="details-btn"
 onClick={()=>navigate(
-`/donor/donation-details/${donation.requestId}`
+`/donor/donation-details/${donation.id}`
 )}
 >
 

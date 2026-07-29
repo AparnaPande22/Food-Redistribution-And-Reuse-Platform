@@ -25,35 +25,26 @@ function DonationDetails() {
 
     const [donation,setDonation]=useState(null);
 
-    useEffect(()=>{
+  useEffect(() => {
+    loadDonation();
+}, []);
 
-        loadDonation();
+const loadDonation = async () => {
+    try {
+        setLoading(true);
 
-    },[]);
+        const response = await donationService.getDonationById(id);
 
-    const loadDonation=async()=>{
+        console.log(response);
 
-        try{
+        setDonation(response);
 
-            const data=await donationService.getDonationById(id);
-
-            setDonation(data);
-
-        }
-
-        catch(err){
-
-            console.log(err);
-
-        }
-
-        finally{
-
-            setLoading(false);
-
-        }
-
-    };
+    } catch (err) {
+        console.log(err);
+    } finally {
+        setLoading(false);
+    }
+};
 
     if(loading){
 
@@ -122,8 +113,7 @@ Created on {new Date(donation.createdAt).toLocaleDateString()}
 
 </div>
 
-<span className={`status ${donation.status.toLowerCase()}`}>
-
+<span className={`status ${donation.status?.toLowerCase() || ""}`}>
 {donation.status}
 
 </span>
@@ -212,71 +202,46 @@ Food Items
 
 <div className="food-grid">
 
-{donation.items.map((item,index)=>(
+{donation.items?.length > 0 ? (
 
-<div
-className="food-card"
-key={index}
->
+    donation.items.map((item, index) => (
 
-<img
+        <div className="food-card" key={index}>
+            <img
+                src={
+                    item.imageUrl ||
+                    "https://placehold.co/400x250?text=Food"
+                }
+                alt={item.itemName}
+            />
 
-src={
-item.imageUrl ||
-"https://placehold.co/400x250?text=Food"
-}
+            <div className="food-body">
+                <h3>{item.itemName}</h3>
 
-alt={item.itemName}
+                <p>
+                    Category : <b>{item.foodCategory}</b>
+                </p>
 
-/>
+                <p>
+                    Quantity : <b>{item.quantity} {item.unit}</b>
+                </p>
 
-<div className="food-body">
+                <p>
+                    Expiry :
+                    {new Date(item.expiryTime).toLocaleString()}
+                </p>
+            </div>
+        </div>
 
-<h3>
+    ))
 
-{item.itemName}
+) : (
 
-</h3>
+    <div className="no-items">
+        No food items available for this donation.
+    </div>
 
-<p>
-
-Category :
-
-<b>
-
-{item.foodCategory}
-
-</b>
-
-</p>
-
-<p>
-
-Quantity :
-
-<b>
-
-{item.quantity}
-
-{item.unit}
-
-</b>
-
-</p>
-
-<p>
-
-Expiry :
-
-{new Date(item.expiryTime).toLocaleString()}
-
-</p>
-
-</div>
-
-</div>
-
-))}
+)}
 
 </div>
 <div className="timeline">
