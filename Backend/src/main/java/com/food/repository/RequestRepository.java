@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.food.entities.Request;
 import com.food.entities.RequestStatus;
+import com.food.entities.User;
 
 import jakarta.transaction.Transactional;
 
@@ -34,5 +35,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 			ORDER BY MONTH(r.createdAt)
 			""")
 	List<Object[]> getMonthlyDonations();
+
+	List<Request> findByWastePartner(User wastePartner);
 
 }

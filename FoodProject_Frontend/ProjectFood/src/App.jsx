@@ -37,7 +37,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Login from "./Component/Login";
-import AdminDashboard from "./Pages/admin/AdminDashboard";
+//import AdminDashboard from "./Pages/admin/AdminDashboard";
 import DonorDashboard from "./Pages/donor/DonorDashboard";
 import ReceiverDashboard from "./Pages/ReceiverDashboard";
 import VolunteerDashboard from "./Pages/VolunteerDashboard";
@@ -54,7 +54,7 @@ function App() {
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
 
-      <Route path="/admin" element={<AdminDashboard />} />
+      {/* #<Route path="/admin" element={<AdminDashboard />} /> */}
       <Route path="/donor" element={<DonorDashboard />} />
       <Route path="/receiver" element={<ReceiverDashboard />} />
       <Route path="/volunteer" element={<VolunteerDashboard />} />

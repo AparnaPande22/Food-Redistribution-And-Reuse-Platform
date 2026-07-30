@@ -80,13 +80,32 @@ public class WasteServiceImplementation implements WasteService {
 	}
 
 	@Override
-	public List<Request> getAssignedWaste(Long partnerId) {
-		return null;
+	public List<RequestResponseDTO> getAssignedWaste(Long partnerId) {
+
+		User partner = userRepo.findById(partnerId)
+				.orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
+
+		return reqRepo.findByWastePartner(partner).stream().map(requestMapper::toRequestResponseDTO).toList();
 	}
 
 	@Override
-	public Request processWaste(Long requestId, WasteProcessingDTO dto) {
-		return null;
+	public RequestResponseDTO processWaste(Long requestId, WasteProcessingDTO dto) {
+		Request request = reqRepo.findById(requestId)
+				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+		request.setBiogasGenerated(dto.getBiogasGenerated());
+		request.setFertilizerGenerated(dto.getFertilizerGenerated());
+		request.setWasteProcessedDate(LocalDateTime.now());
+		request.setWasteRemarks(dto.getRemarks());
+		request.setStatus(RequestStatus.WASTE_PROCESSED);
+
+		Request saved = reqRepo.save(request);
+
+		RequestResponseDTO response = requestMapper.toRequestResponseDTO(saved);
+
+		response.setMessage("Waste processed successfully.");
+
+		return response;
 	}
 
 }

@@ -15,7 +15,9 @@ public interface WasteService {
 
 	List<RequestResponseDTO> getWasteQueue();
 
-	List<Request> getAssignedWaste(Long partnerId);
+	List<RequestResponseDTO> getAssignedWaste(Long partnerId);
 
-	Request processWaste(Long requestId, WasteProcessingDTO dto);
+	RequestResponseDTO processWaste(Long requestId, WasteProcessingDTO dto);
+	
+
 }
