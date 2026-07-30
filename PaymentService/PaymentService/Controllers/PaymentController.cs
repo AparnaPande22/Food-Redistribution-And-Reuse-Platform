@@ -32,9 +32,9 @@ namespace PaymentService.Controllers
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
-            if (request == null || request.Amount <= 0)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid payment request.");
+                return BadRequest(ModelState);
             }
 
             try
@@ -76,9 +76,9 @@ namespace PaymentService.Controllers
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] VerifyPaymentRequest request)
         {
-            if (request == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid request.");
+                return BadRequest(ModelState);
             }
 
             var payment = await repository.GetByOrderIdAsync(request.OrderId);
@@ -95,6 +95,10 @@ namespace PaymentService.Controllers
 
             var keySecret = configuration["Razorpay:KeySecret"];
 
+            if (string.IsNullOrWhiteSpace(keySecret))
+            {
+                return StatusCode(500, "Razorpay Secret is missing.");
+            }
             var payload = $"{request.OrderId}|{request.PaymentId}";
 
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(keySecret!));
@@ -102,22 +106,28 @@ namespace PaymentService.Controllers
             var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
 
             var generatedSignature = BitConverter
-                .ToString(hash)
-                .Replace("-", "")
-                .ToLower();
+     .ToString(hash)
+     .Replace("-", "")
+     .ToLowerInvariant();
 
-            //if (generatedSignature != request.Signature.ToLower())
-            //{
-            //    payment.Status = "FAILED";
-            //    await repository.UpdateAsync(payment);
+            if (!generatedSignature.Equals(
+         request.Signature.Trim().ToLowerInvariant(),
+         StringComparison.Ordinal))
+            {
+                payment.Status = "FAILED";
+                await repository.UpdateAsync(payment);
 
-            //    logger.LogWarning("Invalid Razorpay Signature for Order {OrderId}", request.OrderId);
+                logger.LogWarning("Invalid Razorpay Signature for Order {OrderId}", request.OrderId);
 
-            //    return BadRequest(new
-            //    {
-            //        message = "Invalid Razorpay Signature"
-            //    });
-            //}
+                return BadRequest(new
+                {
+                    message = "Invalid Razorpay Signature"
+                });
+            }
+            if (!string.IsNullOrEmpty(payment.RazorpayPaymentId))
+            {
+                return BadRequest("Payment already processed.");
+            }
 
             payment.RazorpayPaymentId = request.PaymentId;
             payment.Status = "SUCCESS";
@@ -129,7 +139,11 @@ namespace PaymentService.Controllers
             return Ok(new
             {
                 message = "Payment Verified Successfully",
-                payment
+                payment.Id,
+                payment.RazorpayOrderId,
+                payment.RazorpayPaymentId,
+                payment.Amount,
+                payment.Status
             });
         }
 

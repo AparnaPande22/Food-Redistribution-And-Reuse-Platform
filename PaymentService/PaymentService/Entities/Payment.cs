@@ -15,8 +15,7 @@ namespace PaymentService.Entities
 
         public string RazorpayOrderId { get; set; } = string.Empty;
 
-        public string RazorpayPaymentId { get; set; } = string.Empty;
-
-        public string Status { get; set; } = string.Empty;
+        public string? RazorpayPaymentId { get; set; }
+        public string Status { get; set; } = "CREATED";
     }
 }

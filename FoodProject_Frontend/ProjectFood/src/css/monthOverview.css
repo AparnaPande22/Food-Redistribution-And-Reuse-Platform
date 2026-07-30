@@ -1,0 +1,66 @@
+.month-overview{
+    background:#fff;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.overview-header{
+    margin-bottom:20px;
+}
+
+.overview-header h2{
+    color:#1f2937;
+    font-size:22px;
+}
+
+.overview-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.overview-card{
+    display:flex;
+    align-items:center;
+    background:#f8fafc;
+    border-radius:12px;
+    padding:18px;
+    transition:.3s;
+}
+
+.overview-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 20px rgba(0,0,0,.12);
+}
+
+.overview-icon{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:24px;
+    margin-right:18px;
+}
+
+.overview-content h3{
+    margin:0;
+    font-size:22px;
+    color:#111827;
+}
+
+.overview-content p{
+    margin-top:6px;
+    color:#6b7280;
+}
+
+@media(max-width:768px){
+
+.overview-grid{
+grid-template-columns:1fr;
+}
+
+}
