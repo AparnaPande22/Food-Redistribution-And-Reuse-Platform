@@ -17,11 +17,12 @@ namespace PaymentService.Services
        configuration["Razorpay:KeyId"],
        configuration["Razorpay:KeySecret"]);
 
-            Dictionary<string, object> options = new();
-
-            options.Add("amount", amount * 100);
-            options.Add("currency", "INR");
-            options.Add("receipt", Guid.NewGuid().ToString());
+            var options = new Dictionary<string, object>
+{
+    { "amount", (int)(amount * 100) },
+    { "currency", "INR" },
+    { "receipt", Guid.NewGuid().ToString() }
+};
 
             return client.Order.Create(options);
         }
