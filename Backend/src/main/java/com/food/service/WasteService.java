@@ -25,4 +25,8 @@ public interface WasteService {
 
 	RequestResponseDTO rejectWastePickup(Long requestId, String remarks);
 
+	List<RequestResponseDTO> getProcessedWaste();
+
+	RequestResponseDTO getProcessedWasteById(Long requestId);
+
 }

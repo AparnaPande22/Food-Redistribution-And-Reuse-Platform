@@ -154,4 +154,25 @@ public class WasteServiceImplementation implements WasteService {
 		return dto;
 	}
 
+	@Override
+	public List<RequestResponseDTO> getProcessedWaste() {
+		return reqRepo.findByStatus(RequestStatus.WASTE_PROCESSED).stream().map(requestMapper::toRequestResponseDTO)
+				.toList();
+	}
+
+	@Override
+	public RequestResponseDTO getProcessedWasteById(Long requestId) {
+
+		Request request = reqRepo.findById(requestId)
+				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+		if (request.getStatus() != RequestStatus.WASTE_PROCESSED) {
+			throw new IllegalArgumentException("Waste is not processed yet");
+		}
+		if (request.getStatus() != RequestStatus.WASTE_ASSIGNED) {
+			throw new IllegalArgumentException("Only assigned waste can be processed");
+		}
+
+		return requestMapper.toRequestResponseDTO(request);
+	}
 }

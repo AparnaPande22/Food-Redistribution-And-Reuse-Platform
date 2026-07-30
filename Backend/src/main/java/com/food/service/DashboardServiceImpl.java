@@ -9,6 +9,7 @@ import com.food.DTO.AdminDashboardDTO;
 import com.food.DTO.DonorDashboardDTO;
 import com.food.DTO.ImpactDashboardDTO;
 import com.food.DTO.MonthlyStatisticsDTO;
+import com.food.DTO.WasteDashboardDTO;
 import com.food.entities.DeliveryStatus;
 import com.food.entities.RequestStatus;
 import com.food.entities.Role;
@@ -32,6 +33,7 @@ public class DashboardServiceImpl implements DashboardService {
 	private final MatchesRepository matchRepo;
 	private final DeliveryRepository deliveryRepo;
 	private final RequestItemRepository itemRepo;
+	private final WasteService wasteService;
 
 	@Override
 	public AdminDashboardDTO getAdminDashboard() {
@@ -109,6 +111,31 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 
 		return statistics;
+	}
+
+	@Override
+	public WasteDashboardDTO getWasteDashboard() {
+		 Long pendingAssignments =
+		            reqRepo.countByStatus(RequestStatus.WASTE_ASSIGNED);
+
+		    Long completedProcesses =
+		            reqRepo.countByStatus(RequestStatus.WASTE_PROCESSED);
+
+		    Double totalBiogas =
+		            reqRepo.getTotalBiogasGenerated();
+
+		    Double totalFertilizer =
+		            reqRepo.getTotalFertilizerGenerated();
+
+		    Long totalWasteProcessed = completedProcesses;
+
+		    return new WasteDashboardDTO(
+		            pendingAssignments,
+		            completedProcesses,
+		            totalBiogas,
+		            totalFertilizer,
+		            totalWasteProcessed
+		    );
 	}
 
 }

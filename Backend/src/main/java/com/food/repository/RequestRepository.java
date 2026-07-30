@@ -38,4 +38,20 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
 	List<Request> findByWastePartner(User wastePartner);
 
+	Long countByWastePartnerIdAndStatus(Long partnerId, RequestStatus status);
+
+	@Query("""
+			SELECT COALESCE(SUM(r.biogasGenerated),0)
+			FROM Request r
+			WHERE r.status='WASTE_PROCESSED'
+			""")
+	Double getTotalBiogasGenerated();
+
+	@Query("""
+			SELECT COALESCE(SUM(r.fertilizerGenerated),0)
+			FROM Request r
+			WHERE r.status='WASTE_PROCESSED'
+			""")
+	Double getTotalFertilizerGenerated();
+
 }

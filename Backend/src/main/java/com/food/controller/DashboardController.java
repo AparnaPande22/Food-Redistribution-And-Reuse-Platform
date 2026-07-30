@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.food.DTO.WasteDashboardDTO;
 import com.food.service.DashboardService;
 
 import jakarta.validation.constraints.Positive;
@@ -45,5 +46,11 @@ public class DashboardController {
 	public ResponseEntity<?> getMonthlyStatistics() {
 		System.out.println("Monthly Statistics API is Called!");
 		return ResponseEntity.ok(dashboardService.getMonthlyStatistics());
+	}
+
+	// waste Dashboard
+	@GetMapping("/waste-dashboard")
+	public ResponseEntity<WasteDashboardDTO> getDashboard() {
+		return ResponseEntity.ok(dashboardService.getWasteDashboard());
 	}
 }

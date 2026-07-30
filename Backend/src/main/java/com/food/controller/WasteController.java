@@ -80,4 +80,17 @@ public class WasteController {
 	public ResponseEntity<?> rejectWastePickUp(@PathVariable Long requestId, @RequestBody String remark) {
 		return ResponseEntity.ok(wasteService.rejectWastePickup(requestId, remark));
 	}
+
+	// completed
+	@GetMapping("/processed")
+	public ResponseEntity<List<RequestResponseDTO>> getProcessedWaste() {
+		return ResponseEntity.ok(wasteService.getProcessedWaste());
+	}
+
+	// get completed waste process by id
+	@GetMapping("/processed/{id}")
+	public ResponseEntity<RequestResponseDTO> getProcessedWasteById(@PathVariable Long id) {
+
+		return ResponseEntity.ok(wasteService.getProcessedWasteById(id));
+	}
 }
