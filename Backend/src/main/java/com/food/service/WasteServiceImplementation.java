@@ -108,4 +108,50 @@ public class WasteServiceImplementation implements WasteService {
 		return response;
 	}
 
+	@Override
+	public RequestResponseDTO unassignWastePartner(Long requestId) {
+
+		Request request = reqRepo.findById(requestId)
+				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+		request.setWastePartner(null);
+		request.setWasteAssignedDate(null);
+		request.setWasteRemarks(null);
+		request.setStatus(RequestStatus.MARKED_FOR_WASTE);
+
+		Request saved = reqRepo.save(request);
+
+		RequestResponseDTO dto = requestMapper.toRequestResponseDTO(saved);
+
+		dto.setMessage("Waste partner removed successfully.");
+
+		return dto;
+	}
+
+	@Override
+	public List<RequestResponseDTO> getWasteHistory() {
+
+		return reqRepo.findByStatus(RequestStatus.WASTE_PROCESSED).stream().map(requestMapper::toRequestResponseDTO)
+				.toList();
+	}
+
+	@Override
+	public RequestResponseDTO rejectWastePickup(Long requestId, String remarks) {
+
+		Request request = reqRepo.findById(requestId)
+				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+		request.setWasteRemarks(remarks);
+		request.setStatus(RequestStatus.MARKED_FOR_WASTE);
+		request.setWastePartner(null);
+
+		Request saved = reqRepo.save(request);
+
+		RequestResponseDTO dto = requestMapper.toRequestResponseDTO(saved);
+
+		dto.setMessage("Waste pickup rejected.");
+
+		return dto;
+	}
+
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.food.DTO.RequestResponseDTO;
@@ -47,17 +48,36 @@ public class WasteController {
 	}
 
 	// assigned waste to ID
-	@GetMapping("/waste/assigned/{partnerId}")
+	@GetMapping("/assigned/{partnerId}")
 	public ResponseEntity<List<RequestResponseDTO>> getAssignedWaste(@PathVariable Long partnerId) {
 
 		return ResponseEntity.ok(wasteService.getAssignedWaste(partnerId));
 	}
 
 	// waste processing
-	@PutMapping("/waste/process/{requestId}")
+	@PutMapping("/process/{requestId}")
 	public ResponseEntity<RequestResponseDTO> processWaste(@PathVariable Long requestId,
 			@RequestBody @Valid WasteProcessingDTO dto) {
 
 		return ResponseEntity.ok(wasteService.processWaste(requestId, dto));
+	}
+
+	// unassign partner if want to replace waste partner
+	@PutMapping("/unassigned/{requestId}")
+	public ResponseEntity<?> unassignWastePartner(@PathVariable Long requestId) {
+		return ResponseEntity.ok(wasteService.unassignWastePartner(requestId));
+	}
+
+	// get waste history
+	@GetMapping("/history")
+	public ResponseEntity<List<RequestResponseDTO>> getWasteHistory() {
+
+		return ResponseEntity.ok(wasteService.getWasteHistory());
+	}
+
+	// reject pick up
+	@PutMapping("/reject/{requestId}")
+	public ResponseEntity<?> rejectWastePickUp(@PathVariable Long requestId, @RequestBody String remark) {
+		return ResponseEntity.ok(wasteService.rejectWastePickup(requestId, remark));
 	}
 }

@@ -18,6 +18,11 @@ public interface WasteService {
 	List<RequestResponseDTO> getAssignedWaste(Long partnerId);
 
 	RequestResponseDTO processWaste(Long requestId, WasteProcessingDTO dto);
-	
+
+	RequestResponseDTO unassignWastePartner(Long requestId);
+
+	List<RequestResponseDTO> getWasteHistory();
+
+	RequestResponseDTO rejectWastePickup(Long requestId, String remarks);
 
 }
