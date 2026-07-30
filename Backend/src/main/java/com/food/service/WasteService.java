@@ -2,31 +2,30 @@ package com.food.service;
 
 import java.util.List;
 
-import com.food.DTO.RequestResponseDTO;
 import com.food.DTO.WasteAssignmentDTO;
 import com.food.DTO.WasteProcessingDTO;
-import com.food.entities.Request;
+import com.food.DTO.WasteResponseDTO;
 
 public interface WasteService {
 
-	RequestResponseDTO markAsWaste(Long requestId);
+	WasteResponseDTO markAsWaste(Long requestId);
 
-	RequestResponseDTO assignWastePartner(WasteAssignmentDTO dto);
+	WasteResponseDTO assignWastePartner(WasteAssignmentDTO dto);
 
-	List<RequestResponseDTO> getWasteQueue();
+	List<WasteResponseDTO> getWasteQueue();
 
-	List<RequestResponseDTO> getAssignedWaste(Long partnerId);
+	List<WasteResponseDTO> getAssignedWaste(Long partnerId);
 
-	RequestResponseDTO processWaste(Long requestId, WasteProcessingDTO dto);
+	WasteResponseDTO processWaste(Long requestId, WasteProcessingDTO dto);
 
-	RequestResponseDTO unassignWastePartner(Long requestId);
+	WasteResponseDTO unassignWastePartner(Long requestId);
 
-	List<RequestResponseDTO> getWasteHistory();
+	List<WasteResponseDTO> getWasteHistory();
 
-	RequestResponseDTO rejectWastePickup(Long requestId, String remarks);
+	WasteResponseDTO rejectWastePickup(Long requestId, String remarks);
 
-	List<RequestResponseDTO> getProcessedWaste();
+	List<WasteResponseDTO> getProcessedWaste();
 
-	RequestResponseDTO getProcessedWasteById(Long requestId);
+	WasteResponseDTO getProcessedWasteById(Long requestId);
 
 }

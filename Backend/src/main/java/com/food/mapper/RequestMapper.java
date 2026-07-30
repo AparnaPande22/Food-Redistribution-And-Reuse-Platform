@@ -27,17 +27,6 @@ public class RequestMapper {
 		dto.setNotes(request.getNotes());
 		dto.setCreatedAt(request.getCreatedAt());
 
-		if (request.getWastePartner() != null) {
-			dto.setWastePartnerId(request.getWastePartner().getId());
-			dto.setWastePartnerName(request.getWastePartner().getName());
-		}
-
-		dto.setWasteAssignedDate(request.getWasteAssignedDate());
-		dto.setWasteProcessedDate(request.getWasteProcessedDate());
-		dto.setBiogasGenerated(request.getBiogasGenerated());
-		dto.setFertilizerGenerated(request.getFertilizerGenerated());
-		dto.setWasteRemarks(request.getWasteRemarks());
-
 		return dto;
 	}
 }

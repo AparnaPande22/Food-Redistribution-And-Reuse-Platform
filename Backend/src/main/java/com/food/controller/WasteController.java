@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.food.DTO.RequestResponseDTO;
 import com.food.DTO.WasteAssignmentDTO;
 import com.food.DTO.WasteProcessingDTO;
+import com.food.DTO.WasteResponseDTO;
 import com.food.service.WasteService;
 
 import jakarta.validation.Valid;
@@ -36,27 +37,27 @@ public class WasteController {
 
 	// get all waste request
 	@GetMapping("/waste_queue")
-	public ResponseEntity<List<RequestResponseDTO>> getWasteQueue() {
+	public ResponseEntity<List<WasteResponseDTO>> getWasteQueue() {
 		return ResponseEntity.ok(wasteService.getWasteQueue());
 	}
 
 	// assign waste partner
 	@PutMapping("/assign-partner")
-	public ResponseEntity<RequestResponseDTO> assignWastePartner(@RequestBody @Valid WasteAssignmentDTO dto) {
+	public ResponseEntity<WasteResponseDTO> assignWastePartner(@RequestBody @Valid WasteAssignmentDTO dto) {
 
 		return ResponseEntity.ok(wasteService.assignWastePartner(dto));
 	}
 
 	// assigned waste to ID
 	@GetMapping("/assigned/{partnerId}")
-	public ResponseEntity<List<RequestResponseDTO>> getAssignedWaste(@PathVariable Long partnerId) {
+	public ResponseEntity<List<WasteResponseDTO>> getAssignedWaste(@PathVariable Long partnerId) {
 
 		return ResponseEntity.ok(wasteService.getAssignedWaste(partnerId));
 	}
 
 	// waste processing
 	@PutMapping("/process/{requestId}")
-	public ResponseEntity<RequestResponseDTO> processWaste(@PathVariable Long requestId,
+	public ResponseEntity<WasteResponseDTO> processWaste(@PathVariable Long requestId,
 			@RequestBody @Valid WasteProcessingDTO dto) {
 
 		return ResponseEntity.ok(wasteService.processWaste(requestId, dto));
@@ -70,7 +71,7 @@ public class WasteController {
 
 	// get waste history
 	@GetMapping("/history")
-	public ResponseEntity<List<RequestResponseDTO>> getWasteHistory() {
+	public ResponseEntity<List<WasteResponseDTO>> getWasteHistory() {
 
 		return ResponseEntity.ok(wasteService.getWasteHistory());
 	}
@@ -83,13 +84,13 @@ public class WasteController {
 
 	// completed
 	@GetMapping("/processed")
-	public ResponseEntity<List<RequestResponseDTO>> getProcessedWaste() {
+	public ResponseEntity<List<WasteResponseDTO>> getProcessedWaste() {
 		return ResponseEntity.ok(wasteService.getProcessedWaste());
 	}
 
 	// get completed waste process by id
 	@GetMapping("/processed/{id}")
-	public ResponseEntity<RequestResponseDTO> getProcessedWasteById(@PathVariable Long id) {
+	public ResponseEntity<WasteResponseDTO> getProcessedWasteById(@PathVariable Long id) {
 
 		return ResponseEntity.ok(wasteService.getProcessedWasteById(id));
 	}
