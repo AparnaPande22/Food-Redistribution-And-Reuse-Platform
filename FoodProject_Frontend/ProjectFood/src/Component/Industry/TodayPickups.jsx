@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {
+import axios from "axios";import {
   FaTruck,
   FaMapMarkerAlt,
   FaClock
@@ -11,39 +11,20 @@ const TodayPickups = () => {
 
   const [pickups, setPickups] = useState([]);
 
-  useEffect(() => {
 
-    // Replace with API
+    useEffect(() => {
 
-    /*
-    axios.get("/api/biogas/pickups/today")
-    .then(res=>{
+    axios.get("http://localhost:8080/food/api/biogas/pickups/today")
+
+    .then((res) => {
+
         setPickups(res.data);
-    });
-    */
 
-    setPickups([
-      {
-        id: 1,
-        donor: "ABC Restaurant",
-        city: "Pune",
-        time: "10:30 AM",
-      },
-      {
-        id: 2,
-        donor: "Hotel Taj",
-        city: "Mumbai",
-        time: "12:00 PM",
-      },
-      {
-        id: 3,
-        donor: "Food Plaza",
-        city: "Nagpur",
-        time: "3:00 PM",
-      },
-    ]);
+    })
 
-  }, []);
+    .catch((err) => console.log(err));
+
+}, []);
 
   return (
 

@@ -10,27 +10,25 @@ import "../../css/industryNavbar.css";
 
 const Navbar = () => {
   const [profile, setProfile] = useState({
-    name: "Green Earth Biogas",
-    email: "greenearth@gmail.com",
+    name: {profile.name},
+    email: {profile.email},
   });
 
   const [notificationCount, setNotificationCount] = useState(5);
 
-  useEffect(() => {
-    // Later connect APIs
+ useEffect(() => {
 
-    /*
-    axios.get("/api/biogas/profile")
-    .then(res=>{
+    axios
+
+    .get("http://localhost:8080/food/api/biogas/profile")
+
+    .then((res) => {
+
         setProfile(res.data);
+
     });
 
-    axios.get("/api/biogas/notifications")
-    .then(res=>{
-        setNotificationCount(res.data.filter(x=>!x.read).length);
-    });
-    */
-  }, []);
+}, []);
 
   return (
     <nav className="industry-navbar">

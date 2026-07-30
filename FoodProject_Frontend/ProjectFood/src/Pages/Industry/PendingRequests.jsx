@@ -3,102 +3,53 @@ import "../../css/industryTable.css";
 
 const PendingRequests = () => {
 
-    const [requests, setRequests] = useState([]);
+ const [requests,setRequests]=useState([]);
 
-    useEffect(() => {
+useEffect(()=>{
 
-        // Replace with your API later
+getPendingRequests()
+.then(res=>{
 
-        /*
-        getPendingRequests().then(res=>{
-            setRequests(res.data);
-        });
-        */
+setRequests(res.data);
 
-        setRequests([
-            {
-                id: 1025,
-                donorId: 1,
-                donorName: "ABC Restaurant",
-                city: "Baner, Pune",
-                wasteType: "Vegetable Waste",
-                quantity: 50,
-                pickupDate: "30 Jul 2026",
-                pickupTime: "03:00 PM",
-                amount: 500
-            },
-            {
-                id: 1026,
-                donorId: 2,
-                donorName: "Hotel Green Leaf",
-                city: "Pimpri, Pune",
-                wasteType: "Fruit Waste",
-                quantity: 80,
-                pickupDate: "30 Jul 2026",
-                pickupTime: "04:00 PM",
-                amount: 800
-            },
-            {
-                id: 1027,
-                donorId: 3,
-                donorName: "City Food Court",
-                city: "Kothrud, Pune",
-                wasteType: "Cooked Food",
-                quantity: 120,
-                pickupDate: "31 Jul 2026",
-                pickupTime: "10:00 AM",
-                amount: 1200
-            },
-            {
-                id: 1028,
-                donorId: 4,
-                donorName: "Fresh & More Store",
-                city: "Wakad, Pune",
-                wasteType: "Mixed Waste",
-                quantity: 70,
-                pickupDate: "31 Jul 2026",
-                pickupTime: "02:00 PM",
-                amount: 700
-            }
-        ]);
+})
 
-    }, []);
+},[]);
 
     import { useNavigate } from "react-router-dom";
 
 const navigate = useNavigate();
 
-const viewDetails = (request) => {
+const viewDetails=(request)=>{
 
-    navigate("/industry/request-details", {
-        state: request
-    });
+setSelectedRequest(request);
 
-};
+}
 
-const payNow = (request) => {
+const payNow=(request)=>{
 
-    navigate("/payment", {
+navigate(
+"/payment",
+{
+state:{
 
-        state: {
+donorId:request.donorId,
 
-            donorId: request.donorId,
+industryId:request.industryId,
 
-            donorName: request.donorName,
+donorName:request.donorName,
 
-            industryId: 2, // Logged-in Industry ID
+industryName:request.industryName,
 
-            industryName: "Green Biogas Plant",
+foodName:request.foodType,
 
-            foodName: request.wasteType,
+quantity:request.quantity,
 
-            quantity: request.quantity,
+amount:request.amount
 
-            amount: request.amount
-
-        }
-
-    });
+}
+}
+);
 
 };
 
@@ -138,99 +89,41 @@ const payNow = (request) => {
 
                 </thead>
 
-                <tbody>
+             <tbody>
 
-                    {
+{requests.map(request=>(
 
-                        requests.map((request) => (
+<tr key={request.id}>
 
-                            <tr key={request.id}>
+<td>{request.id}</td>
 
-                                <td>
+<td>{request.donorName}</td>
 
-                                    #BW-{request.id}
+<td>{request.foodType}</td>
 
-                                </td>
+<td>{request.quantity} KG</td>
 
-                                <td>
+<td>₹{request.amount}</td>
 
-                                    <strong>{request.donorName}</strong>
+<td>{request.pickupDate}</td>
 
-                                    <br />
+<td>
 
-                                    <small>{request.city}</small>
+<button onClick={()=>viewDetails(request)}>
+View
+</button>
 
-                                </td>
+<button onClick={()=>payNow(request)}>
+Pay
+</button>
 
-                                <td>
+</td>
 
-                                    <span
-                                        className={
-                                            "badge " +
-                                            request.wasteType
-                                                .replace(/\s/g, "")
-                                                .toLowerCase()
-                                        }
-                                    >
+</tr>
 
-                                        {request.wasteType}
+))}
 
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    {request.quantity} KG
-
-                                </td>
-
-                                <td>
-
-                                    {request.pickupDate}
-
-                                    <br />
-
-                                    <small>{request.pickupTime}</small>
-
-                                </td>
-
-                                <td>
-
-                                    ₹{request.amount}
-
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        className="view-btn"
-                                        onClick={() => viewDetails(request)}
-                                    >
-
-                                        View Details
-
-                                    </button>
-
-                                    <button
-                                        className="pay-btn"
-                                        onClick={() => payNow(request)}
-                                    >
-
-                                        Pay Now
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        ))
-
-                    }
-
-                </tbody>
-
+</tbody>
             </table>
 
         </div>

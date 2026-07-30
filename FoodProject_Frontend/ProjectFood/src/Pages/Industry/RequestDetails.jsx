@@ -5,22 +5,48 @@ const RequestDetails = () => {
 
     const navigate = useNavigate();
 
-    const { state } = useLocation();
+  const location = useLocation();
 
-    const request = state;
+const request = location.state;
 
-    if (!request) {
-        return (
-            <div className="empty-page">
-                <h2>No Request Selected</h2>
+if (!request) {
+    return (
+        <div className="details-page">
+            <h2>No Request Selected</h2>
+        </div>
+    );
+}
+const acceptRequest = async (id) => {
 
-                <button onClick={() => navigate(-1)}>
-                    Back
-                </button>
-            </div>
-        );
-    }
+    console.log("Accept", id);
 
+    // axios.put(`/api/biogas/requests/${id}/accept`);
+
+};
+
+const rejectRequest = async (id) => {
+
+    console.log("Reject", id);
+
+    // axios.put(`/api/biogas/requests/${id}/reject`);
+
+};
+
+const markProcessing = async (id) => {
+
+    console.log("Processing", id);
+
+    // axios.put(`/api/biogas/requests/${id}/processing`);
+
+};
+
+const markComplete = async (id) => {
+
+    console.log("Complete", id);
+
+    // axios.put(`/api/biogas/requests/${id}/complete`);
+
+};
     return (
 
         <div className="details-page">
@@ -89,21 +115,33 @@ const RequestDetails = () => {
 
                 <div className="buttons">
 
-                    <button className="accept">
-                        Accept
-                    </button>
+                    <button
+    className="accept"
+    onClick={() => acceptRequest(request.id)}
+>
+    Accept
+</button>
 
-                    <button className="reject">
-                        Reject
-                    </button>
+                    <button
+    className="reject"
+    onClick={() => rejectRequest(request.id)}
+>
+    Reject
+</button>
 
-                    <button className="processing">
-                        Mark Processing
-                    </button>
+                    <button
+    className="processing"
+    onClick={() => markProcessing(request.id)}
+>
+    Mark Processing
+</button>
 
-                    <button className="complete">
-                        Complete
-                    </button>
+                    <button
+    className="complete"
+    onClick={() => markComplete(request.id)}
+>
+    Complete
+</button>
 
                 </div>
 

@@ -11,17 +11,10 @@ import "../../css/industryCards.css";
 
 const DashboardCards = () => {
 
-    const [dashboard, setDashboard] = useState({
-
-        pendingRequests: 18,
-
-        totalPaid: 18500,
-
-        processing: 8,
-
-        completed: 124
-
-    });
+   useEffect(()=>{
+axios.get("/api/biogas/dashboard")
+.then(res=>setDashboard(res.data))
+},[])
 
     useEffect(() => {
 

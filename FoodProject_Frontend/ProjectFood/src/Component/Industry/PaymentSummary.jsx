@@ -7,23 +7,7 @@ import "../../css/paymentSummary.css";
 const PaymentSummary = () => {
   const navigate = useNavigate();
 
-  const [payment, setPayment] = useState({
-    donorId: 1,
-    donorName: "ABC Restaurant",
-
-    industryId: 2,
-    industryName: "Green Compost Industries",
-
-    foodName: "Vegetable Waste",
-
-    quantity: 50,
-
-    pricePerKg: 10,
-
-    amount: 500,
-
-    pickupDate: "30 July 2026"
-  });
+const [payment, setPayment] = useState(null);
 
   useEffect(() => {
     // Future API

@@ -9,7 +9,21 @@
     justify-content:space-between;
     padding:25px 20px;
 }
+.sidebar{
 
+position:fixed;
+
+left:0;
+
+top:0;
+
+width:270px;
+
+height:100vh;
+
+overflow:hidden;
+
+}
 .sidebar-logo{
 
     text-align:center;
@@ -73,4 +87,4 @@
     justify-content:center;
     align-items:center;
     gap:10px;
-}
+} 

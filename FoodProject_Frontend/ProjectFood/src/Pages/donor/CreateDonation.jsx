@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   FaClock,
@@ -37,7 +38,11 @@ function CreateDonation() {
       imageFile: null,
     },
   ]);
+const [receiverType, setReceiverType] = useState("");
 
+const [receiverId, setReceiverId] = useState("");
+
+const [receivers, setReceivers] = useState([]);
   const handleInput = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -148,19 +153,33 @@ function CreateDonation() {
       const user = JSON.parse(localStorage.getItem("user"));
 console.log(user);
 console.log("User ID =", user.userId);
-  const requestData = {
+const requestData = {
+
     userId: user.userId,
+
     requestType: "DONATION",
+
     status: "DRAFT",
+
     mealPreference: "Mixed",
+
     estimatedMeals: foodItems.reduce(
         (sum, item) => sum + Number(item.quantity || 0),
         0
     ),
+
     pickUpAddress: donation.pickupAddress,
+
     deliveryAvailable: donation.deliveryAvailable,
+
     neededBy: donation.expiryTime,
+
     notes: donation.instructions,
+
+    receiverType: receiverType,
+
+    receiverId: receiverId,
+
     items: foodItems.map(item => ({
         itemName: item.name,
         foodCategory: item.category,
@@ -193,6 +212,39 @@ if (error.response) {
       setLoading(false);
     }
   };
+  useEffect(() => {
+
+    if (receiverType === "BIOGAS") {
+
+        axios
+            .get("http://localhost:8080/food/api/biogas/list")
+            .then((res) => {
+                setReceivers(res.data);
+            });
+
+    }
+
+    if (receiverType === "NGO") {
+
+        axios
+            .get("http://localhost:8080/food/api/ngo/list")
+            .then((res) => {
+                setReceivers(res.data);
+            });
+
+    }
+
+    if (receiverType === "COMPOST") {
+
+        axios
+            .get("http://localhost:8080/food/api/compost/list")
+            .then((res) => {
+                setReceivers(res.data);
+            });
+
+    }
+
+}, [receiverType]);
     return (
     <div className="donation-page">
       <Sidebar />
@@ -244,17 +296,104 @@ if (error.response) {
                   onChange={handleInput}
                 />
 
-                <label>Pickup Address</label>
+            <label>Pickup Address</label>
 
-                <input
-                  type="text"
-                  name="pickupAddress"
-                  placeholder="Enter Pickup Address"
-                  value={donation.pickupAddress}
-                  onChange={handleInput}
-                />
+<input
+    type="text"
+    name="pickupAddress"
+    placeholder="Enter Pickup Address"
+    value={donation.pickupAddress}
+    onChange={handleInput}
+/>
 
-                <div className="toggle">
+{/* Receiver Type */}
+
+<div className="form-group">
+
+    <label>Select Receiver Type</label>
+
+    <div className="receiver-options">
+
+        <label>
+
+            <input
+                type="radio"
+                value="NGO"
+                checked={receiverType === "NGO"}
+                onChange={(e) => setReceiverType(e.target.value)}
+            />
+
+            NGO
+
+        </label>
+
+        <label>
+
+            <input
+                type="radio"
+                value="BIOGAS"
+                checked={receiverType === "BIOGAS"}
+                onChange={(e) => setReceiverType(e.target.value)}
+            />
+
+            Biogas Industry
+
+        </label>
+
+        <label>
+
+            <input
+                type="radio"
+                value="COMPOST"
+                checked={receiverType === "COMPOST"}
+                onChange={(e) => setReceiverType(e.target.value)}
+            />
+
+            Compost Industry
+
+        </label>
+
+    </div>
+
+</div>
+
+{/* Receiver Dropdown */}
+
+<div className="form-group">
+
+    <label>Select Receiver</label>
+
+    <select
+        value={receiverId}
+        onChange={(e) => setReceiverId(e.target.value)}
+    >
+
+        <option value="">
+            Select Receiver
+        </option>
+
+        {
+
+            receivers.map((receiver) => (
+
+                <option
+                    key={receiver.id}
+                    value={receiver.id}
+                >
+
+                    {receiver.name}
+
+                </option>
+
+            ))
+
+        }
+
+    </select>
+
+</div>
+
+<div className="toggle">
                   <div>
                     <span className="toggle-title">
                       Delivery Available

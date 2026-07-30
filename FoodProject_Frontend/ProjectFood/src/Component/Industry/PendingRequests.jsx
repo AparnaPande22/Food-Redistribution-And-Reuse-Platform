@@ -12,8 +12,17 @@ import "../../css/pendingRequests.css";
 const PendingRequests = () => {
   const navigate = useNavigate();
 
-  const [requests, setRequests] = useState([]);
+useEffect(()=>{
 
+axios.get("/api/biogas/requests/pending")
+
+.then(res=>{
+
+setRequests(res.data);
+
+})
+
+},[])
   useEffect(() => {
     // Later replace with API
 

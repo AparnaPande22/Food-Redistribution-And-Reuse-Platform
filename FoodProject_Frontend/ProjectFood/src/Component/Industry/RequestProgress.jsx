@@ -29,25 +29,25 @@ const RequestProgress = () => {
 
     {
       title: "Request Accepted",
-      value: "ACCEPTED",
+      value: request.status,
       icon: <FaCheckCircle />,
     },
 
     {
       title: "Pickup In Progress",
-      value: "PROCESSING",
+      value: request.status,
       icon: <FaTruck />,
     },
 
     {
       title: "Waste Received",
-      value: "RECEIVED",
+      value: request.status,
       icon: <FaLeaf />,
     },
 
     {
       title: "Completed",
-      value: "COMPLETED",
+      value: request.status,
       icon: <FaClipboardCheck />,
     },
 

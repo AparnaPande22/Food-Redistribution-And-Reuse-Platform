@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import {
+import { useState, useEffect } from "react";
+import axios from "axios";import {
   FaLeaf,
   FaRecycle,
   FaCloud,
@@ -9,24 +9,21 @@ import {
 import "../../css/environmentCards.css";
 
 const EnvironmentCards = () => {
-  const [impact, setImpact] = useState({
-    co2Saved: 1450,
-    wasteProcessed: 820,
-    biogasGenerated: 325,
-    compostProduced: 610,
-  });
+const [impact, setImpact] = useState({});
 
-  useEffect(() => {
-    // Later connect your API
+useEffect(() => {
 
-    /*
-    axios.get("http://localhost:8080/api/biogas/environmental-impact")
-    .then((res)=>{
+    axios
+
+    .get("http://localhost:8080/food/api/biogas/environmental-impact")
+
+    .then((res) => {
+
         setImpact(res.data);
-    });
-    */
 
-  }, []);
+    });
+
+}, []);
 
   const cards = [
     {

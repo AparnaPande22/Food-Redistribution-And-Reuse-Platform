@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import {
+import { useState, useEffect } from "react";
+import axios from "axios";import {
   FaRecycle,
   FaRupeeSign,
   FaTruck,
@@ -10,23 +10,37 @@ import "../../css/monthOverview.css";
 
 const MonthOverview = () => {
   const [overview, setOverview] = useState({
-    totalWaste: 2450,
-    totalPayments: 78500,
-    pickups: 128,
-    compostProduced: 980,
-  });
+    totalWaste: 0,
+    totalPayments: 0,
+    pickups: 0,
+    compostProduced: 0,
+});
+useEffect(() => {
 
-  useEffect(() => {
-    // Later connect API
-
-    /*
     axios
-      .get("http://localhost:8080/api/biogas/reports/monthly")
-      .then((res) => {
-        setOverview(res.data);
-      });
-    */
-  }, []);
+        .get("http://localhost:8080/food/api/biogas/reports/monthly")
+        .then((res) => {
+
+            setOverview({
+
+                totalWaste: res.data.wasteCollected,
+
+                totalPayments: res.data.paymentAmount,
+
+                pickups: res.data.totalPickups,
+
+                compostProduced: res.data.biogasGenerated
+
+            });
+
+        })
+        .catch((err) => {
+
+            console.log(err);
+
+        });
+
+}, []);
 
   const cards = [
     {
