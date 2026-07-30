@@ -2843,23 +2843,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Tejas\\.nuget\\packages\\": {},
+    "C:\\Users\\Aparna\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Advance java\\FoodRedistributionProject\\PaymentService\\PaymentService\\PaymentService.csproj",
+      "projectUniqueName": "C:\\Users\\Aparna\\Desktop\\Cdac Final Project\\Food-Redistribution-And-Reuse-Platform\\PaymentService\\PaymentService\\PaymentService.csproj",
       "projectName": "PaymentService",
-      "projectPath": "C:\\Advance java\\FoodRedistributionProject\\PaymentService\\PaymentService\\PaymentService.csproj",
-      "packagesPath": "C:\\Users\\Tejas\\.nuget\\packages\\",
-      "outputPath": "C:\\Advance java\\FoodRedistributionProject\\PaymentService\\PaymentService\\obj\\",
+      "projectPath": "C:\\Users\\Aparna\\Desktop\\Cdac Final Project\\Food-Redistribution-And-Reuse-Platform\\PaymentService\\PaymentService\\PaymentService.csproj",
+      "packagesPath": "C:\\Users\\Aparna\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Aparna\\Desktop\\Cdac Final Project\\Food-Redistribution-And-Reuse-Platform\\PaymentService\\PaymentService\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Tejas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Aparna\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2928,6 +2928,24 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.28, 8.0.28]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.28, 8.0.28]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.28, 8.0.28]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.28, 8.0.28]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -2936,7 +2954,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

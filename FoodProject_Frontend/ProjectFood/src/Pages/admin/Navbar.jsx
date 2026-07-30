@@ -1,32 +1,32 @@
-// import { FaBell } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 
-// import "../css/Navbar.css";
+import "./Navbar.css";
 
-// function Navbar() {
+function Navbar() {
 
-//     return (
+    return (
 
-//         <div className="navbar">
+        <div className="navbar">
 
-//             <input
-//                 type="text"
-//                 placeholder="Search..."
-//             />
+            <input
+                type="text"
+                placeholder="Search..."
+            />
 
-//             <div className="nav-right">
+            <div className="nav-right">
 
-//                 <FaBell className="bell"/>
+                <FaBell className="bell"/>
 
-//                 <button>
-//                     Become a Partner
-//                 </button>
+                <button>
+                    Become a Partner
+                </button>
 
-//             </div>
+            </div>
 
-//         </div>
+        </div>
 
-//     );
+    );
 
-// }
+}
 
-// export default Navbar;
+export default Navbar;

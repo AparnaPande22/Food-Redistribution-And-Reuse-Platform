@@ -9,10 +9,10 @@ import {
 import "../../css/industryNavbar.css";
 
 const Navbar = () => {
-  const [profile, setProfile] = useState({
-    name: {profile.name},
-    email: {profile.email},
-  });
+const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+});
 
   const [notificationCount, setNotificationCount] = useState(5);
 

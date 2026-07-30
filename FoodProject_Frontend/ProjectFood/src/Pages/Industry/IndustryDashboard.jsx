@@ -35,9 +35,9 @@ const IndustryDashboard = () => {
                     <div className="left-panel">
 
                         <PendingRequests
-selectedRequest={selectedRequest}
-setSelectedRequest={setSelectedRequest}
-/>
+                            selectedRequest={selectedRequest}
+                            setSelectedRequest={setSelectedRequest}
+                        />
 
                         <div className="bottom-row">
 
@@ -53,17 +53,17 @@ setSelectedRequest={setSelectedRequest}
 
                     <div className="right-panel">
 
-                       <RequestDetails
-request={selectedRequest}
-/>
+                        <RequestDetails
+                            request={selectedRequest}
+                        />
 
                         <PaymentSummary
-request={selectedRequest}
-/>
+                            request={selectedRequest}
+                        />
 
-                       <RequestProgress
-request={selectedRequest}
-/>
+                        <RequestProgress
+                            request={selectedRequest}
+                        />
 
                     </div>
 
