@@ -1,128 +1,416 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import {
-  FaEye,
-  FaCheck,
-  FaTimes,
-  FaCreditCard,
-} from "react-icons/fa";
+import api from "../../services/api";
+import { FaEye, FaCheck, FaCreditCard } from "react-icons/fa";
 
 import "../../css/pendingRequests.css";
 
+
 const PendingRequests = () => {
-  const navigate = useNavigate();
 
-  const [requests, setRequests] = useState([]);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-   axios.get("http://localhost:8080/food/api/waste/waste_queue")
-      .then((res) => {
-        setRequests(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    const [requests, setRequests] = useState([]);
 
-  const viewDetails = (request) => {
-    navigate("/industry/request-details", {
-      state: request,
-    });
-  };
 
-  const acceptRequest = (id) => {
-    alert("Accept Request : " + id);
+    const user = JSON.parse(
+        localStorage.getItem("user")
+    );
 
-    // axios.put(`http://localhost:8080/food/api/biogas/requests/${id}/accept`);
-  };
 
-  const rejectRequest = (id) => {
-    alert("Reject Request : " + id);
+    const partnerId = user?.userId;
 
-    // axios.put(`http://localhost:8080/food/api/biogas/requests/${id}/reject`);
-  };
 
-  const payNow = (request) => {
+
+    useEffect(() => {
+
+
+        if (!partnerId) {
+
+            console.log("Partner ID not found");
+
+            return;
+
+        }
+
+
+
+        api.get(
+            `/waste/assigned/${partnerId}`
+        )
+        .then((res) => {
+
+            console.log(
+                "Assigned Waste:",
+                res.data
+            );
+
+
+            setRequests(res.data);
+
+
+        })
+        .catch((err) => {
+
+
+            console.log(
+                "Error fetching waste requests:",
+                err
+            );
+
+
+        });
+
+
+    }, [partnerId]);
+
+
+
+
+
+    const viewDetails = (request) => {
+
+
+        navigate("/industry/request-details", {
+
+            state: request,
+
+        });
+
+
+    };
+
+
+
+
+
+
+    const acceptPickup = (id) => {
+
+
+        alert(
+            "Pickup Accepted Request ID : " + id
+        );
+
+
+        // TODO:
+        // PUT /api/waste/accept-pickup/{id}
+
+
+    };
+
+
+
+
+
+
+    const calculateAmount = (request) => {
+
+
+        const pricePerKg = 10;
+
+
+        return request.estimatedMeals * pricePerKg;
+
+
+    };
+
+
+
+
+
+
+    const payNow = (request) => {
+
     navigate("/payment", {
-      state: request,
+
+        state: {
+
+            donorId: request.donorId,
+
+            donorName: request.donorName,
+
+            industryId: user.userId,
+
+            amount: calculateAmount(request),
+
+            requestId: request.requestId
+
+        }
+
     });
-  };
 
-  return (
-    <div className="pending-container">
-      <div className="pending-header">
-        <h2>📋 Pending Requests</h2>
-
-        <button>View All</button>
-      </div>
-
-      <div className="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Donor</th>
-              <th>Food</th>
-              <th>Quantity</th>
-              <th>Amount</th>
-              <th>Pickup</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {requests.map((request) => (
-              <tr key={request.requestId}>
-                <td>#{request.requestId}</td>
-
-                <td>{request.donorName}</td>
-
-                <td>"Waste Food"</td>
-
-                <td>{request.estimatedMeals} KG</td>
-
-                <td>₹{"--"}</td>
-
-                <td>{request.wasteAssignedDate}</td>
-
-                <td className="action-buttons">
-                  <button
-                    className="view-btn"
-                    onClick={() => viewDetails(request)}
-                  >
-                    <FaEye />
-                  </button>
-
-                  <button
-                    className="accept-btn"
-                    onClick={() => acceptRequest(request.requestId)}
-                  >
-                    <FaCheck />
-                  </button>
-
-                  <button
-                    className="reject-btn"
-                    onClick={() => rejectRequest(request.requestId)}
-                  >
-                    <FaTimes />
-                  </button>
-
-                  <button
-                    className="pay-btn"
-                    onClick={() => payNow(request)}
-                  >
-                    <FaCreditCard />
-                    Pay
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
 };
+
+
+
+
+
+
+
+    return (
+
+        <div className="pending-container">
+
+
+            <div className="pending-header">
+
+
+                <h2>
+                    🚛 Pending Waste Pickups
+                </h2>
+
+
+                <button>
+                    View All
+                </button>
+
+
+            </div>
+
+
+
+
+
+            <div className="table-responsive">
+
+
+                <table>
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Donor</th>
+
+                            <th>Address</th>
+
+                            <th>Meals</th>
+
+                            <th>Status</th>
+
+                            <th>Assigned Date</th>
+
+                            <th>Actions</th>
+
+
+                        </tr>
+
+
+                    </thead>
+
+
+
+
+
+                    <tbody>
+
+
+                    {
+
+
+                    requests.length > 0 ?
+
+
+                    (
+
+                        requests.map((request)=>(
+
+
+
+                            <tr key={request.requestId}>
+
+
+                                <td>
+                                    #{request.requestId}
+                                </td>
+
+
+
+                                <td>
+                                    {request.donorName}
+                                </td>
+
+
+
+
+                                <td>
+                                    {request.pickupAddress}
+                                </td>
+
+
+
+
+                                <td>
+                                    {request.estimatedMeals}
+                                </td>
+
+
+
+
+                                <td>
+
+                                    <span className="status">
+
+                                        {request.status}
+
+                                    </span>
+
+
+                                </td>
+
+
+
+
+                                <td>
+
+
+                                    {
+
+                                    request.wasteAssignedDate
+
+                                    ?
+
+                                    new Date(
+                                        request.wasteAssignedDate
+                                    ).toLocaleString()
+
+                                    :
+
+                                    "-"
+
+                                    }
+
+
+                                </td>
+
+
+
+
+
+                                <td className="action-buttons">
+
+
+
+
+
+                                    <button
+
+                                        className="view-btn"
+
+                                        onClick={() =>
+                                            viewDetails(request)
+                                        }
+
+                                    >
+
+                                        <FaEye />
+
+                                    </button>
+
+
+
+
+
+
+                                    <button
+
+                                        className="accept-btn"
+
+                                        onClick={() =>
+                                            acceptPickup(
+                                                request.requestId
+                                            )
+                                        }
+
+                                    >
+
+                                        <FaCheck />
+
+                                        Accept
+
+                                    </button>
+
+
+
+
+
+
+
+                                    <button
+
+                                        className="pay-btn"
+
+                                        onClick={() =>
+                                            payNow(request)
+                                        }
+
+                                    >
+
+                                        <FaCreditCard />
+
+                                        Pay Now
+
+                                    </button>
+
+
+
+
+                                </td>
+
+
+
+                            </tr>
+
+
+
+                        ))
+
+
+                    )
+
+
+                    :
+
+
+                    (
+
+                        <tr>
+
+                            <td colSpan="7">
+
+                                No Pending Waste Requests
+
+                            </td>
+
+                        </tr>
+
+
+                    )
+
+
+                    }
+
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </div>
+
+    );
+
+
+};
+
 
 export default PendingRequests;

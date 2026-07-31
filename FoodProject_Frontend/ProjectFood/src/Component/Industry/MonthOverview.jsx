@@ -5,7 +5,7 @@ import axios from "axios";import {
   FaTruck,
   FaLeaf,
 } from "react-icons/fa";
-
+import api from "../../services/api";
 import "../../css/monthOverview.css";
 
 const MonthOverview = () => {
@@ -17,7 +17,7 @@ const MonthOverview = () => {
 });
 useEffect(() => {
 
-axios
+api
 .get("http://localhost:8080/food/api/waste/history")
 
 .then(res=>{

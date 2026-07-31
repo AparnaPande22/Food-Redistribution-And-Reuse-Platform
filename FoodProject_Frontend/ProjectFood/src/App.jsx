@@ -12,8 +12,7 @@ import CreateDonation from "./Pages/donor/CreateDonation";
 import DonationSubmitted from "./Pages/donor/DonationSubmitted";
 import DonationHistory from "./Pages/donor/DonationHistory";
 import DonationDetails from "./Pages/donor/DonationDetails";
-// import Payment from "./Component/Payment";
-import IndustryDashboard from "./Pages/Industry/IndustryDashboard";
+import Payment from "./Pages/Industry/Payment";import IndustryDashboard from "./Pages/Industry/IndustryDashboard";
 import RequestDetails from "./Pages/industry/RequestDetails";
 
 function App() {
@@ -41,9 +40,10 @@ function App() {
       <Route path="/donor/donation-submitted" element={<DonationSubmitted />} />
       <Route path="/donor/history" element={<DonationHistory />} />
       <Route path="/donor/donation-details/:id" element={<DonationDetails />} />
-      {/* <Route path="/Payment" element={<Payment />} /> */}
+      <Route path="/Payment" element={<Payment />} />
       <Route path="/industry" element={<IndustryDashboard />} />
-      <Route path="/industry/request/:id" element={<RequestDetails />} />    </Routes>
+      <Route path="/industry/request/:id" element={<RequestDetails />} />    
+      </Routes>
   );
 }
 

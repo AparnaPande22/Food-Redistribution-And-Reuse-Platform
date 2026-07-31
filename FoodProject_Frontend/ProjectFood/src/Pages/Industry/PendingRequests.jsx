@@ -26,30 +26,34 @@ setSelectedRequest(request);
 
 }
 
-const payNow=(request)=>{
+const payNow = (request) => {
 
-navigate(
-"/payment",
-{
-state:{
+    navigate(
+        "/payment",
+        {
+            state: {
 
-donorId:request.donorId,
+                donorId: request.donorId,
 
-industryId:request.industryId,
+                industryId: request.industryId,
 
-donorName:request.donorName,
+                donorName: request.donorName,
 
-industryName:request.industryName,
+                industryName: request.industryName,
 
-foodName:request.foodType,
+                foodName: request.foodType,
 
-quantity:request.quantity,
+                quantity: request.quantity,
 
-amount:request.amount
+                amount: request.amount,
 
-}
-}
-);
+                email: request.donorEmail,
+
+                phone: request.donorPhone
+
+            }
+        }
+    );
 
 };
 

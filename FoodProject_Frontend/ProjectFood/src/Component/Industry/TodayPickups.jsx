@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../../services/api";
 import axios from "axios";import {
   FaTruck,
   FaMapMarkerAlt,
@@ -10,24 +11,29 @@ import "../../css/todayPickups.css";
 const TodayPickups = () => {
 
 const [pickups,setPickups]=useState([]);
+useEffect(() => {
 
-   useEffect(()=>{
+    const user = JSON.parse(localStorage.getItem("user"));
 
-axios
+    if (!user) {
+        console.log("User not found in localStorage");
+        return;
+    }
 
-.get(  `http://localhost:8080/food/api/waste/assigned/${user.userId}`)
-
-.then(res=>{
-
-setPickups(res.data);
-
-}).catch(err => {
-
+    api
+        .get(`http://localhost:8080/food/api/waste/assigned/${user.userId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        .then(res => {
+            setPickups(res.data);
+        })
+        .catch(err => {
             console.log(err);
-
         });
 
-},[]);
+}, []);
 
   return (
 

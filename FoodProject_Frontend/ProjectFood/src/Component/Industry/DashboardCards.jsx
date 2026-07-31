@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../../services/api";
 import axios from "axios";
 import {
     FaClipboardList,
@@ -12,13 +13,22 @@ import "../../css/industryCards.css";
 
 const DashboardCards = () => {
 
-   useEffect(() => {
+  useEffect(() => {
 
     const user = JSON.parse(localStorage.getItem("user"));
 
-    axios
-        .get(`http://localhost:8080/food/api/waste/assigned/${user.userId}`)
-        .then(res => {
+    if (!user) {
+        console.error("User not found in localStorage");
+        return;
+    }
+
+    if (!user.userId) {
+        console.error("userId not found");
+        return;
+    }
+
+    api.get(`/waste/assigned/${user.userId}`)
+        .then((res) => {
 
             const data = res.data;
 
@@ -40,7 +50,8 @@ const DashboardCards = () => {
 
             });
 
-        });
+        })
+        .catch(err => console.error(err));
 
 }, []);
  const [dashboard, setDashboard] = useState({

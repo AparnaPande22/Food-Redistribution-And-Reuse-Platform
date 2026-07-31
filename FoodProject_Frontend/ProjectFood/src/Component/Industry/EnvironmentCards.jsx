@@ -5,7 +5,7 @@ import axios from "axios";import {
   FaCloud,
   FaIndustry,
 } from "react-icons/fa";
-
+import api from "../../services/api";
 import "../../css/environmentCards.css";
 
 const EnvironmentCards = () => {
@@ -13,7 +13,7 @@ const [impact, setImpact] = useState({});
 
 useEffect(()=>{
 
-axios
+api
 
 .get("http://localhost:8080/food/api/waste/processed")
 
