@@ -26,7 +26,7 @@ import {
   FaFileAlt
 } from "react-icons/fa";
 
-const menuItems = [   //array of object 
+const menuItems = [
   { icon: <FaThLarge />, label: "Dashboard" },
   { icon: <FaPlusCircle />, label: "Create Donation" },
   { icon: <FaRegClock />, label: "History" },
@@ -101,18 +101,19 @@ const activities = [
   }
 ];
 
-/* 
+/*
    COMPONENT
-    */
+*/
 
 const DonorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState("");
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   // Load the logged-in user's name once, when the page first opens
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser?.name) {  //we not give ? it throws Cannot read property 'name' now if name is null it will be undefined
+    if (savedUser?.name) {
       setUserName(savedUser.name);
     }
   }, []);
@@ -136,29 +137,32 @@ const navigate = useNavigate();
           </button>
         </div>
 
-        <button className="new-donation-btn">
+        <button className="new-donation-btn" onClick={() => navigate("/donor/create-donation")}>
           <FaPlusCircle />
           <span>New Donation</span>
         </button>
 
         <div className="menu">
           {menuItems.map((item, i) => (
-       <div
-  className={`menu-item ${i === 0 ? "active" : ""}`}
-  key={item.label}
-  onClick={() => {
-    if (item.label === "Dashboard") {
-      navigate("/donor");
-    } else if (item.label === "Create Donation") {
-      navigate("/donor/create-donation");
-    } else if (item.label === "History") {
-      navigate("/donor/history");
-    }
-  }}
->
-  {item.icon}
-  <span>{item.label}</span>
-</div>
+            <div
+              className={`menu-item ${i === 0 ? "active" : ""}`}
+              key={item.label}
+              onClick={() => {
+                setSidebarOpen(false);
+                if (item.label === "Dashboard") {
+                  navigate("/donor");
+                } else if (item.label === "Create Donation") {
+                  navigate("/donor/create-donation");
+                } else if (item.label === "History") {
+                  navigate("/donor/history");
+                } else if (item.label === "Impact") {
+                  navigate("/donor/impact");
+                }
+              }}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </div>
           ))}
         </div>
 
@@ -237,35 +241,39 @@ const navigate = useNavigate();
                 <div className="section-title">
                   <h4>Quick Actions</h4>
                 </div>
-          <div className="quick-actions-row">
-  {quickActions.map((action) => (
-    <button
-      key={action.title}
-      className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
-      onClick={() => {
-        if (action.title === "Create Donation") {
-          navigate("/donor/create-donation");
-        } else if (action.title === "Donation History") {
-          navigate("/donor/history");
-        }
-      }}
-    >
-      <span className="action-icon">{action.icon}</span>
+                <div className="quick-actions-row">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action.title}
+                      className={`quick-action-btn ${action.highlighted ? "green-btn" : ""}`}
+                      onClick={() => {
+                        if (action.title === "Create Donation") {
+                          navigate("/donor/create-donation");
+                        } else if (action.title === "Donation History") {
+                          navigate("/donor/history");
+                        } else if (action.title === "View Active Donations") {
+                          navigate("/donor/active");
+                        } else if (action.title === "Impact Report") {
+                          navigate("/donor/impact");
+                        }
+                      }}
+                    >
+                      <span className="action-icon">{action.icon}</span>
 
-      <div>
-        <h6>{action.title}</h6>
-        <small>{action.subtitle}</small>
-      </div>
-    </button>
-  ))}
-</div>
+                      <div>
+                        <h6>{action.title}</h6>
+                        <small>{action.subtitle}</small>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Recent activity */}
               <div className="dashboard-card">
                 <div className="section-header">
                   <h4>Recent Activity</h4>
-                  <a href="/">View all</a>
+                  <a href="/donor/history">View all</a>
                 </div>
 
                 {activities.map((activity) => (
@@ -281,7 +289,7 @@ const navigate = useNavigate();
                       </span>
                     )}
                     {activity.link && (
-                      <a href="/" className="activity-link">
+                      <a href="#" className="activity-link">
                         {activity.link}
                       </a>
                     )}
