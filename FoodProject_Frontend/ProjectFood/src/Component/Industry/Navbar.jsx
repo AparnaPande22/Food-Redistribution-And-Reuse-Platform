@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FaBell,
   FaSearch,
@@ -9,26 +10,34 @@ import {
 import "../../css/industryNavbar.css";
 
 const Navbar = () => {
+
 const [profile, setProfile] = useState({
     name: "",
     email: "",
+
+ const [profile, setProfile] = useState({
+    name: "",
+    email: ""
+
 });
 
-  const [notificationCount, setNotificationCount] = useState(5);
+useEffect(() => {
 
- useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
-    axios
+    if (user) {
 
-    .get("http://localhost:8080/food/api/biogas/profile")
+        setProfile({
+            name: user.name,
+            email: user.email || ""
+        });
 
-    .then((res) => {
-
-        setProfile(res.data);
-
-    });
+    }
 
 }, []);
+  const [notificationCount, setNotificationCount] = useState(5);
+
+
 
   return (
     <nav className="industry-navbar">

@@ -183,6 +183,7 @@ function Register() {
                                     <option value="DONOR">Donor</option>
                                     <option value="RECEIVER">Receiver</option>
                                     <option value="VOLUNTEER">Volunteer</option>
+                                     <option value="BIOGAS_PARTNER">Industry Partner</option>
                                 </select>
 
                                 <button

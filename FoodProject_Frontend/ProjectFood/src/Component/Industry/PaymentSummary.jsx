@@ -9,22 +9,29 @@ const PaymentSummary = () => {
 
 const [payment, setPayment] = useState(null);
 
-  useEffect(() => {
-    // Future API
-    /*
-    axios.get("/api/biogas/requests/1")
-    .then(res=>{
-        setPayment(res.data);
-    });
-    */
-  }, []);
+useEffect(() => {
+    const request = JSON.parse(localStorage.getItem("selectedRequest"));
+
+    if (request) {
+        setPayment(request);
+    }
+}, []);
+
+
 
   const handlePayment = () => {
     navigate("/payment", {
       state: payment,
     });
   };
-
+if (!payment) {
+    return (
+        <div className="payment-summary">
+            <h2>💳 Payment Summary</h2>
+            <p>No payment selected.</p>
+        </div>
+    );
+}
   return (
     <div className="payment-summary">
 
@@ -78,6 +85,6 @@ const [payment, setPayment] = useState(null);
 
     </div>
   );
-};
+}
 
 export default PaymentSummary;

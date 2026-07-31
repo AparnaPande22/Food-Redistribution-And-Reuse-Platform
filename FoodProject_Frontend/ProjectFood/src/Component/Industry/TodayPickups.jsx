@@ -9,22 +9,25 @@ import "../../css/todayPickups.css";
 
 const TodayPickups = () => {
 
-  const [pickups, setPickups] = useState([]);
+const [pickups,setPickups]=useState([]);
 
+   useEffect(()=>{
 
-    useEffect(() => {
+axios
 
-    axios.get("http://localhost:8080/food/api/biogas/pickups/today")
+.get(  `http://localhost:8080/food/api/waste/assigned/${user.userId}`)
 
-    .then((res) => {
+.then(res=>{
 
-        setPickups(res.data);
+setPickups(res.data);
 
-    })
+}).catch(err => {
 
-    .catch((err) => console.log(err));
+            console.log(err);
 
-}, []);
+        });
+
+},[]);
 
   return (
 
@@ -41,7 +44,7 @@ const TodayPickups = () => {
         pickups.map((pickup) => (
 
           <div
-            key={pickup.id}
+           key={pickup.requestId}
             className="pickup-item"
           >
 
@@ -53,13 +56,13 @@ const TodayPickups = () => {
 
             <div className="pickup-info">
 
-              <h4>{pickup.donor}</h4>
+              <h4>{pickup.donorName}</h4>
 
               <p>
 
                 <FaMapMarkerAlt />
 
-                {pickup.city}
+                {pickup.pickupAddress}
 
               </p>
 
@@ -69,7 +72,7 @@ const TodayPickups = () => {
 
               <FaClock />
 
-              {pickup.time}
+           {new Date(pickup.wasteAssignedDate).toLocaleString()}
 
             </div>
 

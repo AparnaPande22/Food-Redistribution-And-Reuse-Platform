@@ -17,30 +17,34 @@ const MonthOverview = () => {
 });
 useEffect(() => {
 
-    axios
-        .get("http://localhost:8080/food/api/biogas/reports/monthly")
-        .then((res) => {
+axios
+.get("http://localhost:8080/food/api/waste/history")
 
-            setOverview({
+.then(res=>{
 
-                totalWaste: res.data.wasteCollected,
+const history=res.data;
 
-                totalPayments: res.data.paymentAmount,
+setOverview({
 
-                pickups: res.data.totalPickups,
+totalWaste:history.length,
 
-                compostProduced: res.data.biogasGenerated
+pickups:history.length,
 
-            });
+compostProduced:history.reduce(
 
-        })
-        .catch((err) => {
+(sum,item)=>sum+(item.fertilizerGenerated||0),
 
-            console.log(err);
+0
 
-        });
+),
 
-}, []);
+totalPayments:0
+
+});
+
+});
+
+},[]);
 
   const cards = [
     {

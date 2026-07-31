@@ -8,100 +8,88 @@ import {
 
 import "../../css/requestProgress.css";
 
-const RequestProgress = () => {
+const RequestProgress = ({ request }) => {
 
   const [status, setStatus] = useState("PROCESSING");
 
-  useEffect(() => {
+ useEffect(() => {
 
-    // Later connect API
+    if(request){
+        setStatus(request.status);
+    }
 
-    /*
-    axios.get("/api/biogas/requests/1")
-    .then(res=>{
-        setStatus(res.data.status);
-    });
-    */
-
-  }, []);
+}, [request]);
 
   const steps = [
-
     {
-      title: "Request Accepted",
-      value: request.status,
-      icon: <FaCheckCircle />,
+        title: "Request Accepted",
+        value: "ACCEPTED",
+        icon: <FaCheckCircle />,
     },
-
     {
-      title: "Pickup In Progress",
-      value: request.status,
-      icon: <FaTruck />,
+        title: "Pickup In Progress",
+        value: "PROCESSING",
+        icon: <FaTruck />,
     },
-
     {
-      title: "Waste Received",
-      value: request.status,
-      icon: <FaLeaf />,
+        title: "Waste Received",
+        value: "RECEIVED",
+        icon: <FaLeaf />,
     },
-
     {
-      title: "Completed",
-      value: request.status,
-      icon: <FaClipboardCheck />,
+        title: "Completed",
+        value: "COMPLETED",
+        icon: <FaClipboardCheck />,
     },
-
-  ];
+];
 
   const getIndex = () => {
 
     return steps.findIndex((x) => x.value === status);
 
   };
+if (!request) {
+    return (
+        <div className="progress-card">
+            <h2>📈 Request Progress</h2>
+            <p>No Request Selected</p>
+        </div>
+    );
+}
 
-  return (
-
+return (
     <div className="progress-card">
 
-      <h2>📈 Request Progress</h2>
+        <h2>📈 Request Progress</h2>
 
-      <div className="progress-timeline">
+        <div className="progress-timeline">
 
-        {
+            {steps.map((step, index) => (
 
-          steps.map((step, index) => (
+                <div
+                    key={index}
+                    className={`progress-step ${
+                        index <= getIndex() ? "active" : ""
+                    }`}
+                >
+                    <div className="progress-icon">
+                        {step.icon}
+                    </div>
 
-            <div
-              key={index}
-              className={`progress-step ${
-                index <= getIndex() ? "active" : ""
-              }`}
-            >
+                    <div className="progress-text">
+                        {step.title}
+                    </div>
 
-              <div className="progress-icon">
+                </div>
 
-                {step.icon}
+            ))}
 
-              </div>
-
-              <div className="progress-text">
-
-                {step.title}
-
-              </div>
-
-            </div>
-
-          ))
-
-        }
-
-      </div>
+        </div>
 
     </div>
+);
 
-  );
-
-};
+};   // <-- YOU ARE MISSING THIS
 
 export default RequestProgress;
+

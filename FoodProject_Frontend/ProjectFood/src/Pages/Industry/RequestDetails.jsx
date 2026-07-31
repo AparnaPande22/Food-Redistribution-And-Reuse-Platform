@@ -1,13 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import "./RequestDetails.css";
 
-const RequestDetails = () => {
+const RequestDetails = ({request}) => {
 
-    const navigate = useNavigate();
-
-  const location = useLocation();
-
-const request = location.state;
+   
 
 if (!request) {
     return (
@@ -75,7 +71,7 @@ const markComplete = async (id) => {
 
                     <div>
                         <label>Restaurant</label>
-                        <p>{request.restaurantName}</p>
+                        <p>{request.donorName}</p>
                     </div>
 
                     <div>

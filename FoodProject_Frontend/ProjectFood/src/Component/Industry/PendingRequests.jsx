@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaEye,
   FaCheck,
@@ -12,68 +13,16 @@ import "../../css/pendingRequests.css";
 const PendingRequests = () => {
   const navigate = useNavigate();
 
-useEffect(()=>{
+  const [requests, setRequests] = useState([]);
 
-axios.get("/api/biogas/requests/pending")
-
-.then(res=>{
-
-setRequests(res.data);
-
-})
-
-},[])
   useEffect(() => {
-    // Later replace with API
-
-    /*
-    axios.get("http://localhost:8080/api/biogas/requests/pending")
-      .then(res => {
-          setRequests(res.data);
+   axios.get("http://localhost:8080/food/api/waste/waste_queue")
+      .then((res) => {
+        setRequests(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    */
-
-    setRequests([
-      {
-        id: 101,
-        donorId: 1,
-        donorName: "ABC Restaurant",
-        industryId: 2,
-        industryName: "Green Compost Industries",
-        foodName: "Vegetable Waste",
-        quantity: 50,
-        pricePerKg: 10,
-        amount: 500,
-        pickupDate: "30 Jul 2026",
-        city: "Pune",
-      },
-      {
-        id: 102,
-        donorId: 3,
-        donorName: "Hotel Taj",
-        industryId: 2,
-        industryName: "Green Compost Industries",
-        foodName: "Fruit Waste",
-        quantity: 80,
-        pricePerKg: 8,
-        amount: 640,
-        pickupDate: "31 Jul 2026",
-        city: "Mumbai",
-      },
-      {
-        id: 103,
-        donorId: 4,
-        donorName: "Food Plaza",
-        industryId: 2,
-        industryName: "Green Compost Industries",
-        foodName: "Bakery Waste",
-        quantity: 30,
-        pricePerKg: 12,
-        amount: 360,
-        pickupDate: "01 Aug 2026",
-        city: "Nagpur",
-      },
-    ]);
   }, []);
 
   const viewDetails = (request) => {
@@ -85,13 +34,13 @@ setRequests(res.data);
   const acceptRequest = (id) => {
     alert("Accept Request : " + id);
 
-    // PUT /api/biogas/requests/{id}/accept
+    // axios.put(`http://localhost:8080/food/api/biogas/requests/${id}/accept`);
   };
 
   const rejectRequest = (id) => {
     alert("Reject Request : " + id);
 
-    // PUT /api/biogas/requests/{id}/reject
+    // axios.put(`http://localhost:8080/food/api/biogas/requests/${id}/reject`);
   };
 
   const payNow = (request) => {
@@ -102,21 +51,15 @@ setRequests(res.data);
 
   return (
     <div className="pending-container">
-
       <div className="pending-header">
-
         <h2>📋 Pending Requests</h2>
 
         <button>View All</button>
-
       </div>
 
       <div className="table-responsive">
-
         <table>
-
           <thead>
-
             <tr>
               <th>ID</th>
               <th>Donor</th>
@@ -126,29 +69,24 @@ setRequests(res.data);
               <th>Pickup</th>
               <th>Actions</th>
             </tr>
-
           </thead>
 
           <tbody>
-
             {requests.map((request) => (
-
-              <tr key={request.id}>
-
-                <td>#{request.id}</td>
+              <tr key={request.requestId}>
+                <td>#{request.requestId}</td>
 
                 <td>{request.donorName}</td>
 
-                <td>{request.foodName}</td>
+                <td>"Waste Food"</td>
 
-                <td>{request.quantity} KG</td>
+                <td>{request.estimatedMeals} KG</td>
 
-                <td>₹{request.amount}</td>
+                <td>₹{"--"}</td>
 
-                <td>{request.pickupDate}</td>
+                <td>{request.wasteAssignedDate}</td>
 
                 <td className="action-buttons">
-
                   <button
                     className="view-btn"
                     onClick={() => viewDetails(request)}
@@ -158,14 +96,14 @@ setRequests(res.data);
 
                   <button
                     className="accept-btn"
-                    onClick={() => acceptRequest(request.id)}
+                    onClick={() => acceptRequest(request.requestId)}
                   >
                     <FaCheck />
                   </button>
 
                   <button
                     className="reject-btn"
-                    onClick={() => rejectRequest(request.id)}
+                    onClick={() => rejectRequest(request.requestId)}
                   >
                     <FaTimes />
                   </button>
@@ -177,19 +115,12 @@ setRequests(res.data);
                     <FaCreditCard />
                     Pay
                   </button>
-
                 </td>
-
               </tr>
-
             ))}
-
           </tbody>
-
         </table>
-
       </div>
-
     </div>
   );
 };

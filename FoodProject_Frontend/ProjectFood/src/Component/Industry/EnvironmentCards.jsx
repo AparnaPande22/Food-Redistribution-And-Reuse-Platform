@@ -11,20 +11,65 @@ import "../../css/environmentCards.css";
 const EnvironmentCards = () => {
 const [impact, setImpact] = useState({});
 
-useEffect(() => {
+useEffect(()=>{
 
-    axios
+axios
 
-    .get("http://localhost:8080/food/api/biogas/environmental-impact")
+.get("http://localhost:8080/food/api/waste/processed")
 
-    .then((res) => {
+.then(res=>{
 
-        setImpact(res.data);
+const processed=res.data;
 
-    });
+const today=new Date().toISOString().split("T")[0];
 
-}, []);
+const todayWaste=processed.filter(
 
+x=>x.wasteProcessedDate &&
+
+x.wasteProcessedDate.startsWith(today)
+
+);
+
+const meals=todayWaste.reduce(
+
+(sum,item)=>sum+(item.estimatedMeals||0),
+
+0
+
+);
+
+const biogas=todayWaste.reduce(
+
+(sum,item)=>sum+(item.biogasGenerated||0),
+
+0
+
+);
+
+const compost=todayWaste.reduce(
+
+(sum,item)=>sum+(item.fertilizerGenerated||0),
+
+0
+
+);
+
+setImpact({
+
+co2Saved:(meals*0.45).toFixed(1),
+
+wasteProcessed:todayWaste.length,
+
+biogasGenerated:biogas,
+
+compostProduced:compost
+
+});
+
+});
+
+},[]);
   const cards = [
     {
       title: "CO₂ Saved",

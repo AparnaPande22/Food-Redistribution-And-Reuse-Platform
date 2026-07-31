@@ -42,25 +42,29 @@ function Login() {
 
             switch (role) {
 
-                case "ADMIN":
-                    navigate("/admin");
-                    break;
+    case "ADMIN":
+        navigate("/admin");
+        break;
 
-                case "DONOR":
-                    navigate("/donor");
-                    break;
+    case "DONOR":
+        navigate("/donor");
+        break;
 
-                case "RECEIVER":
-                    navigate("/receiver");
-                    break;
+    case "RECEIVER":
+        navigate("/receiver");
+        break;
 
-                case "VOLUNTEER":
-                    navigate("/volunteer");
-                    break;
+    case "VOLUNTEER":
+        navigate("/volunteer");
+        break;
 
-                default:
-                    navigate("/");
-            }
+    case "BIOGAS_PARTNER":
+        navigate("/industry");
+        break;
+
+    default:
+        navigate("/");
+}
 
         } catch (err) {
 

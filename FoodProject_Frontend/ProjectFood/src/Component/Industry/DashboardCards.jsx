@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
     FaClipboardList,
     FaWallet,
@@ -11,22 +12,48 @@ import "../../css/industryCards.css";
 
 const DashboardCards = () => {
 
-   useEffect(()=>{
-axios.get("/api/biogas/dashboard")
-.then(res=>setDashboard(res.data))
-},[])
+   useEffect(() => {
 
-    useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
 
-        // Later replace with API
+    axios
+        .get(`http://localhost:8080/food/api/waste/assigned/${user.userId}`)
+        .then(res => {
 
-        /*
-        getDashboard().then(res=>{
-            setDashboard(res.data);
+            const data = res.data;
+
+            setDashboard({
+
+                pendingRequests: data.filter(
+                    x => x.status === "WASTE_ASSIGNED"
+                ).length,
+
+                processing: data.filter(
+                    x => x.status === "PROCESSING"
+                ).length,
+
+                completed: data.filter(
+                    x => x.status === "WASTE_PROCESSED"
+                ).length,
+
+                totalPaid: 0
+
+            });
+
         });
-        */
 
-    }, []);
+}, []);
+ const [dashboard, setDashboard] = useState({
+
+    pendingRequests:0,
+
+    totalPaid:0,
+
+    processing:0,
+
+    completed:0
+
+});
 
     const cards = [
 
