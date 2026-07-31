@@ -85,8 +85,7 @@
               "RelativeToolTip": "PaymentService\\Controllers\\PaymentController.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAEoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-29T12:33:07.745Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-07-29T12:33:07.745Z"
             },
             {
               "$type": "Document",
@@ -96,7 +95,11 @@
               "RelativeDocumentMoniker": "PaymentService\\Services\\RazorpayService.cs",
               "ToolTip": "C:\\Users\\Aparna\\Desktop\\Cdac Final Project\\Food-Redistribution-And-Reuse-Platform\\PaymentService\\PaymentService\\Services\\RazorpayService.cs",
               "RelativeToolTip": "PaymentService\\Services\\RazorpayService.cs",
+<<<<<<< HEAD
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAJAAAAAAAAAA==",
+=======
+              "ViewState": "AgIAAAgAAAAAAAAAAAAxwBsAAAAJAAAAAAAAAA==",
+>>>>>>> 40ebfae (Fixing bugs in industry dashboard)
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-29T13:02:12.585Z",
               "EditorCaption": ""

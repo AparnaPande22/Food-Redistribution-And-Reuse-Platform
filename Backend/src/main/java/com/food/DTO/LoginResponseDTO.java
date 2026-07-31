@@ -15,6 +15,7 @@ public class LoginResponseDTO {
 	private String message;
 	private Long userId;
 	private String name;
+    private String email;
 	private Role accountType;
 	private String token;
 }
