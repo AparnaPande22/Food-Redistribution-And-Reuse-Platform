@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "PaymentService/1.0.0": {
         "dependencies": {
+          "Microsoft.EntityFrameworkCore": "8.0.8",
           "Microsoft.EntityFrameworkCore.Design": "8.0.8",
           "Pomelo.EntityFrameworkCore.MySql": "8.0.2",
           "Razorpay": "3.3.2",

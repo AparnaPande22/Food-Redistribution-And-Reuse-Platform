@@ -7,6 +7,7 @@ import PartnerAcquisition from "./PartnerAcquisition";
 import MapCard from "./MapCard";
 import RecentDonations from "./RecentDonations";
 import PendingRequests from "./PendingRequests";
+import PendingUsers from "./PendingUsers"; 
 import RecentActivity from "./RecentActivity";
 import DonationStatusChart from "./DonationStatusChart";
 import LatestUsers from "./LatestUsers";
