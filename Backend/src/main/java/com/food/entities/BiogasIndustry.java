@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Entity
 @Table(name = "biogas_industries")
 @Getter
@@ -16,21 +17,21 @@ import lombok.Setter;
 @NoArgsConstructor
 public class BiogasIndustry {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    private String industryName;
+	private String industryName;
 
-    private String contactPerson;
+	private String contactPerson;
 
-    private String email;
+	private String email;
 
-    private String phone;
+	private String phone;
 
-    private String address;
+	private String address;
 
-    private Double latitude;
+	private Double latitude;
 
-    private Double longitude;
+	private Double longitude;
 }
