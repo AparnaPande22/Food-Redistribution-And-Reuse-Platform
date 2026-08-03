@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./Login.css";
 import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import Captcha from "./Captcha";
 
 function Login() {
 
     const navigate = useNavigate();
+    const captchaRef = useRef(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -13,6 +15,13 @@ function Login() {
     const handleSubmit = async (e) => {
 
         e.preventDefault();
+
+        // ---- CAPTCHA CHECK ----
+        if (!captchaRef.current.validate()) {
+            alert("Incorrect captcha code. Please try again.");
+            captchaRef.current.refresh();
+            return;
+        }
 
         try {
 
@@ -85,6 +94,8 @@ function Login() {
 
                 alert(err.message);
             }
+
+            captchaRef.current.refresh();
         }
     };
 
@@ -163,6 +174,9 @@ function Login() {
                                     </Link>
 
                                 </div>
+
+                                {/* ---- CAPTCHA ---- */}
+                                <Captcha ref={captchaRef} />
 
                                 <button
                                     type="submit"

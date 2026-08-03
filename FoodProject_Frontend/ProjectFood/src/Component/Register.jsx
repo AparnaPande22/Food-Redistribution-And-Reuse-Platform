@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./Register.css";
-import api from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser, verifyOtp, resendOtp } from "../services/authService";
+import Captcha from "./Captcha";
+import OtpModal from "./OtpModal";
 
 function Register() {
 
     const navigate = useNavigate();
+    const captchaRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -17,6 +20,8 @@ function Register() {
         address: "",
         accountType: "DONOR"
     });
+
+    const [showOtpModal, setShowOtpModal] = useState(false);
 
     const handleChange = (e) => {
         setFormData({
@@ -34,37 +39,54 @@ function Register() {
             return;
         }
 
+        // ---- CAPTCHA CHECK ----
+        if (!captchaRef.current.validate()) {
+            alert("Incorrect captcha code. Please try again.");
+            captchaRef.current.refresh();
+            return;
+        }
+
         try {
 
-            await api.post(
-                "/auth/register",
-                {
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    password: formData.password,
-                    city: formData.city,
-                    address: formData.address,
-                    accountType: formData.accountType
-                }
-            );
+            await registerUser({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password,
+                city: formData.city,
+                address: formData.address,
+                accountType: formData.accountType
+            });
 
-            alert("Registration Successful");
-
-            navigate("/login");
+            // Registration succeeded -> backend has sent an OTP to the email.
+            // Show the OTP modal instead of navigating straight to /login.
+            setShowOtpModal(true);
 
         } catch (err) {
 
             console.log(err);
 
             if (err.response) {
-                alert(err.response.data);
+                alert(err.response.data?.message || err.response.data);
             } else {
                 alert("Unable to connect to server");
             }
 
+            captchaRef.current.refresh();
+
         }
 
+    };
+
+    const handleVerifyOtp = async (otp) => {
+        await verifyOtp(formData.email, otp);
+        alert("Email verified successfully! Please log in.");
+        setShowOtpModal(false);
+        navigate("/login");
+    };
+
+    const handleResendOtp = async () => {
+        await resendOtp(formData.email);
     };
 
     return (
@@ -186,6 +208,9 @@ function Register() {
                                      <option value="BIOGAS_PARTNER">Industry Partner</option>
                                 </select>
 
+                                {/* ---- CAPTCHA ---- */}
+                                <Captcha ref={captchaRef} />
+
                                 <button
                                     type="submit"
                                     className="register-btn"
@@ -282,6 +307,15 @@ function Register() {
                 </div>
 
             </div>
+
+            {showOtpModal && (
+                <OtpModal
+                    email={formData.email}
+                    onVerify={handleVerifyOtp}
+                    onResend={handleResendOtp}
+                    onClose={() => setShowOtpModal(false)}
+                />
+            )}
 
         </div>
 

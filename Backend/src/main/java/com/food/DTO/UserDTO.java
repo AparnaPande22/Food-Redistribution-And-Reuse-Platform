@@ -43,4 +43,5 @@ public class UserDTO {
 	@NotNull(message = "Status is required")
 	private UserStatus status;
 
+	
 }

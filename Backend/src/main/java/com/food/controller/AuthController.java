@@ -1,17 +1,10 @@
 package com.food.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.food.DTO.ForgetPasswordDTO;
-import com.food.DTO.LoginDTO;
-import com.food.DTO.LoginResponseDTO;
-import com.food.DTO.RegisterDTO;
-import com.food.DTO.ResetPasswordDTO;
+import com.food.DTO.*;
+
 import com.food.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -20,28 +13,38 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")public class AuthController {
+@CrossOrigin(origins = "http://localhost:5173")
+public class AuthController {
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	@PostMapping("/register")
-	public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO request) {
-		return ResponseEntity.ok(authService.register(request));
-	}
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
 
-	@PostMapping("/login")
-	public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpDTO request) {
+        return ResponseEntity.ok(authService.verifyOtp(request));
+    }
 
-	    return ResponseEntity.ok(authService.logIn(request));
-	}
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@Valid @RequestBody ResendOtpDTO request) {
+        return ResponseEntity.ok(authService.resendOtp(request));
+    }
 
-	@PostMapping("/forgot-password")
-	public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgetPasswordDTO request) {
-		return ResponseEntity.ok(authService.forgotPassword(request));
-	}
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
+        return ResponseEntity.ok(authService.logIn(request));
+    }
 
-	@PostMapping("/reset-password")
-	public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
-		return ResponseEntity.ok(authService.resetPassword(request));
-	}
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgetPasswordDTO request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
+    }
 }

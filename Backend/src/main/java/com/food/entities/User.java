@@ -99,4 +99,10 @@ public class User {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(length = 6)
+	private String otp;
+
+	private LocalDateTime otpExpiry;
+
+	private boolean verified;
 }
