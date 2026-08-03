@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.food.entities.User;
+
 //1.
 //Spring Security does not understand User entity directly
 //so that we have create this customUserDetails
@@ -54,4 +55,15 @@ public class CustomUserDetails implements UserDetails {
 		return true;
 	}
 
+	public Long getId() {
+		return user.getId();
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public String getRole() {
+		return user.getAccountType().name();
+	}
 }

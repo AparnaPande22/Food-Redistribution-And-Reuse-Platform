@@ -1,84 +1,49 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import {
+    getPendingUsers,
+    approveUser,
+    rejectUser,
+} from "../../services/adminService";
+
 import "./dashboard.css";
 
 function PendingUsers() {
 
     const [users, setUsers] = useState([]);
-    const token = localStorage.getItem("token");
 
     useEffect(() => {
-        loadPendingUsers();
+        loadUsers();
     }, []);
 
-    const loadPendingUsers = async () => {
+    const loadUsers = async () => {
 
         try {
 
-            const response = await axios.get(
-                "http://localhost:8080/api/admin/pending-users",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            const data = await getPendingUsers();
 
-            setUsers(response.data);
+            setUsers(data);
 
-        } catch (error) {
+        } catch (err) {
 
-            console.error(error);
+            console.log(err);
 
         }
 
     };
 
-    const approveUser = async (id) => {
+    const handleApprove = async (id) => {
 
-        try {
+        await approveUser(id);
 
-            await axios.put(
-                `http://localhost:8080/api/admin/users/${id}/approve`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            loadPendingUsers();
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
+        loadUsers();
 
     };
 
-    const rejectUser = async (id) => {
+    const handleReject = async (id) => {
 
-        try {
+        await rejectUser(id);
 
-            await axios.put(
-                `http://localhost:8080/api/admin/users/${id}/reject`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            loadPendingUsers();
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
+        loadUsers();
 
     };
 
@@ -86,7 +51,7 @@ function PendingUsers() {
 
         <div className="page">
 
-            <h1>Pending User Approvals</h1>
+            <h2>Pending User Approvals</h2>
 
             <table className="admin-table">
 
@@ -94,9 +59,9 @@ function PendingUsers() {
 
                     <tr>
 
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Phone</th>
                         <th>Role</th>
                         <th>Action</th>
 
@@ -112,26 +77,26 @@ function PendingUsers() {
 
                             <tr key={user.id}>
 
-                                <td>{user.id}</td>
-
-                                <td>{user.fullName}</td>
+                                <td>{user.name}</td>
 
                                 <td>{user.email}</td>
 
-                                <td>{user.role}</td>
+                                <td>{user.phone}</td>
+
+                                <td>{user.accountType}</td>
 
                                 <td>
 
                                     <button
                                         className="approve-btn"
-                                        onClick={() => approveUser(user.id)}
+                                        onClick={() => handleApprove(user.id)}
                                     >
                                         Approve
                                     </button>
 
                                     <button
                                         className="reject-btn"
-                                        onClick={() => rejectUser(user.id)}
+                                        onClick={() => handleReject(user.id)}
                                     >
                                         Reject
                                     </button>
@@ -151,7 +116,6 @@ function PendingUsers() {
         </div>
 
     );
-
 }
 
 export default PendingUsers;
