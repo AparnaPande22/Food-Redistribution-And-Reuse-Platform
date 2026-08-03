@@ -16,12 +16,12 @@ function Login() {
 
         e.preventDefault();
 
-        // ---- CAPTCHA CHECK ----
-        if (!captchaRef.current.validate()) {
-            alert("Incorrect captcha code. Please try again.");
-            captchaRef.current.refresh();
-            return;
-        }
+        // // ---- CAPTCHA CHECK ----
+        // if (!captchaRef.current.validate()) {
+        //     alert("Incorrect captcha code. Please try again.");
+        //     captchaRef.current.refresh();
+        //     return;
+        // }
 
         try {
 
