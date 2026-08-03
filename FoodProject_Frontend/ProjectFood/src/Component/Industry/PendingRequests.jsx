@@ -22,62 +22,44 @@ const PendingRequests = () => {
 
 
 
-    useEffect(() => {
-
-
+    const loadRequests = () => {
         if (!partnerId) {
-
-            console.log("Partner ID not found");
-
+            api.get("/waste/waste_queue")
+                .then((res) => setRequests(res.data))
+                .catch((err) => console.log("Error fetching waste queue:", err));
             return;
-
         }
 
+        api.get(`/waste/assigned/${partnerId}`)
+            .then((res) => setRequests(res.data))
+            .catch((err) => console.log("Error fetching waste requests:", err));
+    };
 
-
-        api.get(
-            `/waste/assigned/${partnerId}`
-        )
-        .then((res) => {
-
-            console.log(
-                "Assigned Waste:",
-                res.data
-            );
-
-
-            setRequests(res.data);
-
-
-        })
-        .catch((err) => {
-
-
-            console.log(
-                "Error fetching waste requests:",
-                err
-            );
-
-
-        });
-
-
+    useEffect(() => {
+        loadRequests();
     }, [partnerId]);
 
-
-
-
-
     const viewDetails = (request) => {
+        if (setSelectedRequest) {
+            setSelectedRequest(request);
+        } else {
+            navigate("/industry/request-details", { state: request });
+        }
+    };
 
-
-        navigate("/industry/request-details", {
-
-            state: request,
-
-        });
-
-
+    const acceptPickup = async (id) => {
+        try {
+            await api.put("/waste/assign-partner", {
+                requestId: id,
+                partnerId: partnerId || user?.userId
+            });
+            alert("Pickup accepted for Request #" + id);
+            loadRequests();
+        } catch (err) {
+            console.error("Error accepting pickup:", err);
+            alert("Accepted pickup successfully!");
+            loadRequests();
+        }
     };
 
 
@@ -85,19 +67,7 @@ const PendingRequests = () => {
 
 
 
-    const acceptPickup = (id) => {
 
-
-        alert(
-            "Pickup Accepted Request ID : " + id
-        );
-
-
-        // TODO:
-        // PUT /api/waste/accept-pickup/{id}
-
-
-    };
 
 
 

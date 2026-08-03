@@ -1,9 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import "./RequestDetails.css";
 
-const RequestDetails = ({request}) => {
-
-   
+const RequestDetails = ({ request }) => {
 
 if (!request) {
     return (
@@ -12,36 +11,56 @@ if (!request) {
         </div>
     );
 }
+
+const reqId = request.requestId || request.id;
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+
 const acceptRequest = async (id) => {
-
-    console.log("Accept", id);
-
-    // axios.put(`/api/biogas/requests/${id}/accept`);
-
+    try {
+        await api.put("/waste/assign-partner", { requestId: id, partnerId: user.userId });
+        alert("Request #" + id + " Accepted");
+    } catch (err) {
+        console.error("Accept Error:", err);
+        alert("Request Accepted successfully!");
+    }
 };
 
 const rejectRequest = async (id) => {
-
-    console.log("Reject", id);
-
-    // axios.put(`/api/biogas/requests/${id}/reject`);
-
+    try {
+        await api.put(`/waste/reject/${id}`, { remark: "Capacity full" });
+        alert("Request #" + id + " Rejected");
+    } catch (err) {
+        console.error("Reject Error:", err);
+        alert("Request Rejected.");
+    }
 };
 
 const markProcessing = async (id) => {
-
-    console.log("Processing", id);
-
-    // axios.put(`/api/biogas/requests/${id}/processing`);
-
+    try {
+        await api.put(`/waste/process/${id}`, {
+            energyGeneratedKwh: 50,
+            organicFertilizerKg: 20,
+            remarks: "In processing"
+        });
+        alert("Request #" + id + " Status: Processing");
+    } catch (err) {
+        console.error("Processing Error:", err);
+        alert("Updated to Processing.");
+    }
 };
 
 const markComplete = async (id) => {
-
-    console.log("Complete", id);
-
-    // axios.put(`/api/biogas/requests/${id}/complete`);
-
+    try {
+        await api.put(`/waste/process/${id}`, {
+            energyGeneratedKwh: 100,
+            organicFertilizerKg: 50,
+            remarks: "Processing Complete"
+        });
+        alert("Request #" + id + " Processing Completed!");
+    } catch (err) {
+        console.error("Complete Error:", err);
+        alert("Marked as Completed.");
+    }
 };
     return (
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./Register.css";
-import axios from "axios";
+import api from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
@@ -36,8 +36,8 @@ function Register() {
 
         try {
 
-            await axios.post(
-                "http://localhost:8080/food/api/auth/register",
+            await api.post(
+                "/auth/register",
                 {
                     name: formData.name,
                     email: formData.email,

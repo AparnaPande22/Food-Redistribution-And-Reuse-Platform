@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getAllUsers, deleteUser } from "../../services/adminService";
 import "./dashboard.css";
 
 function Users() {
@@ -12,16 +12,21 @@ function Users() {
 
     const loadUsers = async () => {
         try {
-
-            // Replace with your backend API
-            const response = await axios.get(
-                "http://localhost:8080/api/admin/users"
-            );
-
-            setUsers(response.data);
-
+            const data = await getAllUsers();
+            setUsers(Array.isArray(data) ? data : []);
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                await deleteUser(id);
+                loadUsers();
+            } catch (error) {
+                console.error("Failed to delete user", error);
+            }
         }
     };
 
@@ -78,7 +83,10 @@ function Users() {
 
                                     <button>Edit</button>
 
-                                    <button className="delete-btn">
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => handleDelete(user.id || user.userId)}
+                                    >
                                         Delete
                                     </button>
 
