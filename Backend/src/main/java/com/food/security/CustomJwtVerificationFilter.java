@@ -86,16 +86,17 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 			// Continue with remaining filter chain
 			filterChain.doFilter(request, response);
 
-		} catch (Exception e) {
+		}catch (Exception e) {
 
-		    e.printStackTrace();   // VERY IMPORTANT
+		    System.out.println("JWT ERROR = " + e.getClass().getName());
+		    System.out.println("MESSAGE = " + e.getMessage());
 
-		    log.error("JWT Validation Failed", e);
+		    e.printStackTrace();
 
 		    SecurityContextHolder.clearContext();
 
 		    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		    response.getWriter().write("Invalid JWT");
+		    response.getWriter().write(e.getMessage());
 		}
 	}
 }

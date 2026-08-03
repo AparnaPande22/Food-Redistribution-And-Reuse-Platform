@@ -68,7 +68,8 @@ namespace PaymentService.Controllers
 
                 return StatusCode(500, new
                 {
-                    message = "Unable to create payment order."
+                    message = ex.Message,
+                    innerException = ex.InnerException?.Message
                 });
             }
         }

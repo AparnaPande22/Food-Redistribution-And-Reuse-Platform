@@ -33,75 +33,107 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            // Enable CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            // Disable CSRF
-            .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())
 
-            // Stateless Session
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Authorization
-            .authorizeHttpRequests(request -> request
+                .authorizeHttpRequests(request -> request
 
-                    // Allow CORS Preflight
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Allow preflight requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                    // Public APIs
-                    .requestMatchers(
-                            "/api/auth/**",
-                            "/swagger-ui/**",
-                            "/swagger-ui.html",
-                            "/v3/api-docs/**"
-                    ).permitAll()
+                        // Public APIs
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
-                    // ADMIN
-                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/users/**").hasRole("ADMIN")
-                    .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
-                    .requestMatchers("/api/documents/**").hasRole("ADMIN")
+                        // ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
+                        .requestMatchers("/api/documents/**").hasRole("ADMIN")
 
-                    // DONOR
-                    .requestMatchers("/api/donor/**").hasAnyRole("ADMIN","DONOR")
-                    .requestMatchers("/api/media/**").hasAnyRole("ADMIN","DONOR")
+                        // DONOR
+                        .requestMatchers("/api/donor/**")
+                        .hasAnyRole("ADMIN", "DONOR")
 
-                    // RECEIVER
-                    .requestMatchers("/api/request/**")
-                    .hasAnyRole("ADMIN","DONOR", "RECEIVER","BIOGAS_PARTNER")
+                        .requestMatchers("/api/media/**")
+                        .hasAnyRole("ADMIN", "DONOR")
 
-                    //.hasAnyRole("ADMIN","DONOR","RECEIVER")
+                        // REQUESTS
+                        .requestMatchers("/api/request/**")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "DONOR",
+                                "RECEIVER",
+                                "BIOGAS_PARTNER"
+                        )
 
-                    .requestMatchers("/api/request-item/**")
-                    .hasAnyRole("ADMIN","RECEIVER")
+                        .requestMatchers("/api/request-item/**")
+                        .hasAnyRole("ADMIN", "RECEIVER")
 
-                    // VOLUNTEER
-                    .requestMatchers("/api/deliveries/**")
-                    .hasAnyRole("ADMIN","VOLUNTEER")
+                        // VOLUNTEER
+                        .requestMatchers("/api/deliveries/**")
+                        .hasAnyRole("ADMIN", "VOLUNTEER")
 
-                    // ADMIN + VOLUNTEER
-                    .requestMatchers("/api/match/**")
-                    .hasAnyRole("ADMIN", "VOLUNTEER")
+                        .requestMatchers("/api/match/**")
+                        .hasAnyRole("ADMIN", "VOLUNTEER")
 
-                    // Authenticated Users
-                    .requestMatchers("/api/notification/**").authenticated()
-                    .requestMatchers("/api/dashboard/**").authenticated()
-                    .requestMatchers("/api/delivery-outcomes/**").authenticated()
-                    
-                    // Biogas Partner
-                    .requestMatchers("/api/waste/**").hasAnyRole("ADMIN","BIOGAS_PARTNER")
+                        // BIOGAS
+                        .requestMatchers("/api/waste/**")
+                        .hasAnyRole("ADMIN", "BIOGAS_PARTNER")
 
-                    // Everything else
-                    .anyRequest().authenticated()
-            );
+                        // Authenticated
+                        .requestMatchers("/api/dashboard/**").authenticated()
+                        .requestMatchers("/api/notification/**").authenticated()
+                        .requestMatchers("/api/delivery-outcomes/**").authenticated()
 
-        // JWT Filter
-        http.addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated())
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Allow both Vite ports
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of("*"));
+
+        configuration.setExposedHeaders(List.of("*"));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
     @Bean
@@ -114,28 +146,5 @@ public class SecurityConfig {
             AuthenticationConfiguration config) throws Exception {
 
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:5173"));
-
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        configuration.setAllowedHeaders(List.of("*"));
-
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
     }
 }
