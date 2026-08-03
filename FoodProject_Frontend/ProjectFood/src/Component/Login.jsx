@@ -2,12 +2,12 @@ import { useState, useRef } from "react";
 import "./Login.css";
 import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
-import Captcha from "./Captcha";
+//import Captcha from "./Captcha";
 
 function Login() {
 
     const navigate = useNavigate();
-    const captchaRef = useRef(null);
+    //const captchaRef = useRef(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -95,7 +95,7 @@ function Login() {
                 alert(err.message);
             }
 
-            captchaRef.current.refresh();
+          //  captchaRef.current.refresh();
         }
     };
 
@@ -175,15 +175,16 @@ function Login() {
 
                                 </div>
 
-                                {/* ---- CAPTCHA ---- */}
-                                <Captcha ref={captchaRef} />
+                                {/* { ---- CAPTCHA ---- */}
+                                {/* <Captcha ref={captchaRef} /> */}
 
                                 <button
                                     type="submit"
                                     className="signin-btn"
                                 >
                                     Sign In →
-                                </button>
+                                </button> 
+                                {/* } */}
 
                             </form>
 

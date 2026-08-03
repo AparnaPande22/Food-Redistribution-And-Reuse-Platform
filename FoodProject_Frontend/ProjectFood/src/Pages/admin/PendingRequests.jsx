@@ -4,6 +4,7 @@ import "./dashboard.css";
 
 function PendingRequests() {
   const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRequests();
@@ -14,54 +15,56 @@ function PendingRequests() {
       const data = await getPendingRequests();
       setRequests(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error loading pending requests:", err);
+      console.log("Error loading pending requests:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleApprove = async (id) => {
     try {
       await approveRequest(id);
-      alert(`Request #${id} Approved`);
       loadRequests();
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Failed to approve request");
     }
   };
 
   const handleReject = async (id) => {
     try {
       await rejectRequest(id);
-      alert(`Request #${id} Rejected`);
       loadRequests();
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Failed to reject request");
     }
   };
 
   return (
     <div className="table-card">
-      <h2>Pending Food Requests</h2>
+      <h2>Pending Requests Review</h2>
 
-      {requests.length > 0 ? (
-        requests.map((request, index) => (
-          <div className="request-card" key={request.requestId || request.id || index}>
+      {loading ? (
+        <p>Loading pending requests...</p>
+      ) : requests.length === 0 ? (
+        <p>No pending requests waiting for approval.</p>
+      ) : (
+        requests.map((req) => (
+          <div className="request-card" key={req.id}>
             <div>
-              <h4>{request.donorName || request.foodType || "Food Request"}</h4>
-              <p>{request.estimatedMeals || 0} Meals Required</p>
+              <h4>{req.title || req.foodType || `Request #${req.id}`}</h4>
+              <p>{req.quantity} {req.unit || "meals/kg"} - {req.pickupLocation}</p>
             </div>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button className="approve-btn" onClick={() => handleApprove(request.requestId || request.id)}>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button onClick={() => handleApprove(req.id)} className="approve-btn">
                 Approve
               </button>
-              <button className="reject-btn" onClick={() => handleReject(request.requestId || request.id)}>
+              <button onClick={() => handleReject(req.id)} className="reject-btn">
                 Reject
               </button>
             </div>
           </div>
         ))
-      ) : (
-        <p style={{ color: "#64748b", fontSize: "0.9rem" }}>No pending requests requiring action.</p>
       )}
     </div>
   );

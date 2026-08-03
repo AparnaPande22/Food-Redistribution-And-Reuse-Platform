@@ -49,17 +49,17 @@ public class AuthServiceImpl implements AuthService {
 
         user.setStatus(UserStatus.ACTIVE);
 
-        // Generate OTP
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
-
-        user.setOtp(otp);
-        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
-        user.setVerified(false);
-
-        userRepo.save(user);
-
-        // Send OTP Email
-        emailService.sendOtp(user.getEmail(), otp);
+//        // Generate OTP
+//        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+//
+//        user.setOtp(otp);
+//        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
+//        user.setVerified(false);
+//
+//        userRepo.save(user);
+//
+//        // Send OTP Email
+//        emailService.sendOtp(user.getEmail(), otp);
 
         return "Registration successful. OTP sent to your email.";
     }
@@ -70,10 +70,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepo.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
-
-        if (!user.isVerified()) {
-            throw new RuntimeException("Please verify your email before login.");
-        }
+//
+//        if (!user.isVerified()) {
+//            throw new RuntimeException("Please verify your email before login.");
+//        }
 
         if (!user.getPasswordHash().equals(loginRequest.getPassword())) {
             throw new RuntimeException("Invalid Password");
@@ -98,15 +98,15 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Email not found"));
 
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
-
-        user.setOtp(otp);
-        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
-
-        userRepo.save(user);
-
-        emailService.sendOtp(user.getEmail(), otp);
-
+//        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+//
+//        user.setOtp(otp);
+//        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
+//
+//        userRepo.save(user);
+//
+//        emailService.sendOtp(user.getEmail(), otp);
+//
         return "OTP sent to your email.";
     }
 
@@ -127,48 +127,48 @@ public class AuthServiceImpl implements AuthService {
         return "Password reset successfully.";
     }
 
-    @Override
-    public String verifyOtp(VerifyOtpDTO request) {
-
-        User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
-
-        if (user.getOtp() == null ||
-                !user.getOtp().equals(request.getOtp())) {
-            throw new RuntimeException("Invalid OTP");
-        }
-
-        if (user.getOtpExpiry() == null ||
-                user.getOtpExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP Expired");
-        }
-
-        user.setVerified(true);
-        user.setOtp(null);
-        user.setOtpExpiry(null);
-
-        userRepo.save(user);
-
-        return "Email verified successfully.";
-    }
-
-    @Override
-    public String resendOtp(ResendOtpDTO request) {
-
-        User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
-
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
-
-        user.setOtp(otp);
-        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
-
-        userRepo.save(user);
-
-        emailService.sendOtp(user.getEmail(), otp);
-
-        return "OTP sent successfully.";
-    }
+//    @Override
+//    public String verifyOtp(VerifyOtpDTO request) {
+//
+//        User user = userRepo.findByEmail(request.getEmail())
+//                .orElseThrow(() ->
+//                        new ResourceNotFoundException("User not found"));
+//
+//        if (user.getOtp() == null ||
+//                !user.getOtp().equals(request.getOtp())) {
+//            throw new RuntimeException("Invalid OTP");
+//        }
+//
+//        if (user.getOtpExpiry() == null ||
+//                user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+//            throw new RuntimeException("OTP Expired");
+//        }
+//
+//        user.setVerified(true);
+//        user.setOtp(null);
+//        user.setOtpExpiry(null);
+//
+//        userRepo.save(user);
+//
+//        return "Email verified successfully.";
+//    }
+//
+//    @Override
+//    public String resendOtp(ResendOtpDTO request) {
+//
+//        User user = userRepo.findByEmail(request.getEmail())
+//                .orElseThrow(() ->
+//                        new ResourceNotFoundException("User not found"));
+//
+//        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+//
+//        user.setOtp(otp);
+//        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
+//
+//        userRepo.save(user);
+//
+//        emailService.sendOtp(user.getEmail(), otp);
+//
+//        return "OTP sent successfully.";
+//    }
 }

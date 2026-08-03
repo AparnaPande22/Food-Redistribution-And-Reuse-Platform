@@ -21,7 +21,7 @@ public interface AuthService {
 	// For reset password
 	public String resetPassword(ResetPasswordDTO request);
 
-	Object verifyOtp(VerifyOtpDTO request);
-
-	Object resendOtp(ResendOtpDTO request);
+//	Object verifyOtp(VerifyOtpDTO request);
+//
+//	Object resendOtp(ResendOtpDTO request);
 }

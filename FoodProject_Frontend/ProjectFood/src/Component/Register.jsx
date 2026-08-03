@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser, verifyOtp, resendOtp } from "../services/authService";
-import Captcha from "./Captcha";
-import OtpModal from "./OtpModal";
+import { registerUser} from "../services/authService";
+//, verifyOtp, resendOtp
+// import Captcha from "./Captcha";
+// import OtpModal from "./OtpModal";
 
 function Register() {
 

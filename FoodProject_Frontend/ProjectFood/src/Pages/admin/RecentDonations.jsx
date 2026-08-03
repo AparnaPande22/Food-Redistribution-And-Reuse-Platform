@@ -1,54 +1,59 @@
+import { useEffect, useState } from "react";
+import donationService from "../../services/donationService";
 import "./dashboard.css";
 
-const donations = [
-  {
-    donor: "Hotel Taj",
-    food: "Rice & Curry",
-    quantity: "120 Meals",
-    status: "Delivered",
-  },
-  {
-    donor: "Domino's",
-    food: "Pizza",
-    quantity: "80 Boxes",
-    status: "Pending",
-  },
-  {
-    donor: "Wedding Hall",
-    food: "Dinner",
-    quantity: "450 Meals",
-    status: "Picked Up",
-  },
-];
-
 function RecentDonations() {
+  const [donations, setDonations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDonations();
+  }, []);
+
+  const loadDonations = async () => {
+    try {
+      const data = await donationService.getAllRequests();
+      setDonations(Array.isArray(data) ? data.slice(0, 5) : []);
+    } catch (err) {
+      console.log("Error loading recent donations:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="table-card">
-      <h2>Recent Donations</h2>
+      <h2>Recent Food Surplus Listings</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Donor</th>
-            <th>Food</th>
-            <th>Quantity</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {donations.map((item, index) => (
-            <tr key={index}>
-              <td>{item.donor}</td>
-              <td>{item.food}</td>
-              <td>{item.quantity}</td>
-              <td>
-                <span className="status">{item.status}</span>
-              </td>
+      {loading ? (
+        <p>Loading recent listings...</p>
+      ) : donations.length === 0 ? (
+        <p>No recent listings found.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Food Item / Description</th>
+              <th>Quantity</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {donations.map((item) => (
+              <tr key={item.id}>
+                <td>#{item.id}</td>
+                <td>{item.title || item.foodType || "Food Surplus"}</td>
+                <td>{item.quantity} {item.unit || "kg/meals"}</td>
+                <td>
+                  <span className="status">{item.status || "ACTIVE"}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

@@ -151,100 +151,50 @@ const [receivers, setReceivers] = useState([]);
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-console.log(user);
-console.log("User ID =", user.userId);
-const requestData = {
+      if (!user || !user.userId) {
+        alert("User session not found. Please log in again.");
+        navigate("/login");
+        return;
+      }
 
-    userId: user.userId,
-
-    requestType: "DONATION",
-
-    status: "DRAFT",
-
-    mealPreference: "Mixed",
-
-    estimatedMeals: foodItems.reduce(
+      const totalMeals = foodItems.reduce(
         (sum, item) => sum + Number(item.quantity || 0),
         0
-    ),
+      );
 
-    pickUpAddress: donation.pickupAddress,
+      // Ensure ISO LocalDateTime format for Jackson (e.g. YYYY-MM-DDTHH:mm:ss)
+      const expiryFormatted = donation.expiryTime.length === 16 ? `${donation.expiryTime}:00` : donation.expiryTime;
 
-    deliveryAvailable: donation.deliveryAvailable,
-
-    neededBy: donation.expiryTime,
-
-    notes: donation.instructions,
-
-    receiverType: receiverType,
-
-    receiverId: receiverId,
-
-    items: foodItems.map(item => ({
-        itemName: item.name,
-        foodCategory: item.category,
-        quantity: Number(item.quantity),
-        unit: item.unit,
-        expiryTime: donation.expiryTime
-    }))
-};
+      const requestData = {
+        userId: Number(user.userId),
+        requestType: "DONATION",
+        status: "ACTIVE",
+        mealPreference: foodItems[0]?.category || "Cooked Meals",
+        estimatedMeals: Number(totalMeals),
+        pickUpAddress: donation.pickupAddress,
+        deliveryAvailable: Boolean(donation.deliveryAvailable),
+        neededBy: expiryFormatted,
+        notes: `${donation.instructions || ""} (Items: ${foodItems.map(i => `${i.name} - ${i.quantity}${i.unit}`).join(", ")})`.substring(0, 499),
+      };
 
       await donationService.createDonation(requestData);
 
       resetForm();
 
-      alert("Request Created Successfully!");
-navigate("/donor/donation-submitted");
+      alert("Surplus Food Listing Created Successfully!");
+      navigate("/donor/donation-submitted");
     } catch (error) {
-
-    console.log(error);
-
-    console.log(error.response);
-
-    console.log(error.response?.data);
-
-if (error.response) {
-    alert(error.response.data.message || error.response.data);
-} else {
-    alert(error.message);
-}
-}finally {
+      console.log("Create donation error:", error);
+      if (error.response?.data?.message) {
+        alert(`Error: ${error.response.data.message}`);
+      } else {
+        alert("Failed to submit donation. Please verify inputs.");
+      }
+    } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
 
-    if (receiverType === "BIOGAS") {
-
-        axios
-            .get("http://localhost:8080/food/api/biogas/list")
-            .then((res) => {
-                setReceivers(res.data);
-            });
-
-    }
-
-    if (receiverType === "NGO") {
-
-        axios
-            .get("http://localhost:8080/food/api/ngo/list")
-            .then((res) => {
-                setReceivers(res.data);
-            });
-
-    }
-
-    if (receiverType === "COMPOST") {
-
-        axios
-            .get("http://localhost:8080/food/api/compost/list")
-            .then((res) => {
-                setReceivers(res.data);
-            });
-
-    }
-
-}, [receiverType]);
     return (
     <div className="donation-page">
       <Sidebar />

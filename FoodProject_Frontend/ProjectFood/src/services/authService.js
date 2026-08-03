@@ -17,13 +17,13 @@ export const registerUser = (payload) => {
     return api.post("/auth/register", payload);
 };
 
-export const verifyOtp = (email, otp) => {
-    return api.post("/auth/verify-otp", { email, otp });
-};
+// export const verifyOtp = (email, otp) => {
+//     return api.post("/auth/verify-otp", { email, otp });
+// };
 
-export const resendOtp = (email) => {
-    return api.post("/auth/resend-otp", { email });
-};
+// export const resendOtp = (email) => {
+//     return api.post("/auth/resend-otp", { email });
+// };
 
 export const loginUser = (email, password) => {
     return api.post("/auth/login", { email, password });

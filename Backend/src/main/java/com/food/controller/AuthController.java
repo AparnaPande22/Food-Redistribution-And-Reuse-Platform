@@ -23,15 +23,15 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpDTO request) {
-        return ResponseEntity.ok(authService.verifyOtp(request));
-    }
-
-    @PostMapping("/resend-otp")
-    public ResponseEntity<?> resendOtp(@Valid @RequestBody ResendOtpDTO request) {
-        return ResponseEntity.ok(authService.resendOtp(request));
-    }
+//    @PostMapping("/verify-otp")
+//    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpDTO request) {
+//        return ResponseEntity.ok(authService.verifyOtp(request));
+//    }
+//
+//    @PostMapping("/resend-otp")
+//    public ResponseEntity<?> resendOtp(@Valid @RequestBody ResendOtpDTO request) {
+//        return ResponseEntity.ok(authService.resendOtp(request));
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
