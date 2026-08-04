@@ -1,79 +1,81 @@
 import { useState, useRef } from "react";
 import "./Login.css";
-import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
-//import Captcha from "./Captcha";
+import { loginUser, verifyLoginOtp, resendLoginOtp } from "../services/authService";
+import Captcha from "./Captcha";
+import OtpModal from "./OtpModal";
 
 function Login() {
 
     const navigate = useNavigate();
-    //const captchaRef = useRef(null);
+    const captchaRef = useRef(null);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showOtpModal, setShowOtpModal] = useState(false);
+
+    const redirectByRole = (role) => {
+
+        switch (role) {
+
+            case "ADMIN":
+                navigate("/admin");
+                break;
+
+            case "DONOR":
+                navigate("/donor");
+                break;
+
+            case "RECEIVER":
+                navigate("/receiver");
+                break;
+
+            case "VOLUNTEER":
+                navigate("/volunteer");
+                break;
+
+            case "BIOGAS_PARTNER":
+                navigate("/industry");
+                break;
+
+            default:
+                navigate("/");
+        }
+    };
+
+    const saveSession = (data) => {
+
+        localStorage.setItem("token", data.token);
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify({
+                userId: data.userId,
+                name: data.name,
+                email: data.email,
+                accountType: data.accountType
+            })
+        );
+    };
 
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
-        // // ---- CAPTCHA CHECK ----
-        // if (!captchaRef.current.validate()) {
-        //     alert("Incorrect captcha code. Please try again.");
-        //     captchaRef.current.refresh();
-        //     return;
-        // }
+        // ---- CAPTCHA CHECK ----
+        if (!captchaRef.current.validate()) {
+            alert("Incorrect captcha code. Please try again.");
+            captchaRef.current.refresh();
+            return;
+        }
 
         try {
 
-            const response = await api.post(
-                "/auth/login",
-                {
-                    email,
-                    password
-                }
-            );
+            // Step 1: validate credentials. Backend should NOT return a token
+            // here - it should send a login OTP to the user's email instead.
+            await loginUser(email, password);
 
-            // Save JWT Token
-            localStorage.setItem("token", response.data.token);
-
-            // Save User Details
-           localStorage.setItem(
-    "user",
-    JSON.stringify({
-        userId: response.data.userId,
-        name: response.data.name,
-        email: response.data.email,
-        accountType: response.data.accountType
-    })
-);
-
-            const role = response.data.accountType;
-
-            switch (role) {
-
-    case "ADMIN":
-        navigate("/admin");
-        break;
-
-    case "DONOR":
-        navigate("/donor");
-        break;
-
-    case "RECEIVER":
-        navigate("/receiver");
-        break;
-
-    case "VOLUNTEER":
-        navigate("/volunteer");
-        break;
-
-    case "BIOGAS_PARTNER":
-        navigate("/industry");
-        break;
-
-    default:
-        navigate("/");
-}
+            setShowOtpModal(true);
 
         } catch (err) {
 
@@ -84,7 +86,7 @@ function Login() {
                 console.log("Status:", err.response.status);
                 console.log("Data:", err.response.data);
 
-                alert(err.response.data.message || "Login failed");
+                alert(err.response.data?.message || "Login failed");
 
             } else if (err.request) {
 
@@ -95,8 +97,22 @@ function Login() {
                 alert(err.message);
             }
 
-          //  captchaRef.current.refresh();
+            captchaRef.current.refresh();
         }
+    };
+
+    const handleVerifyLoginOtp = async (otp) => {
+
+        // Step 2: verify OTP -> backend returns the LoginResponseDTO (token + user info)
+        const response = await verifyLoginOtp(email, otp);
+
+        saveSession(response.data);
+        setShowOtpModal(false);
+        redirectByRole(response.data.accountType);
+    };
+
+    const handleResendLoginOtp = async () => {
+        await resendLoginOtp(email);
     };
 
     return (
@@ -175,16 +191,15 @@ function Login() {
 
                                 </div>
 
-                                {/* { ---- CAPTCHA ---- */}
-                                {/* <Captcha ref={captchaRef} /> */}
+                                {/* ---- CAPTCHA ---- */}
+                                <Captcha ref={captchaRef} />
 
                                 <button
                                     type="submit"
                                     className="signin-btn"
                                 >
                                     Sign In →
-                                </button> 
-                                {/* } */}
+                                </button>
 
                             </form>
 
@@ -270,6 +285,17 @@ function Login() {
                 </div>
 
             </div>
+
+            {showOtpModal && (
+                <OtpModal
+                    email={email}
+                    title="Verify Your Login"
+                    subtitle={<>We've sent a 6-digit login code to <strong>{email}</strong></>}
+                    onVerify={handleVerifyLoginOtp}
+                    onResend={handleResendLoginOtp}
+                    onClose={() => setShowOtpModal(false)}
+                />
+            )}
 
         </div>
 

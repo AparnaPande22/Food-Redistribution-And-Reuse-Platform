@@ -105,4 +105,8 @@ public class User {
 	private LocalDateTime otpExpiry;
 
 	private boolean verified;
+	
+	@Column(name = "otp_purpose", length = 20)
+	@Enumerated(EnumType.STRING)
+	private OtpPurpose otpPurpose;
 }

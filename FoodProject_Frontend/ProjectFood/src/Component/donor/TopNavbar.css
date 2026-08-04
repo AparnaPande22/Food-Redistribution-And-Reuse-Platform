@@ -36,6 +36,60 @@
     margin:0;
     color:#888;
     font-size:13px;
+}.top-navbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid #e8e8e8;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 35px;
+}
+
+.navbar-title{
+    flex:1;
+}
+
+.user-info{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-left:auto;
+}
+
+.user-text{
+    text-align:right;
+}
+
+.user-text h4{
+    margin:0;
+    font-size:16px;
+    color:#184b37;
+    font-weight:600;
+}
+
+.user-text p{
+    margin:0;
+    color:#888;
+    font-size:13px;
+}
+
+.avatar{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+
+    background:#184b37;
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:bold;
+    font-size:18px;
 }
 
 .avatar{

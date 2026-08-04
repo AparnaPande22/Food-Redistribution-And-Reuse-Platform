@@ -1,10 +1,9 @@
 import { useState, useRef } from "react";
 import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser} from "../services/authService";
-//, verifyOtp, resendOtp
-// import Captcha from "./Captcha";
-// import OtpModal from "./OtpModal";
+import { registerUser, verifyOtp, resendOtp } from "../services/authService";
+import Captcha from "./Captcha";
+import OtpModal from "./OtpModal";
 
 function Register() {
 
@@ -80,14 +79,14 @@ function Register() {
     };
 
     const handleVerifyOtp = async (otp) => {
-        await verifyOtp(formData.email, otp);
+        await verifyOtp(formData.email, otp, "REGISTER");
         alert("Email verified successfully! Please log in.");
         setShowOtpModal(false);
         navigate("/login");
     };
 
     const handleResendOtp = async () => {
-        await resendOtp(formData.email);
+        await resendOtp(formData.email, "REGISTER");
     };
 
     return (
@@ -312,6 +311,7 @@ function Register() {
             {showOtpModal && (
                 <OtpModal
                     email={formData.email}
+                    title="Verify Your Email"
                     onVerify={handleVerifyOtp}
                     onResend={handleResendOtp}
                     onClose={() => setShowOtpModal(false)}
