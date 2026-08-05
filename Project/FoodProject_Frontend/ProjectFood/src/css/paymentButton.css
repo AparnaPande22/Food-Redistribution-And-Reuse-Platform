@@ -1,0 +1,34 @@
+.payment-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    background:#16a34a;
+    color:#fff;
+
+    border:none;
+    border-radius:8px;
+
+    padding:12px 22px;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.payment-btn:hover{
+    background:#15803d;
+    transform:translateY(-2px);
+}
+
+.payment-btn:active{
+    transform:scale(.98);
+}
+
+.payment-btn svg{
+    font-size:18px;
+}

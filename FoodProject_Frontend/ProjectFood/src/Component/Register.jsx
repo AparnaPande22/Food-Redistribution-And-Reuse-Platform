@@ -226,7 +226,7 @@ function Register() {
 
                             <div className="row g-3 mt-1">
 
-                                <div className="col-12">
+                                <div className="col-6">
 
                                     <button
                                         type="button"
@@ -238,6 +238,23 @@ function Register() {
                                         />
 
                                         <span>Google</span>
+
+                                    </button>
+
+                                </div>
+
+                                <div className="col-6">
+
+                                    <button
+                                        type="button"
+                                        className="social-btn"
+                                    >
+                                        <img
+                                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg"
+                                            alt="LinkedIn"
+                                        />
+
+                                        <span>LinkedIn</span>
 
                                     </button>
 

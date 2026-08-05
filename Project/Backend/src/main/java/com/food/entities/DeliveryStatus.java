@@ -1,0 +1,14 @@
+package com.food.entities;
+
+public enum DeliveryStatus {
+
+	AVAILABLE,
+	REQUESTED,
+	ASSIGNED,
+	PICKED_UP,
+	DELIVERED,
+	EXPIRED,
+	NOT_EDIBLE,
+	SENT_TO_BIOGAS,
+	BIOGAS_COMPLETED, COMPLETED, IN_PROGRESS
+}

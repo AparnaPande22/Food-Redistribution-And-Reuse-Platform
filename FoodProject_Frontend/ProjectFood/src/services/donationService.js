@@ -1,46 +1,56 @@
-import api from "./api";
+// Kept for backward compatibility with existing Donor/Admin pages -
+// forwards to the corrected requestService (/api/requests) under the hood.
+import {
+  addRequest,
+  getRequestById,
+  getAllRequests,
+  getActiveRequests,
+  getMyRequests,
+  updateRequest,
+  cancelRequest,
+} from "./requestService";
 
 const createDonation = async (data) => {
-  const response = await api.post("/request", data);
-  return response.data;
+  const res = await addRequest(data);
+  return res.data;
 };
 
-const getMyDonations = async (userId) => {
-  const response = await api.get(`/request/my/${userId}`);
-  return response.data;
+const getMyDonations = async () => {
+  const res = await getMyRequests();
+  return res.data;
 };
 
 const getDonationById = async (id) => {
-  const response = await api.get(`/request/id/${id}`);
-  return response.data;
+  const res = await getRequestById(id);
+  return res.data;
 };
 
-const getAllRequests = async () => {
-  const response = await api.get("/request");
-  return response.data;
+const getAllDonations = async () => {
+  const res = await getAllRequests();
+  return res.data;
 };
 
-const getActiveRequests = async () => {
-  const response = await api.get("/request/active");
-  return response.data;
+const getActiveDonations = async () => {
+  const res = await getActiveRequests();
+  return res.data;
 };
 
 const updateDonation = async (id, data) => {
-  const response = await api.put(`/request/update/${id}`, data);
-  return response.data;
+  const res = await updateRequest(id, data);
+  return res.data;
 };
 
 const cancelDonation = async (id) => {
-  const response = await api.put(`/request/cancel/${id}`);
-  return response.data;
+  const res = await cancelRequest(id);
+  return res.data;
 };
 
 export default {
   createDonation,
   getMyDonations,
   getDonationById,
-  getAllRequests,
-  getActiveRequests,
+  getAllRequests: getAllDonations,
+  getActiveRequests: getActiveDonations,
   updateDonation,
   cancelDonation,
 };
