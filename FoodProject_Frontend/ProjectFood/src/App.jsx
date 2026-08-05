@@ -7,6 +7,7 @@ import AdminMatchingQueuePage from "./Pages/admin/AdminMatchingQueuePage";
 import AdminDonationsPage from "./Pages/admin/AdminDonationsPage";
 import AdminDeliveriesPage from "./Pages/admin/AdminDeliveriesPage";
 import AdminReportsPage from "./Pages/admin/AdminReportsPage";
+import DonationMap from "./pages/admin/DonationMap";
 import DonorDashboard from "./Pages/donor/DonorDashboard";
 import ReceiverDashboard from "./Pages/ReceiverDashboard";
 import VolunteerDashboard from "./Pages/VolunteerDashboard";
@@ -16,7 +17,7 @@ import CreateDonation from "./Pages/donor/CreateDonation";
 import DonationSubmitted from "./Pages/donor/DonationSubmitted";
 import DonationHistory from "./Pages/donor/DonationHistory";
 import DonationDetails from "./Pages/donor/DonationDetails";
-import Payment from "./Pages/Industry/Payment"; 
+import Payment from "./Pages/Industry/Payment";
 import IndustryDashboard from "./Pages/Industry/IndustryDashboard";
 import RequestDetails from "./Pages/industry/RequestDetails";
 
@@ -39,6 +40,10 @@ function App() {
       <Route path="/admin/donations" element={<AdminDonationsPage />} />
       <Route path="/admin/deliveries" element={<AdminDeliveriesPage />} />
       <Route path="/admin/reports" element={<AdminReportsPage />} />
+      <Route
+        path="/admin/map"
+        element={<DonationMap />}
+      />
 
 
       <Route path="/donor" element={<DonorDashboard />} />
