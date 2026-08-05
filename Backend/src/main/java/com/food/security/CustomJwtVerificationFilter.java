@@ -40,7 +40,7 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 
 			String headerValue = request.getHeader("Authorization");
 			System.out.println("Authorization = " + headerValue);
-			
+
 			if (headerValue != null && headerValue.startsWith("Bearer ")) {
 				// 2. Remove "Bearer " from the header
 
@@ -60,7 +60,7 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 
 					UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 					System.out.println("Authorities = " + userDetails.getAuthorities());
-					
+
 					System.out.println("Token Valid = " + jwtUtils.isTokenValid(jwt));
 					// 6. Validate JWT
 					if (jwtUtils.isTokenValid(jwt)) {
@@ -86,17 +86,19 @@ public class CustomJwtVerificationFilter extends OncePerRequestFilter {
 			// Continue with remaining filter chain
 			filterChain.doFilter(request, response);
 
-		}catch (Exception e) {
+		} catch (Exception e) {
 
-		    System.out.println("JWT ERROR = " + e.getClass().getName());
-		    System.out.println("MESSAGE = " + e.getMessage());
+			System.out.println("JWT ERROR = " + e.getClass().getName());
+			System.out.println("MESSAGE = " + e.getMessage());
 
-		    e.printStackTrace();
+			e.printStackTrace();
 
-		    SecurityContextHolder.clearContext();
+			SecurityContextHolder.clearContext();
 
-		    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		    response.getWriter().write(e.getMessage());
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write(e.getMessage());
+
+			logger.warn("JWT Expired");
 		}
 	}
 }

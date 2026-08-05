@@ -26,4 +26,7 @@ public interface UserService {
 
 //update profile
 	String updateProfile(UserDTO request);
+
+	// update location
+	//void updateLocation(String email, LocationDTO locationDTO);
 }

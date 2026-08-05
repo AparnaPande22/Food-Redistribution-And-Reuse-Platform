@@ -95,4 +95,15 @@ public class UserServiceImpl implements UserService {
 		return "Profile Updated Successfully";
 	}
 
+//	@Override
+//	public void updateLocation(String email, LocationDTO locationDTO) {
+//		User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+//
+//		user.setLatitude(locationDTO.getLatitude());
+//		user.setLongitude(locationDTO.getLongitude());
+//
+//		userRepo.save(user);
+//
+//	}
+
 }

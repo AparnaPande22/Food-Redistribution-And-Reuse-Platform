@@ -1,5 +1,6 @@
 package com.food.entities;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -105,4 +106,10 @@ public class Request {
 
 	@Column(name = "waste_reason")
 	private String wasteReason;
+
+	@Column(precision = 10, scale = 7)
+	private BigDecimal latitude;
+
+	@Column(precision = 10, scale = 7)
+	private BigDecimal longitude;
 }

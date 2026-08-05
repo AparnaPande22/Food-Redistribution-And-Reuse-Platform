@@ -85,11 +85,11 @@ public class User {
 	@Column(length = 100, nullable = false)
 	private String city;
 
-	@Column(precision = 10, scale = 7)
-	private BigDecimal latitude;
-
-	@Column(precision = 10, scale = 7)
-	private BigDecimal longitude;
+//	@Column(precision = 10, scale = 7)
+//	private BigDecimal latitude;
+//
+//	@Column(precision = 10, scale = 7)
+//	private BigDecimal longitude;
 
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)

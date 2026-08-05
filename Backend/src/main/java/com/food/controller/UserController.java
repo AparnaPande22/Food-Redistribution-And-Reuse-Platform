@@ -71,4 +71,12 @@ public class UserController {
 
 		return ResponseEntity.ok(userService.updateProfile(request));
 	}
+
+//	@PutMapping("/location")
+//	public ResponseEntity<?> updateLocation(@RequestBody LocationDTO locationDTO, Authentication authentication) {
+//
+//		userService.updateLocation(authentication.getName(), locationDTO);
+//
+//		return ResponseEntity.ok("Location Updated Successfully");
+//	}
 }
