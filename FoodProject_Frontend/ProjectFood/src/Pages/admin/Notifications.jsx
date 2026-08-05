@@ -1,48 +1,52 @@
+import { useEffect, useState } from "react";
 import { FaBell } from "react-icons/fa";
+import { getMyNotifications } from "../../services/notificationService";
 
-function Notifications(){
+function Notifications() {
 
-    const notifications=[
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-        "New NGO Registration",
+    useEffect(() => {
 
-        "Donation Approved",
+        getMyNotifications()
+            .then((res) => setNotifications(res.data || []))
+            .catch((err) => console.log("Error loading notifications:", err))
+            .finally(() => setLoading(false));
 
-        "Delivery Completed",
+    }, []);
 
-        "Driver Assigned",
-
-        "Pending Verification"
-
-    ];
-
-    return(
+    return (
 
         <div className="table-card">
 
             <h2>
 
-                <FaBell/>
+                <FaBell />
 
                 Notifications
 
             </h2>
 
             {
+                loading ? (
+                    <p>Loading...</p>
+                ) : notifications.length === 0 ? (
+                    <p>No notifications yet.</p>
+                ) : (
+                    notifications.slice(0, 5).map((item) => (
 
-                notifications.map((item,index)=>(
+                        <div
+                            className="notification"
+                            key={item.id}
+                        >
 
-                    <div
-                        className="notification"
-                        key={index}
-                    >
+                            {item.message}
 
-                        {item}
+                        </div>
 
-                    </div>
-
-                ))
-
+                    ))
+                )
             }
 
         </div>

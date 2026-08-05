@@ -1,67 +1,68 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import {
+    acceptRequest,
+    rejectRequest,
+    markProcessing,
+    completeRequest
+} from "../../services/biogasService";
+
 import "./RequestDetails.css";
 
-const RequestDetails = ({ request }) => {
+const RequestDetails = ({ request, onStatusChange }) => {
 
-if (!request) {
-    return (
-        <div className="details-page">
-            <h2>No Request Selected</h2>
-        </div>
-    );
-}
-
-const reqId = request.requestId || request.id;
-const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-const acceptRequest = async (id) => {
-    try {
-        await api.put("/waste/assign-partner", { requestId: id, partnerId: user.userId });
-        alert("Request #" + id + " Accepted");
-    } catch (err) {
-        console.error("Accept Error:", err);
-        alert("Request Accepted successfully!");
+    if (!request) {
+        return (
+            <div className="details-page">
+                <h2>No Request Selected</h2>
+            </div>
+        );
     }
-};
 
-const rejectRequest = async (id) => {
-    try {
-        await api.put(`/waste/reject/${id}`, { remark: "Capacity full" });
-        alert("Request #" + id + " Rejected");
-    } catch (err) {
-        console.error("Reject Error:", err);
-        alert("Request Rejected.");
-    }
-};
+    const reqId = request.id || request.requestId;
 
-const markProcessing = async (id) => {
-    try {
-        await api.put(`/waste/process/${id}`, {
-            energyGeneratedKwh: 50,
-            organicFertilizerKg: 20,
-            remarks: "In processing"
-        });
-        alert("Request #" + id + " Status: Processing");
-    } catch (err) {
-        console.error("Processing Error:", err);
-        alert("Updated to Processing.");
-    }
-};
+    const handleAccept = async () => {
+        try {
+            await acceptRequest(reqId);
+            alert("Request #" + reqId + " accepted.");
+            onStatusChange?.();
+        } catch (err) {
+            console.error("Accept error:", err);
+            alert(err.response?.data?.message || err.response?.data || "Unable to accept request.");
+        }
+    };
 
-const markComplete = async (id) => {
-    try {
-        await api.put(`/waste/process/${id}`, {
-            energyGeneratedKwh: 100,
-            organicFertilizerKg: 50,
-            remarks: "Processing Complete"
-        });
-        alert("Request #" + id + " Processing Completed!");
-    } catch (err) {
-        console.error("Complete Error:", err);
-        alert("Marked as Completed.");
-    }
-};
+    const handleReject = async () => {
+        try {
+            await rejectRequest(reqId);
+            alert("Request #" + reqId + " rejected.");
+            onStatusChange?.();
+        } catch (err) {
+            console.error("Reject error:", err);
+            alert(err.response?.data?.message || err.response?.data || "Unable to reject request.");
+        }
+    };
+
+    const handleMarkProcessing = async () => {
+        try {
+            await markProcessing(reqId);
+            alert("Request #" + reqId + " marked as processing.");
+            onStatusChange?.();
+        } catch (err) {
+            console.error("Processing error:", err);
+            alert(err.response?.data?.message || err.response?.data || "Unable to update status.");
+        }
+    };
+
+    const handleComplete = async () => {
+        try {
+            await completeRequest(reqId);
+            alert("Request #" + reqId + " marked as completed.");
+            onStatusChange?.();
+        } catch (err) {
+            console.error("Complete error:", err);
+            alert(err.response?.data?.message || err.response?.data || "Unable to complete request.");
+        }
+    };
+
     return (
 
         <div className="details-page">
@@ -74,12 +75,12 @@ const markComplete = async (id) => {
 
                     <div>
                         <label>Donation ID</label>
-                        <p>#{request.id}</p>
+                        <p>#{reqId}</p>
                     </div>
 
                     <div>
                         <label>Status</label>
-                        <span className={`status ${request.status.toLowerCase()}`}>
+                        <span className={`status ${(request.status || "").toLowerCase()}`}>
                             {request.status}
                         </span>
                     </div>
@@ -89,7 +90,7 @@ const markComplete = async (id) => {
                 <div className="row">
 
                     <div>
-                        <label>Restaurant</label>
+                        <label>Donor</label>
                         <p>{request.donorName}</p>
                     </div>
 
@@ -117,13 +118,13 @@ const markComplete = async (id) => {
                 <div className="row">
 
                     <div>
-                        <label>Price / Kg</label>
-                        <p>₹ {request.pricePerKg}</p>
+                        <label>Address</label>
+                        <p>{request.pickupAddress}</p>
                     </div>
 
                     <div>
-                        <label>Total Amount</label>
-                        <h3>₹ {request.totalAmount}</h3>
+                        <label>Estimated Meals</label>
+                        <p>{request.estimatedMeals}</p>
                     </div>
 
                 </div>
@@ -131,32 +132,32 @@ const markComplete = async (id) => {
                 <div className="buttons">
 
                     <button
-    className="accept"
-    onClick={() => acceptRequest(request.id)}
->
-    Accept
-</button>
+                        className="accept"
+                        onClick={handleAccept}
+                    >
+                        Accept
+                    </button>
 
                     <button
-    className="reject"
-    onClick={() => rejectRequest(request.id)}
->
-    Reject
-</button>
+                        className="reject"
+                        onClick={handleReject}
+                    >
+                        Reject
+                    </button>
 
                     <button
-    className="processing"
-    onClick={() => markProcessing(request.id)}
->
-    Mark Processing
-</button>
+                        className="processing"
+                        onClick={handleMarkProcessing}
+                    >
+                        Mark Processing
+                    </button>
 
                     <button
-    className="complete"
-    onClick={() => markComplete(request.id)}
->
-    Complete
-</button>
+                        className="complete"
+                        onClick={handleComplete}
+                    >
+                        Complete
+                    </button>
 
                 </div>
 

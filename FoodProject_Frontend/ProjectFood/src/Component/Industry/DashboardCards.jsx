@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import api from "../../services/api";
-import axios from "axios";
 import {
     FaClipboardList,
     FaWallet,
@@ -8,63 +6,37 @@ import {
     FaCheckCircle
 } from "react-icons/fa";
 
+import { getDashboard } from "../../services/biogasService";
+
 import "../../css/industryCards.css";
-// import { getDashboard } from "../../services/biogasApi";
 
 const DashboardCards = () => {
 
-  useEffect(() => {
+    const [dashboard, setDashboard] = useState({
+        pendingRequests: 0,
+        totalPaid: 0,
+        processing: 0,
+        completed: 0
+    });
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    useEffect(() => {
 
-    if (!user) {
-        console.error("User not found in localStorage");
-        return;
-    }
+        getDashboard()
+            .then((res) => {
 
-    if (!user.userId) {
-        console.error("userId not found");
-        return;
-    }
+                const data = res.data || {};
 
-    api.get(`/waste/assigned/${user.userId}`)
-        .then((res) => {
+                setDashboard({
+                    pendingRequests: data.pendingRequests ?? 0,
+                    totalPaid: data.totalPaid ?? 0,
+                    processing: data.processing ?? 0,
+                    completed: data.completed ?? 0
+                });
 
-            const data = res.data;
+            })
+            .catch((err) => console.error("Failed to load dashboard:", err));
 
-            setDashboard({
-
-                pendingRequests: data.filter(
-                    x => x.status === "WASTE_ASSIGNED"
-                ).length,
-
-                processing: data.filter(
-                    x => x.status === "PROCESSING"
-                ).length,
-
-                completed: data.filter(
-                    x => x.status === "WASTE_PROCESSED"
-                ).length,
-
-                totalPaid: 0
-
-            });
-
-        })
-        .catch(err => console.error(err));
-
-}, []);
- const [dashboard, setDashboard] = useState({
-
-    pendingRequests:0,
-
-    totalPaid:0,
-
-    processing:0,
-
-    completed:0
-
-});
+    }, []);
 
     const cards = [
 
@@ -108,18 +80,18 @@ const DashboardCards = () => {
 
             {
 
-                cards.map((card,index)=>(
+                cards.map((card, index) => (
 
                     <div
-                    className="dashboard-card"
-                    key={index}
+                        className="dashboard-card"
+                        key={index}
                     >
 
                         <div
-                        className="card-icon"
-                        style={{
-                            background:card.color
-                        }}
+                            className="card-icon"
+                            style={{
+                                background: card.color
+                            }}
                         >
 
                             {card.icon}

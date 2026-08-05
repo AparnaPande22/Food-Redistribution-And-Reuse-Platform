@@ -19,7 +19,11 @@ import DonationHistory from "./Pages/donor/DonationHistory";
 import DonationDetails from "./Pages/donor/DonationDetails";
 import Payment from "./Pages/Industry/Payment";
 import IndustryDashboard from "./Pages/Industry/IndustryDashboard";
-import RequestDetails from "./Pages/industry/RequestDetails";
+import RequestDetails from "./Pages/Industry/RequestDetails";
+import IndustryProfile from "./Pages/Industry/Profile";
+import IndustryChangePassword from "./Pages/Industry/ChangePassword";
+import IndustryNotifications from "./Pages/Industry/Notifications";
+import IndustryRequestHistory from "./Pages/Industry/RequestHistory";
 
 function App() {
   return (
@@ -62,6 +66,10 @@ function App() {
       <Route path="/payment" element={<Payment />} />
       <Route path="/industry" element={<IndustryDashboard />} />
       <Route path="/industry/request/:id" element={<RequestDetails />} />
+      <Route path="/industry/history" element={<IndustryRequestHistory />} />
+      <Route path="/industry/notifications" element={<IndustryNotifications />} />
+      <Route path="/industry/profile" element={<IndustryProfile />} />
+      <Route path="/industry/change-password" element={<IndustryChangePassword />} />
     </Routes>
   );
 }

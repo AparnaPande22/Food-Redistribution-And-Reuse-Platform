@@ -1,140 +1,109 @@
 import { useState, useEffect } from "react";
-import axios from "axios";import {
-  FaLeaf,
-  FaRecycle,
-  FaCloud,
-  FaIndustry,
+import {
+    FaLeaf,
+    FaRecycle,
+    FaCloud,
+    FaIndustry,
 } from "react-icons/fa";
-import api from "../../services/api";
+
+import { getEnvironmentalImpact } from "../../services/biogasService";
+
 import "../../css/environmentCards.css";
 
 const EnvironmentCards = () => {
-const [impact, setImpact] = useState({});
 
-useEffect(()=>{
+    const [impact, setImpact] = useState({
+        co2Saved: 0,
+        wasteProcessed: 0,
+        biogasGenerated: 0,
+        compostProduced: 0,
+    });
 
-api
+    useEffect(() => {
 
-.get("http://localhost:8080/food/api/waste/processed")
+        // Optional API - if the backend hasn't implemented it yet, fail quietly.
+        getEnvironmentalImpact()
+            .then((res) => {
 
-.then(res=>{
+                const data = res.data || {};
 
-const processed=res.data;
+                setImpact({
+                    co2Saved: data.co2Saved ?? 0,
+                    wasteProcessed: data.wasteProcessed ?? 0,
+                    biogasGenerated: data.biogasGenerated ?? 0,
+                    compostProduced: data.compostProduced ?? 0,
+                });
 
-const today=new Date().toISOString().split("T")[0];
+            })
+            .catch((err) => console.log("Environmental impact unavailable:", err));
 
-const todayWaste=processed.filter(
+    }, []);
 
-x=>x.wasteProcessedDate &&
+    const cards = [
+        {
+            title: "CO₂ Saved",
+            value: `${impact.co2Saved} kg`,
+            icon: <FaCloud />,
+            color: "#10b981",
+        },
+        {
+            title: "Waste Processed",
+            value: `${impact.wasteProcessed} kg`,
+            icon: <FaRecycle />,
+            color: "#3b82f6",
+        },
+        {
+            title: "Biogas Generated",
+            value: `${impact.biogasGenerated} m³`,
+            icon: <FaIndustry />,
+            color: "#f59e0b",
+        },
+        {
+            title: "Organic Compost",
+            value: `${impact.compostProduced} kg`,
+            icon: <FaLeaf />,
+            color: "#16a34a",
+        },
+    ];
 
-x.wasteProcessedDate.startsWith(today)
+    return (
+        <div className="environment-section">
 
-);
+            <div className="section-header">
 
-const meals=todayWaste.reduce(
+                <h2>🌍 Environmental Impact</h2>
 
-(sum,item)=>sum+(item.estimatedMeals||0),
-
-0
-
-);
-
-const biogas=todayWaste.reduce(
-
-(sum,item)=>sum+(item.biogasGenerated||0),
-
-0
-
-);
-
-const compost=todayWaste.reduce(
-
-(sum,item)=>sum+(item.fertilizerGenerated||0),
-
-0
-
-);
-
-setImpact({
-
-co2Saved:(meals*0.45).toFixed(1),
-
-wasteProcessed:todayWaste.length,
-
-biogasGenerated:biogas,
-
-compostProduced:compost
-
-});
-
-});
-
-},[]);
-  const cards = [
-    {
-      title: "CO₂ Saved",
-      value: `${impact.co2Saved} kg`,
-      icon: <FaCloud />,
-      color: "#10b981",
-    },
-    {
-      title: "Waste Processed",
-      value: `${impact.wasteProcessed} kg`,
-      icon: <FaRecycle />,
-      color: "#3b82f6",
-    },
-    {
-      title: "Biogas Generated",
-      value: `${impact.biogasGenerated} m³`,
-      icon: <FaIndustry />,
-      color: "#f59e0b",
-    },
-    {
-      title: "Organic Compost",
-      value: `${impact.compostProduced} kg`,
-      icon: <FaLeaf />,
-      color: "#16a34a",
-    },
-  ];
-
-  return (
-    <div className="environment-section">
-
-      <div className="section-header">
-
-        <h2>🌍 Environmental Impact</h2>
-
-        <span>Today's Contribution</span>
-
-      </div>
-
-      <div className="environment-grid">
-
-        {cards.map((card, index) => (
-          <div className="environment-card" key={index}>
-
-            <div
-              className="environment-icon"
-              style={{ background: card.color }}
-            >
-              {card.icon}
-            </div>
-
-            <div className="environment-content">
-
-              <h3>{card.value}</h3>
-
-              <p>{card.title}</p>
+                <span>Today's Contribution</span>
 
             </div>
 
-          </div>
-        ))}
+            <div className="environment-grid">
 
-      </div>
+                {cards.map((card, index) => (
+                    <div className="environment-card" key={index}>
 
-    </div>
-  );
+                        <div
+                            className="environment-icon"
+                            style={{ background: card.color }}
+                        >
+                            {card.icon}
+                        </div>
+
+                        <div className="environment-content">
+
+                            <h3>{card.value}</h3>
+
+                            <p>{card.title}</p>
+
+                        </div>
+
+                    </div>
+                ))}
+
+            </div>
+
+        </div>
+    );
 };
 
 export default EnvironmentCards;

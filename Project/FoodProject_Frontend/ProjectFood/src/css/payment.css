@@ -1,0 +1,291 @@
+.payment-page{
+
+    min-height:100vh;
+
+    background:
+    linear-gradient(
+        120deg,
+        #fffaf5,
+        #eef5e9
+    );
+
+    padding:30px 70px;
+
+    font-family:
+    "Inter",
+    sans-serif;
+
+}
+
+
+
+.payment-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+
+.payment-header h2{
+
+    color:#064e3b;
+
+    font-size:26px;
+
+}
+
+
+
+.payment-header span{
+
+    color:#555;
+
+    font-size:14px;
+
+}
+
+
+
+
+
+.payment-wrapper{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:70px;
+
+    margin-top:70px;
+
+}
+
+
+
+
+
+.payment-card{
+
+    width:420px;
+
+    background:#ffffff;
+
+    padding:40px;
+
+    border-radius:22px;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.08);
+
+}
+
+
+
+
+.payment-card h1{
+
+    color:#073b2a;
+
+    font-size:32px;
+
+}
+
+
+
+.subtitle{
+
+    color:#666;
+
+}
+
+
+
+
+.donor-box{
+
+
+    margin-top:30px;
+
+    background:#f4f8f1;
+
+    padding:18px;
+
+    border-radius:14px;
+
+}
+
+
+.donor-box p{
+
+    color:#777;
+
+    margin:0;
+
+}
+
+
+
+.donor-box h3{
+
+    color:#064e3b;
+
+}
+
+
+
+
+
+
+
+.amount-box{
+
+
+    margin-top:20px;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    background:#fff3ed;
+
+
+}
+
+
+
+.amount-box span{
+
+    color:#777;
+
+}
+
+
+
+.amount-box h2{
+
+    color:#064e3b;
+
+    font-size:35px;
+
+}
+
+
+
+
+
+.pay-button{
+
+
+    width:100%;
+
+    margin-top:30px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:30px;
+
+
+    background:#064e3b;
+
+
+    color:white;
+
+
+    font-size:16px;
+
+    cursor:pointer;
+
+
+}
+
+
+
+.pay-button:hover{
+
+
+    background:#083f2d;
+
+}
+
+
+
+
+
+.impact-card{
+
+
+    width:350px;
+
+    height:350px;
+
+
+    border-radius:30px;
+
+
+    background:
+
+    linear-gradient(
+    rgba(0,40,20,.45),
+    rgba(0,40,20,.55)
+    ),
+
+    url("https://images.unsplash.com/photo-1532187863486-abf9dbad1b69")
+    center/cover;
+
+
+    display:flex;
+
+    align-items:flex-end;
+
+}
+
+
+
+.image-overlay{
+
+
+    color:white;
+
+    padding:30px;
+
+}
+
+
+.image-overlay h3{
+
+    font-size:13px;
+
+    opacity:.8;
+
+}
+
+
+.image-overlay h1{
+
+    font-size:30px;
+
+}
+
+
+
+footer{
+
+
+    text-align:center;
+
+    margin-top:80px;
+
+    color:#777;
+
+    font-size:13px;
+
+
+}

@@ -1,0 +1,125 @@
+.progress-card{
+
+    margin-top:20px;
+
+    background:#fff;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.progress-card h2{
+
+    color:#166534;
+
+    margin-bottom:25px;
+
+}
+
+.progress-timeline{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:25px;
+
+}
+
+.progress-step{
+
+    display:flex;
+
+    align-items:center;
+
+    position:relative;
+
+}
+
+.progress-step:not(:last-child)::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:20px;
+
+    top:45px;
+
+    width:3px;
+
+    height:45px;
+
+    background:#d1d5db;
+
+}
+
+.progress-step.active:not(:last-child)::after{
+
+    background:#16a34a;
+
+}
+
+.progress-icon{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:#d1d5db;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    margin-right:15px;
+
+    font-size:18px;
+
+}
+
+.progress-step.active .progress-icon{
+
+    background:#16a34a;
+
+}
+
+.progress-text{
+
+    font-weight:600;
+
+    color:#374151;
+
+}
+
+.progress-step.active .progress-text{
+
+    color:#16a34a;
+
+}
+
+@media(max-width:768px){
+
+.progress-card{
+
+padding:20px;
+
+}
+
+.progress-text{
+
+font-size:14px;
+
+}
+
+}

@@ -17,6 +17,12 @@ import "../../css/industryResponsive.css";
 const IndustryDashboard = () => {
 
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const handleStatusChange = () => {
+        setSelectedRequest(null);
+        setRefreshKey((k) => k + 1);
+    };
 
     return (
 
@@ -35,6 +41,7 @@ const IndustryDashboard = () => {
                     <div className="left-panel">
 
                         <PendingRequests
+                            key={refreshKey}
                             selectedRequest={selectedRequest}
                             setSelectedRequest={setSelectedRequest}
                         />
@@ -55,6 +62,7 @@ const IndustryDashboard = () => {
 
                         <RequestDetails
                             request={selectedRequest}
+                            onStatusChange={handleStatusChange}
                         />
 
                         <PaymentSummary

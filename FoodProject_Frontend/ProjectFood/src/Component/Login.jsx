@@ -209,7 +209,7 @@ function Login() {
 
                             <div className="row g-3 mt-2">
 
-                                <div className="col-12">
+                                <div className="col-6">
 
                                     <button type="button" className="social-btn">
 
@@ -224,7 +224,20 @@ function Login() {
 
                                 </div>
 
-                                
+                                <div className="col-6">
+
+                                    <button type="button" className="social-btn">
+
+                                        <img
+                                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg"
+                                            alt="linkedin"
+                                        />
+
+                                        <span>LinkedIn</span>
+
+                                    </button>
+
+                                </div>
 
                             </div>
 
