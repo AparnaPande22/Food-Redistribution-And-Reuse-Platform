@@ -1,5 +1,6 @@
 package com.food.DTO;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.food.entities.RequestStatus;
@@ -33,5 +34,9 @@ public class RequestResponseDTO {
 	private LocalDateTime createdAt;
 
 	private String message;
+
+	private BigDecimal latitude;
+
+	private BigDecimal longitude;
 
 }

@@ -11,8 +11,19 @@ import {
 } from "./requestService";
 
 const createDonation = async (data) => {
+
   const res = await addRequest(data);
   return res.data;
+
+  console.log("Sending object:", data);
+
+  const response = await api.post("/request", JSON.stringify(data), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
 };
 
 const getMyDonations = async () => {

@@ -23,6 +23,8 @@ function CreateDonation() {
     preparationTime: "",
     expiryTime: "",
     pickupAddress: "",
+    latitude: null,
+    longitude: null,
     deliveryAvailable: false,
     instructions: "",
   });
@@ -38,11 +40,11 @@ function CreateDonation() {
       imageFile: null,
     },
   ]);
-const [receiverType, setReceiverType] = useState("");
+  const [receiverType, setReceiverType] = useState("");
 
-const [receiverId, setReceiverId] = useState("");
+  const [receiverId, setReceiverId] = useState("");
 
-const [receivers, setReceivers] = useState([]);
+  const [receivers, setReceivers] = useState([]);
   const handleInput = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -117,6 +119,32 @@ const [receivers, setReceivers] = useState([]);
     ]);
   };
 
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+
+      if (!navigator.geolocation) {
+        reject("Geolocation is not supported by this browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+
+        (error) => {
+          reject(error.message);
+        }
+
+      );
+
+    });
+  };
+
   const handleSubmit = async () => {
     if (!donation.pickupAddress.trim()) {
       alert("Pickup Address is required");
@@ -151,6 +179,9 @@ const [receivers, setReceivers] = useState([]);
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      const location = await getCurrentLocation();
+
+      console.log(location);
       if (!user || !user.userId) {
         alert("User session not found. Please log in again.");
         navigate("/login");
@@ -172,11 +203,20 @@ const [receivers, setReceivers] = useState([]);
         mealPreference: foodItems[0]?.category || "Cooked Meals",
         estimatedMeals: Number(totalMeals),
         pickUpAddress: donation.pickupAddress,
+
+        latitude: location.latitude,
+        longitude: location.longitude,
+
         deliveryAvailable: Boolean(donation.deliveryAvailable),
         neededBy: expiryFormatted,
-        notes: `${donation.instructions || ""} (Items: ${foodItems.map(i => `${i.name} - ${i.quantity}${i.unit}`).join(", ")})`.substring(0, 499),
+        notes: `${donation.instructions || ""} (Items: ${foodItems
+          .map(i => `${i.name} - ${i.quantity}${i.unit}`)
+          .join(", ")})`.substring(0, 499),
       };
-
+      console.log("Location:", location);
+      console.log("Latitude:", location.latitude);
+      console.log("Longitude:", location.longitude);
+      console.log(requestData);
       await donationService.createDonation(requestData);
 
       resetForm();
@@ -195,7 +235,7 @@ const [receivers, setReceivers] = useState([]);
     }
   };
 
-    return (
+  return (
     <div className="donation-page">
       <Sidebar />
 
@@ -246,104 +286,104 @@ const [receivers, setReceivers] = useState([]);
                   onChange={handleInput}
                 />
 
-            <label>Pickup Address</label>
+                <label>Pickup Address</label>
 
-<input
-    type="text"
-    name="pickupAddress"
-    placeholder="Enter Pickup Address"
-    value={donation.pickupAddress}
-    onChange={handleInput}
-/>
+                <input
+                  type="text"
+                  name="pickupAddress"
+                  placeholder="Enter Pickup Address"
+                  value={donation.pickupAddress}
+                  onChange={handleInput}
+                />
 
-{/* Receiver Type */}
+                {/* Receiver Type */}
 
-<div className="form-group">
+                <div className="form-group">
 
-    <label>Select Receiver Type</label>
+                  <label>Select Receiver Type</label>
 
-    <div className="receiver-options">
+                  <div className="receiver-options">
 
-        <label>
+                    <label>
 
-            <input
-                type="radio"
-                value="NGO"
-                checked={receiverType === "NGO"}
-                onChange={(e) => setReceiverType(e.target.value)}
-            />
+                      <input
+                        type="radio"
+                        value="NGO"
+                        checked={receiverType === "NGO"}
+                        onChange={(e) => setReceiverType(e.target.value)}
+                      />
 
-            NGO
+                      NGO
 
-        </label>
+                    </label>
 
-        <label>
+                    <label>
 
-            <input
-                type="radio"
-                value="BIOGAS"
-                checked={receiverType === "BIOGAS"}
-                onChange={(e) => setReceiverType(e.target.value)}
-            />
+                      <input
+                        type="radio"
+                        value="BIOGAS"
+                        checked={receiverType === "BIOGAS"}
+                        onChange={(e) => setReceiverType(e.target.value)}
+                      />
 
-            Biogas Industry
+                      Biogas Industry
 
-        </label>
+                    </label>
 
-        <label>
+                    <label>
 
-            <input
-                type="radio"
-                value="COMPOST"
-                checked={receiverType === "COMPOST"}
-                onChange={(e) => setReceiverType(e.target.value)}
-            />
+                      <input
+                        type="radio"
+                        value="COMPOST"
+                        checked={receiverType === "COMPOST"}
+                        onChange={(e) => setReceiverType(e.target.value)}
+                      />
 
-            Compost Industry
+                      Compost Industry
 
-        </label>
+                    </label>
 
-    </div>
+                  </div>
 
-</div>
+                </div>
 
-{/* Receiver Dropdown */}
+                {/* Receiver Dropdown */}
 
-<div className="form-group">
+                <div className="form-group">
 
-    <label>Select Receiver</label>
+                  <label>Select Receiver</label>
 
-    <select
-        value={receiverId}
-        onChange={(e) => setReceiverId(e.target.value)}
-    >
+                  <select
+                    value={receiverId}
+                    onChange={(e) => setReceiverId(e.target.value)}
+                  >
 
-        <option value="">
-            Select Receiver
-        </option>
+                    <option value="">
+                      Select Receiver
+                    </option>
 
-        {
+                    {
 
-            receivers.map((receiver) => (
+                      receivers.map((receiver) => (
 
-                <option
-                    key={receiver.id}
-                    value={receiver.id}
-                >
+                        <option
+                          key={receiver.id}
+                          value={receiver.id}
+                        >
 
-                    {receiver.name}
+                          {receiver.name}
 
-                </option>
+                        </option>
 
-            ))
+                      ))
 
-        }
+                    }
 
-    </select>
+                  </select>
 
-</div>
+                </div>
 
-<div className="toggle">
+                <div className="toggle">
                   <div>
                     <span className="toggle-title">
                       Delivery Available

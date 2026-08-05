@@ -42,6 +42,8 @@ public class RequestServiceImpl implements RequestService {
 		request.setNeededBy(dto.getNeededBy());
 		request.setNotes(dto.getNotes());
 		request.setCreatedAt(LocalDateTime.now());
+		request.setLatitude(dto.getLatitude());
+		request.setLongitude(dto.getLongitude());
 		request.setUser(user);
 
 		// Save Request
@@ -60,6 +62,8 @@ public class RequestServiceImpl implements RequestService {
 		response.setNeededBy(savedRequest.getNeededBy());
 		response.setNotes(savedRequest.getNotes());
 		response.setCreatedAt(savedRequest.getCreatedAt());
+		response.setLatitude(savedRequest.getLatitude());
+		response.setLongitude(savedRequest.getLongitude());
 
 		response.setMessage("Request created successfully");
 
@@ -145,6 +149,8 @@ public class RequestServiceImpl implements RequestService {
 		request.setNeededBy(dto.getNeededBy());
 		request.setNotes(dto.getNotes());
 		request.setCreatedAt(LocalDateTime.now());
+		request.setLatitude(dto.getLatitude());
+		request.setLongitude(dto.getLongitude());
 
 		requestRepo.save(request);
 
