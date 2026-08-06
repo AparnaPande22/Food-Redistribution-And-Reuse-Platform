@@ -1,8 +1,8 @@
 ﻿using Razorpay.Api;
-namespace PaymentService.Services    
+namespace PaymentService.Services
 
 {
-    public class RazorpayService: IRazorpayService
+    public class RazorpayService : IRazorpayService
     {
         private readonly IConfiguration configuration;
 

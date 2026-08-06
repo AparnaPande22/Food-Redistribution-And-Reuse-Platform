@@ -12,11 +12,13 @@ namespace PaymentService.Data
 
         public DbSet<Payment> Payments { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
 
             base.OnModelCreating(modelBuilder);
         }

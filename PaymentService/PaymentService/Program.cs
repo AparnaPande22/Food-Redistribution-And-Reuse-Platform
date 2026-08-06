@@ -27,12 +27,11 @@ builder.Services.AddDbContext<PaymentDbContext>(options =>
 
 // Dependency Injection
 
-// Razorpay Service
+// Razorpay Payment Gateway
 builder.Services.AddScoped<IRazorpayService, RazorpayService>();
 
 // Repository
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-
 
 // CORS
 builder.Services.AddCors(options =>

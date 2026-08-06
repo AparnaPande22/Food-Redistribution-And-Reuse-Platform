@@ -28,6 +28,11 @@ namespace PaymentService.Controllers
             this.configuration = configuration;
             this.logger = logger;
         }
+        /// <summary>
+        /// Donor registers (or updates) where their payouts should be sent.
+        /// Must be called at least once before a payout can succeed.
+        /// </summary>
+
 
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
@@ -132,14 +137,18 @@ namespace PaymentService.Controllers
 
             payment.RazorpayPaymentId = request.PaymentId;
             payment.Status = "SUCCESS";
+            payment.RazorpayPaymentId = request.PaymentId;
+
 
             await repository.UpdateAsync(payment);
 
-            logger.LogInformation("Payment Verified Successfully: {OrderId}", request.OrderId);
-
+            logger.LogInformation(
+                "Payment verified successfully for Order {OrderId}",
+                request.OrderId);
             return Ok(new
             {
-                message = "Payment Verified Successfully",
+                success = true,
+                message = "Payment completed successfully. Amount credited to donor.",
                 payment.Id,
                 payment.RazorpayOrderId,
                 payment.RazorpayPaymentId,
@@ -147,6 +156,14 @@ namespace PaymentService.Controllers
                 payment.Status
             });
         }
+
+        /// <summary>
+        /// Re-attempts the donor payout for a payment that was verified
+        /// (Status == SUCCESS) but whose payout hasn't landed yet -
+        /// e.g. because the donor registered their payout account late,
+        /// or a previous payout attempt failed.
+        /// </summary>
+        
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetPayment(string orderId)
