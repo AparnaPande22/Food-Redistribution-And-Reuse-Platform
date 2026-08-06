@@ -11,6 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeliveryOutcomeDTO {
+	
 	@NotNull(message = "Delivery ID is required")
 	private Long deliveryId;
 
