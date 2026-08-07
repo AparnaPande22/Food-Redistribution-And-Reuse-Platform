@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import LandingPage from "./Pages/Landing/LandingPage";
 import Login from "./Component/Login";
 import AdminDashboard from "./Pages/admin/AdminDashboard";
 import Users from "./Pages/admin/Users";
@@ -7,7 +8,7 @@ import AdminMatchingQueuePage from "./Pages/admin/AdminMatchingQueuePage";
 import AdminDonationsPage from "./Pages/admin/AdminDonationsPage";
 import AdminDeliveriesPage from "./Pages/admin/AdminDeliveriesPage";
 import AdminReportsPage from "./Pages/admin/AdminReportsPage";
-import DonationMap from "./pages/admin/DonationMap";
+import DonationMap from "./Pages/admin/DonationMap";
 import DonorDashboard from "./Pages/donor/DonorDashboard";
 import ReceiverDashboard from "./Pages/ReceiverDashboard";
 import VolunteerDashboard from "./Pages/VolunteerDashboard";
@@ -28,7 +29,7 @@ import IndustryRequestHistory from "./Pages/Industry/RequestHistory";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route
