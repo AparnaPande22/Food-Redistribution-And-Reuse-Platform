@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaClock,
@@ -40,11 +39,15 @@ function CreateDonation() {
       imageFile: null,
     },
   ]);
+
   const [receiverType, setReceiverType] = useState("");
-
   const [receiverId, setReceiverId] = useState("");
-
   const [receivers, setReceivers] = useState([]);
+
+  // =========================
+  // Handle normal inputs
+  // =========================
+
   const handleInput = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -53,6 +56,10 @@ function CreateDonation() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  // =========================
+  // Food items
+  // =========================
 
   const addItem = () => {
     setFoodItems((prev) => [
@@ -70,19 +77,35 @@ function CreateDonation() {
   };
 
   const removeItem = (index) => {
-    setFoodItems((prev) => prev.filter((_, i) => i !== index));
+    setFoodItems((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
   };
 
   const handleChange = (index, field, value) => {
-    const updated = [...foodItems];
-    updated[index][field] = value;
-    setFoodItems(updated);
+    setFoodItems((prev) => {
+      const updated = [...prev];
+
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+
+      return updated;
+    });
   };
 
   const handleRating = (index, value) => {
-    const updated = [...foodItems];
-    updated[index].rating = value;
-    setFoodItems(updated);
+    setFoodItems((prev) => {
+      const updated = [...prev];
+
+      updated[index] = {
+        ...updated[index],
+        rating: value,
+      };
+
+      return updated;
+    });
   };
 
   const handleImage = (index, e) => {
@@ -90,21 +113,36 @@ function CreateDonation() {
 
     if (!file) return;
 
-    const updated = [...foodItems];
-    updated[index].image = URL.createObjectURL(file);
-    updated[index].imageFile = file;
+    setFoodItems((prev) => {
+      const updated = [...prev];
 
-    setFoodItems(updated);
+      updated[index] = {
+        ...updated[index],
+        image: URL.createObjectURL(file),
+        imageFile: file,
+      };
+
+      return updated;
+    });
   };
+
+  // =========================
+  // Reset form
+  // =========================
 
   const resetForm = () => {
     setDonation({
       preparationTime: "",
       expiryTime: "",
       pickupAddress: "",
+      latitude: null,
+      longitude: null,
       deliveryAvailable: false,
       instructions: "",
     });
+
+    setReceiverType("");
+    setReceiverId("");
 
     setFoodItems([
       {
@@ -119,31 +157,36 @@ function CreateDonation() {
     ]);
   };
 
+  // =========================
+  // Get current location
+  // =========================
+
   const getCurrentLocation = () => {
     return new Promise((resolve, reject) => {
-
       if (!navigator.geolocation) {
-        reject("Geolocation is not supported by this browser.");
+        reject(
+          "Geolocation is not supported by this browser."
+        );
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
-
         (position) => {
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
         },
-
         (error) => {
           reject(error.message);
         }
-
       );
-
     });
   };
+
+  // =========================
+  // Submit donation
+  // =========================
 
   const handleSubmit = async () => {
     if (!donation.pickupAddress.trim()) {
@@ -167,7 +210,10 @@ function CreateDonation() {
         return;
       }
 
-      if (!item.quantity || Number(item.quantity) <= 0) {
+      if (
+        !item.quantity ||
+        Number(item.quantity) <= 0
+      ) {
         alert("Enter a valid quantity");
         return;
       }
@@ -178,121 +224,203 @@ function CreateDonation() {
     setLoading(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      const location = await getCurrentLocation();
+      const user = JSON.parse(
+        localStorage.getItem("user")
+      );
 
-      console.log(location);
       if (!user || !user.userId) {
-        alert("User session not found. Please log in again.");
+        alert(
+          "User session not found. Please log in again."
+        );
+
         navigate("/login");
         return;
       }
 
+      const location = await getCurrentLocation();
+
+      console.log("Current Location:", location);
+
       const totalMeals = foodItems.reduce(
-        (sum, item) => sum + Number(item.quantity || 0),
+        (sum, item) =>
+          sum + Number(item.quantity || 0),
         0
       );
 
-      // Ensure ISO LocalDateTime format for Jackson (e.g. YYYY-MM-DDTHH:mm:ss)
-      const expiryFormatted = donation.expiryTime.length === 16 ? `${donation.expiryTime}:00` : donation.expiryTime;
+      // Convert datetime-local value
+      // YYYY-MM-DDTHH:mm
+      // to
+      // YYYY-MM-DDTHH:mm:ss
+
+      const expiryFormatted =
+        donation.expiryTime.length === 16
+          ? `${donation.expiryTime}:00`
+          : donation.expiryTime;
 
       const requestData = {
         userId: Number(user.userId),
+
         requestType: "DONATION",
+
         status: "ACTIVE",
-        mealPreference: foodItems[0]?.category || "Cooked Meals",
+
+        mealPreference:
+          foodItems[0]?.category ||
+          "Cooked Meals",
+
         estimatedMeals: Number(totalMeals),
-        pickUpAddress: donation.pickupAddress,
+
+        pickUpAddress:
+          donation.pickupAddress,
 
         latitude: location.latitude,
+
         longitude: location.longitude,
 
-        deliveryAvailable: Boolean(donation.deliveryAvailable),
+        deliveryAvailable:
+          Boolean(
+            donation.deliveryAvailable
+          ),
+
         neededBy: expiryFormatted,
+
         notes: `${donation.instructions || ""} (Items: ${foodItems
-          .map(i => `${i.name} - ${i.quantity}${i.unit}`)
+          .map(
+            (item) =>
+              `${item.name} - ${item.quantity}${item.unit}`
+          )
           .join(", ")})`.substring(0, 499),
       };
-      console.log("Location:", location);
-      console.log("Latitude:", location.latitude);
-      console.log("Longitude:", location.longitude);
-      console.log(requestData);
-      await donationService.createDonation(requestData);
+
+      console.log(
+        "Donation Request:",
+        requestData
+      );
+
+      await donationService.createDonation(
+        requestData
+      );
 
       resetForm();
 
-      alert("Surplus Food Listing Created Successfully!");
+      alert(
+        "Surplus Food Listing Created Successfully!"
+      );
+
       navigate("/donor/donation-submitted");
     } catch (error) {
-      console.log("Create donation error:", error);
+      console.error(
+        "Create donation error:",
+        error
+      );
+
+      console.error(
+        "Backend response:",
+        error.response
+      );
+
       if (error.response?.data?.message) {
-        alert(`Error: ${error.response.data.message}`);
+        alert(
+          `Error: ${error.response.data.message}`
+        );
       } else {
-        alert("Failed to submit donation. Please verify inputs.");
+        alert(
+          "Failed to submit donation. Please verify inputs."
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================
+  // JSX
+  // =========================
+
   return (
     <div className="donation-page">
+
+      {/* FIXED SIDEBAR */}
       <Sidebar />
 
-      <div className="main-section">
+      {/* MAIN CONTENT */}
+      <main className="main-section">
+
         <TopNavbar />
 
         <div className="page-content">
+
           {/* Header */}
 
           <div className="page-header">
+
             <h1>Create Donation</h1>
 
             <p className="subtitle">
-              Share details of your surplus food so it can be matched with
-              communities in need.
+              Share details of your surplus food so it
+              can be matched with communities in need.
             </p>
+
           </div>
 
-          {/* Grid */}
+          {/* =========================
+              DONATION GRID
+          ========================= */}
 
           <div className="donation-grid">
-            {/* LEFT */}
+
+            {/* =========================
+                LEFT PANEL
+            ========================= */}
 
             <div className="left-panel">
-              {/* Timing */}
+
+              {/* Timing & Logistics */}
 
               <div className="card">
+
                 <h3>
                   <FaClock />
                   Timing & Logistics
                 </h3>
 
-                <label>Food Preparation Time</label>
+                <label>
+                  Food Preparation Time
+                </label>
 
                 <input
                   type="datetime-local"
                   name="preparationTime"
-                  value={donation.preparationTime}
+                  value={
+                    donation.preparationTime
+                  }
                   onChange={handleInput}
                 />
 
-                <label>Expiry Time</label>
+                <label>
+                  Expiry Time
+                </label>
 
                 <input
                   type="datetime-local"
                   name="expiryTime"
-                  value={donation.expiryTime}
+                  value={
+                    donation.expiryTime
+                  }
                   onChange={handleInput}
                 />
 
-                <label>Pickup Address</label>
+                <label>
+                  Pickup Address
+                </label>
 
                 <input
                   type="text"
                   name="pickupAddress"
                   placeholder="Enter Pickup Address"
-                  value={donation.pickupAddress}
+                  value={
+                    donation.pickupAddress
+                  }
                   onChange={handleInput}
                 />
 
@@ -300,46 +428,72 @@ function CreateDonation() {
 
                 <div className="form-group">
 
-                  <label>Select Receiver Type</label>
+                  <label>
+                    Select Receiver Type
+                  </label>
 
                   <div className="receiver-options">
 
-                    <label>
+                    <label className="radio-option">
 
                       <input
                         type="radio"
                         value="NGO"
-                        checked={receiverType === "NGO"}
-                        onChange={(e) => setReceiverType(e.target.value)}
+                        checked={
+                          receiverType === "NGO"
+                        }
+                        onChange={(e) =>
+                          setReceiverType(
+                            e.target.value
+                          )
+                        }
                       />
 
-                      NGO
+                      <span>NGO</span>
 
                     </label>
 
-                    <label>
+                    <label className="radio-option">
 
                       <input
                         type="radio"
                         value="BIOGAS"
-                        checked={receiverType === "BIOGAS"}
-                        onChange={(e) => setReceiverType(e.target.value)}
+                        checked={
+                          receiverType ===
+                          "BIOGAS"
+                        }
+                        onChange={(e) =>
+                          setReceiverType(
+                            e.target.value
+                          )
+                        }
                       />
 
-                      Biogas Industry
+                      <span>
+                        Biogas Industry
+                      </span>
 
                     </label>
 
-                    <label>
+                    <label className="radio-option">
 
                       <input
                         type="radio"
                         value="COMPOST"
-                        checked={receiverType === "COMPOST"}
-                        onChange={(e) => setReceiverType(e.target.value)}
+                        checked={
+                          receiverType ===
+                          "COMPOST"
+                        }
+                        onChange={(e) =>
+                          setReceiverType(
+                            e.target.value
+                          )
+                        }
                       />
 
-                      Compost Industry
+                      <span>
+                        Compost Industry
+                      </span>
 
                     </label>
 
@@ -347,44 +501,50 @@ function CreateDonation() {
 
                 </div>
 
-                {/* Receiver Dropdown */}
+                {/* Receiver */}
 
                 <div className="form-group">
 
-                  <label>Select Receiver</label>
+                  <label>
+                    Select Receiver
+                  </label>
 
                   <select
                     value={receiverId}
-                    onChange={(e) => setReceiverId(e.target.value)}
+                    onChange={(e) =>
+                      setReceiverId(
+                        e.target.value
+                      )
+                    }
                   >
 
                     <option value="">
                       Select Receiver
                     </option>
 
-                    {
-
-                      receivers.map((receiver) => (
-
+                    {receivers.map(
+                      (receiver) => (
                         <option
                           key={receiver.id}
-                          value={receiver.id}
+                          value={
+                            receiver.id
+                          }
                         >
-
                           {receiver.name}
-
                         </option>
-
-                      ))
-
-                    }
+                      )
+                    )}
 
                   </select>
 
                 </div>
 
+                {/* Delivery */}
+
                 <div className="toggle">
+
                   <div>
+
                     <span className="toggle-title">
                       Delivery Available
                     </span>
@@ -392,24 +552,32 @@ function CreateDonation() {
                     <small>
                       Can you transport the food?
                     </small>
+
                   </div>
 
                   <label className="switch">
+
                     <input
                       type="checkbox"
                       name="deliveryAvailable"
-                      checked={donation.deliveryAvailable}
+                      checked={
+                        donation.deliveryAvailable
+                      }
                       onChange={handleInput}
                     />
 
                     <span className="slider"></span>
+
                   </label>
+
                 </div>
+
               </div>
 
               {/* Instructions */}
 
               <div className="card">
+
                 <h3>
                   <FaClipboardList />
                   Special Instructions
@@ -419,17 +587,26 @@ function CreateDonation() {
                   rows="6"
                   name="instructions"
                   placeholder="Mention dietary restrictions, packaging details, or entry codes..."
-                  value={donation.instructions}
+                  value={
+                    donation.instructions
+                  }
                   onChange={handleInput}
-                ></textarea>
+                />
+
               </div>
+
             </div>
 
-            {/* RIGHT */}
+            {/* =========================
+                RIGHT PANEL
+            ========================= */}
 
             <div className="right-panel">
+
               <div className="card">
+
                 <div className="food-header">
+
                   <h3>
                     <FaUtensils />
                     Food Items
@@ -443,26 +620,43 @@ function CreateDonation() {
                     <FaPlus />
                     Add Item
                   </button>
+
                 </div>
 
-                {foodItems.map((item, index) => (
-                  <FoodItemCard
-                    key={index}
-                    item={item}
-                    index={index}
-                    handleChange={handleChange}
-                    handleRating={handleRating}
-                    removeItem={removeItem}
-                    handleImage={handleImage}
-                  />
-                ))}
+                {foodItems.map(
+                  (item, index) => (
+                    <FoodItemCard
+                      key={index}
+                      item={item}
+                      index={index}
+                      handleChange={
+                        handleChange
+                      }
+                      handleRating={
+                        handleRating
+                      }
+                      removeItem={
+                        removeItem
+                      }
+                      handleImage={
+                        handleImage
+                      }
+                    />
+                  )
+                )}
+
               </div>
+
             </div>
+
           </div>
 
-          {/* Bottom Buttons */}
+          {/* =========================
+              BOTTOM BUTTONS
+          ========================= */}
 
           <div className="bottom-buttons">
+
             <button
               type="button"
               className="draft"
@@ -476,11 +670,17 @@ function CreateDonation() {
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? "Submitting..." : "Continue →"}
+              {loading
+                ? "Submitting..."
+                : "Continue →"}
             </button>
+
           </div>
+
         </div>
-      </div>
+
+      </main>
+
     </div>
   );
 }

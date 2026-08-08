@@ -48,14 +48,20 @@ const STATUS = {
 
 const getStatus = (status) =>
   STATUS[status] || {
-    text: status,
+    text: status || "Pending",
     className: "pending",
   };
 
 const formatDate = (date) => {
   if (!date) return "-";
 
-  return new Date(date).toLocaleDateString("en-US", {
+  const parsedDate = new Date(date);
+
+  if (isNaN(parsedDate.getTime())) {
+    return "-";
+  }
+
+  return parsedDate.toLocaleDateString("en-US", {
     month: "short",
     day: "2-digit",
     year: "numeric",
@@ -70,21 +76,14 @@ function DonationHistory() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-
   const [donations, setDonations] = useState([]);
 
   const [search, setSearch] = useState("");
-
   const [statusFilter, setStatusFilter] = useState("ALL");
-
   const [yearFilter, setYearFilter] = useState("ALL");
-
   const [sortBy, setSortBy] = useState("NEWEST");
-
   const [page, setPage] = useState(1);
-
 
   useEffect(() => {
     loadHistory();
@@ -95,16 +94,23 @@ function DonationHistory() {
       setLoading(true);
       setError("");
 
-      const user = JSON.parse(localStorage.getItem("user"));
+      const user = JSON.parse(
+        localStorage.getItem("user")
+      );
 
       console.log("Stored user =", user);
       console.log("User ID =", user?.userId);
 
       if (!user?.userId) {
-        throw new Error("User ID not found. Please login again.");
+        throw new Error(
+          "User ID not found. Please login again."
+        );
       }
 
-      const response = await donationService.getMyDonations(user.userId);
+      const response =
+        await donationService.getMyDonations(
+          user.userId
+        );
 
       console.log("History Response =", response);
 
@@ -113,10 +119,12 @@ function DonationHistory() {
           ? response
           : response?.data || []
       );
-
     } catch (err) {
       console.error("History Error =", err);
-      console.error("Backend Response =", err.response);
+      console.error(
+        "Backend Response =",
+        err.response
+      );
 
       setError(
         err.response?.data?.message ||
@@ -127,50 +135,86 @@ function DonationHistory() {
       setLoading(false);
     }
   };
-  
+
+  /* ===========================
+     YEARS
+  =========================== */
+
   const years = useMemo(() => {
     const list = donations
       .map((d) =>
-        new Date(d.neededBy || d.createdAt).getFullYear()
+        new Date(
+          d.neededBy || d.createdAt
+        ).getFullYear()
       )
-      .filter(Boolean);
+      .filter(
+        (year) =>
+          !isNaN(year) && year > 0
+      );
 
-    return [...new Set(list)].sort((a, b) => b - a);
+    return [...new Set(list)].sort(
+      (a, b) => b - a
+    );
   }, [donations]);
+
+  /* ===========================
+     FILTER + SORT
+  =========================== */
 
   const filteredDonations = useMemo(() => {
     let data = [...donations];
 
-    if (search) {
-      const keyword = search.toLowerCase();
+    /* Search */
+
+    if (search.trim()) {
+      const keyword =
+        search.toLowerCase();
 
       data = data.filter((item) => {
+        const donationId =
+          formatDonationId(
+            item.id
+          ).toLowerCase();
+
+        const community =
+          (
+            item.communityName || ""
+          ).toLowerCase();
+
         return (
-          formatDonationId(item.requestId)
-            .toLowerCase()
-            .includes(keyword) ||
-          (item.communityName || "")
-            .toLowerCase()
-            .includes(keyword)
+          donationId.includes(keyword) ||
+          community.includes(keyword)
         );
       });
     }
+
+    /* Status */
 
     if (statusFilter !== "ALL") {
       data = data.filter(
-        (item) => item.status === statusFilter
+        (item) =>
+          item.status ===
+          statusFilter
       );
     }
 
+    /* Year */
+
     if (yearFilter !== "ALL") {
       data = data.filter((item) => {
-        return (
+        const year =
           new Date(
-            item.neededBy || item.createdAt
-          ).getFullYear() === Number(yearFilter)
+            item.neededBy ||
+            item.createdAt
+          ).getFullYear();
+
+        return (
+          year === Number(yearFilter)
         );
       });
     }
+
+    /* Sort */
 
     data.sort((a, b) => {
       const dateA = new Date(
@@ -181,8 +225,9 @@ function DonationHistory() {
         b.neededBy || b.createdAt
       );
 
-      if (sortBy === "NEWEST")
+      if (sortBy === "NEWEST") {
         return dateB - dateA;
+      }
 
       return dateA - dateB;
     });
@@ -196,32 +241,63 @@ function DonationHistory() {
     sortBy,
   ]);
 
+  /* Reset page when filters change */
+
   useEffect(() => {
     setPage(1);
-  }, [search, statusFilter, yearFilter]);
+  }, [
+    search,
+    statusFilter,
+    yearFilter,
+  ]);
 
-  const totalPages = Math.ceil(
-    filteredDonations.length / PAGE_SIZE
+  /* ===========================
+     PAGINATION
+  =========================== */
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      filteredDonations.length /
+      PAGE_SIZE
+    )
   );
 
-  const currentRows = filteredDonations.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
-  );
+  const currentRows =
+    filteredDonations.slice(
+      (page - 1) * PAGE_SIZE,
+      page * PAGE_SIZE
+    );
+
+  /* ===========================
+     STATISTICS
+  =========================== */
+
   const stats = useMemo(() => {
-    const completed = donations.filter(
-      (item) => item.status === "COMPLETED"
-    );
+    const completed =
+      donations.filter(
+        (item) =>
+          item.status ===
+          "COMPLETED"
+      );
 
-    const meals = completed.reduce(
-      (sum, item) =>
-        sum + Number(item.estimatedMeals || 0),
-      0
-    );
+    const meals =
+      completed.reduce(
+        (sum, item) =>
+          sum +
+          Number(
+            item.estimatedMeals ||
+            0
+          ),
+        0
+      );
 
     const communities = new Set(
       completed
-        .map((d) => d.communityName)
+        .map(
+          (d) =>
+            d.communityName
+        )
         .filter(Boolean)
     ).size;
 
@@ -246,6 +322,11 @@ function DonationHistory() {
       efficiency,
     };
   }, [donations]);
+
+  /* ===========================
+     EXPORT CSV
+  =========================== */
+
   const exportCSV = () => {
     const header = [
       "Donation ID",
@@ -255,73 +336,115 @@ function DonationHistory() {
       "Status",
     ];
 
-    const rows = filteredDonations.map((d) => [
-      formatDonationId(d.requestId),
-      formatDate(d.neededBy || d.createdAt),
-      d.estimatedMeals,
-      d.communityName || "Pending Match",
-      getStatus(d.status).text,
-    ]);
+    const rows =
+      filteredDonations.map((d) => [
+        formatDonationId(d.id),
+        formatDate(
+          d.neededBy ||
+          d.createdAt
+        ),
+        d.estimatedMeals || 0,
+        d.communityName ||
+        "Pending Match",
+        getStatus(d.status).text,
+      ]);
 
-    const csv = [header, ...rows]
-      .map((row) => row.join(","))
+    const csv = [
+      header,
+      ...rows,
+    ]
+      .map((row) =>
+        row
+          .map((value) =>
+            `"${String(
+              value
+            ).replace(
+              /"/g,
+              '""'
+            )}"`
+          )
+          .join(",")
+      )
       .join("\n");
 
     const blob = new Blob([csv], {
       type: "text/csv;charset=utf-8;",
     });
 
-    const url = window.URL.createObjectURL(blob);
+    const url =
+      window.URL.createObjectURL(
+        blob
+      );
 
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
 
     link.href = url;
+    link.download =
+      "DonationHistory.csv";
 
-    link.download = "DonationHistory.csv";
-
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
     window.URL.revokeObjectURL(url);
   };
 
+  /* ===========================
+     RENDER
+  =========================== */
+
   return (
     <div className="history-page">
+
+      {/* SIDEBAR */}
+
       <Sidebar />
 
+      {/* MAIN CONTENT */}
+
       <div className="main-section">
+
         <TopNavbar />
 
         <div className="page-content">
 
-          {/* Header */}
+          {/* HEADER */}
 
           <div className="page-header">
 
             <div>
-
-              <h1>Donation History</h1>
+              <h1>
+                Donation History
+              </h1>
 
               <p>
-                Review your environmental impact and donation records.
+                Review your
+                environmental
+                impact and
+                donation
+                records.
               </p>
-
             </div>
 
             <button
               className="export-btn"
-              onClick={exportCSV}
+              onClick={
+                exportCSV
+              }
             >
               <FaFileDownload />
 
               Export All CSV
-
             </button>
 
           </div>
 
-          {/* Search */}
+          {/* FILTERS */}
 
           <div className="filter-section">
+
+            {/* SEARCH */}
 
             <div className="search-box">
 
@@ -330,22 +453,37 @@ function DonationHistory() {
               <input
                 type="text"
                 placeholder="Search by Donation ID or Community..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={
+                  search
+                }
+                onChange={(e) =>
+                  setSearch(
+                    e.target
+                      .value
+                  )
+                }
               />
 
             </div>
 
-            {/* Status */}
+            {/* STATUS */}
 
             <div className="filter">
 
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={
+                  statusFilter
+                }
+                onChange={(e) =>
+                  setStatusFilter(
+                    e.target
+                      .value
+                  )
+                }
               >
-
-                <option value="ALL">Status : All</option>
+                <option value="ALL">
+                  Status : All
+                </option>
 
                 <option value="COMPLETED">
                   Completed
@@ -370,50 +508,66 @@ function DonationHistory() {
                 <option value="CANCELLED">
                   Cancelled
                 </option>
-
               </select>
 
               <FaChevronDown className="down" />
 
             </div>
 
-            {/* Year */}
+            {/* YEAR */}
 
             <div className="filter">
 
               <select
-                value={yearFilter}
-                onChange={(e) => setYearFilter(e.target.value)}
+                value={
+                  yearFilter
+                }
+                onChange={(e) =>
+                  setYearFilter(
+                    e.target
+                      .value
+                  )
+                }
               >
-
                 <option value="ALL">
                   This Year
                 </option>
 
-                {years.map((year) => (
-                  <option
-                    key={year}
-                    value={year}
-                  >
-                    {year}
-                  </option>
-                ))}
-
+                {years.map(
+                  (year) => (
+                    <option
+                      key={
+                        year
+                      }
+                      value={
+                        year
+                      }
+                    >
+                      {year}
+                    </option>
+                  )
+                )}
               </select>
 
               <FaChevronDown className="down" />
 
             </div>
 
-            {/* Sort */}
+            {/* SORT */}
 
             <div className="filter">
 
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                value={
+                  sortBy
+                }
+                onChange={(e) =>
+                  setSortBy(
+                    e.target
+                      .value
+                  )
+                }
               >
-
                 <option value="NEWEST">
                   Sort : Newest
                 </option>
@@ -421,7 +575,6 @@ function DonationHistory() {
                 <option value="OLDEST">
                   Sort : Oldest
                 </option>
-
               </select>
 
               <FaChevronDown className="down" />
@@ -429,238 +582,283 @@ function DonationHistory() {
             </div>
 
           </div>
+
+          {/* TABLE */}
+
           <div className="table-card">
 
             {loading ? (
-
               <div className="loading">
-
-                Loading Donation History...
-
+                Loading Donation
+                History...
               </div>
-
             ) : error ? (
-
               <div className="error">
-
                 {error}
-
               </div>
-
-            ) : filteredDonations.length === 0 ? (
-
+            ) : filteredDonations.length ===
+              0 ? (
               <div className="empty">
-
                 No Donations Found
-
               </div>
-
             ) : (
-
               <>
-                <table className="history-table">
+                <div className="table-wrapper">
 
-                  <thead>
+                  <table className="history-table">
 
-                    <tr>
+                    <thead>
+                      <tr>
+                        <th>
+                          Donation
+                          ID
+                        </th>
 
-                      <th>Donation ID</th>
+                        <th>
+                          Date
+                        </th>
 
-                      <th>Date</th>
+                        <th>
+                          Meals
+                          Shared
+                        </th>
 
-                      <th>Meals Shared</th>
+                        <th>
+                          Communities
+                          Served
+                        </th>
 
-                      <th>Communities Served</th>
+                        <th>
+                          Status
+                        </th>
 
-                      <th>Status</th>
+                        <th>
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
 
-                      <th>Actions</th>
+                    <tbody>
 
-                    </tr>
+                      {currentRows.map(
+                        (
+                          donation
+                        ) => {
 
-                  </thead>
+                          console.log(
+                            "Donation Object:",
+                            donation
+                          );
 
-                  <tbody>
+                          const status =
+                            getStatus(
+                              donation.status
+                            );
 
-                    {currentRows.map((donation) => {
-
-                      console.log("Donation Object:", donation);
-
-                      const status = getStatus(donation.status);
-
-                      return (
-
-                        <tr key={donation.id}>
-
-                          <td className="id">
-
-                            {formatDonationId(donation.id)}
-
-                          </td>
-
-                          <td>
-
-                            {formatDate(
-                              donation.neededBy ||
-                              donation.createdAt
-                            )}
-
-                          </td>
-
-                          <td>
-
-                            <strong>
-
-                              {donation.estimatedMeals}
-
-                            </strong>{" "}
-
-                            Meals
-
-                          </td>
-
-                          <td>
-
-                            {donation.communityName ||
-
-                              <span className="pending">
-
-                                Pending Match
-
-                              </span>
-
-                            }
-
-                          </td>
-
-                          <td>
-
-                            <span
-                              className={`status ${status.className}`}
+                          return (
+                            <tr
+                              key={
+                                donation.id
+                              }
                             >
 
-                              {status.text}
+                              <td className="id">
+                                {formatDonationId(
+                                  donation.id
+                                )}
+                              </td>
 
-                            </span>
+                              <td>
+                                {formatDate(
+                                  donation.neededBy ||
+                                  donation.createdAt
+                                )}
+                              </td>
 
-                          </td>
+                              <td>
+                                <strong>
+                                  {donation.estimatedMeals ||
+                                    0}
+                                </strong>{" "}
+                                Meals
+                              </td>
 
-                          <td>
+                              <td>
+                                {donation.communityName ||
+                                  (
+                                    <span className="pending-text">
+                                      Pending
+                                      Match
+                                    </span>
+                                  )}
+                              </td>
 
-                            <button
-                              className="details-btn"
-                              onClick={() => navigate(
-                                `/donor/donation-details/${donation.id}`
-                              )}
-                            >
+                              <td>
+                                <span
+                                  className={`status ${status.className}`}
+                                >
+                                  {
+                                    status.text
+                                  }
+                                </span>
+                              </td>
 
-                              <FaEye />
+                              <td>
+                                <button
+                                  className="details-btn"
+                                  onClick={() =>
+                                    navigate(
+                                      `/donor/donation-details/${donation.id}`
+                                    )
+                                  }
+                                >
+                                  <FaEye />
 
-                              Details
+                                  Details
+                                </button>
+                              </td>
 
-                            </button>
+                            </tr>
+                          );
+                        }
+                      )}
 
-                          </td>
+                    </tbody>
 
-                        </tr>
+                  </table>
 
-                      );
+                </div>
 
-                    })}
+                {/* TABLE FOOTER */}
 
-                  </tbody>
-
-                </table>
                 <div className="table-footer">
 
                   <div>
-
-                    Showing {(page - 1) * PAGE_SIZE + 1}
-
-                    to
-
-                    {Math.min(page * PAGE_SIZE, filteredDonations.length)}
-
-                    of {filteredDonations.length}
-
+                    Showing{" "}
+                    {filteredDonations.length ===
+                      0
+                      ? 0
+                      : (page -
+                        1) *
+                      PAGE_SIZE +
+                      1}{" "}
+                    to{" "}
+                    {Math.min(
+                      page *
+                      PAGE_SIZE,
+                      filteredDonations.length
+                    )}{" "}
+                    of{" "}
+                    {
+                      filteredDonations.length
+                    }{" "}
                     entries
-
                   </div>
 
                   <div className="pagination">
 
                     <button
-                      disabled={page === 1}
-                      onClick={() => setPage(page - 1)}
+                      disabled={
+                        page ===
+                        1
+                      }
+                      onClick={() =>
+                        setPage(
+                          page -
+                          1
+                        )
+                      }
                     >
-
                       <FaChevronLeft />
-
                     </button>
 
                     {Array.from(
-                      { length: totalPages },
-                      (_, i) => i + 1
-                    ).map((number) => (
-
-                      <button
-
-                        key={number}
-
-                        className={
-                          page === number
-                            ?
-                            "active"
-                            :
-                            ""
-                        }
-
-                        onClick={() => setPage(number)}
-
-                      >
-
-                        {number}
-
-                      </button>
-
-                    ))}
+                      {
+                        length:
+                          totalPages,
+                      },
+                      (
+                        _,
+                        i
+                      ) =>
+                        i +
+                        1
+                    ).map(
+                      (
+                        number
+                      ) => (
+                        <button
+                          key={
+                            number
+                          }
+                          className={
+                            page ===
+                              number
+                              ? "active"
+                              : ""
+                          }
+                          onClick={() =>
+                            setPage(
+                              number
+                            )
+                          }
+                        >
+                          {
+                            number
+                          }
+                        </button>
+                      )
+                    )}
 
                     <button
-                      disabled={page === totalPages}
-                      onClick={() => setPage(page + 1)}
+                      disabled={
+                        page ===
+                        totalPages
+                      }
+                      onClick={() =>
+                        setPage(
+                          page +
+                          1
+                        )
+                      }
                     >
-
                       <FaChevronRight />
-
                     </button>
 
                   </div>
 
                 </div>
-
               </>
-
             )}
 
           </div>
+
+          {/* STATISTICS */}
+
           <div className="stats">
 
             <div className="stat-card green">
 
               <div className="icon">
-
                 <FaLeaf />
-
               </div>
 
               <div>
+                <h5>
+                  Total Impact
+                </h5>
 
-                <h5>Total Impact</h5>
+                <h2>
+                  {
+                    stats.carbon
+                  }{" "}
+                  Tons
+                </h2>
 
-                <h2>{stats.carbon} Tons</h2>
-
-                <p>CO₂ Saved This Year</p>
-
+                <p>
+                  CO₂ Saved This
+                  Year
+                </p>
               </div>
 
             </div>
@@ -668,23 +866,25 @@ function DonationHistory() {
             <div className="stat-card green">
 
               <div className="icon">
-
                 <FaUtensils />
-
               </div>
 
               <div>
+                <h5>
+                  Meals Provided
+                </h5>
 
-                <h5>Meals Provided</h5>
-
-                <h2>{stats.meals}</h2>
+                <h2>
+                  {stats.meals}
+                </h2>
 
                 <p>
-
-                  Across {stats.communities} Communities
-
+                  Across{" "}
+                  {
+                    stats.communities
+                  }{" "}
+                  Communities
                 </p>
-
               </div>
 
             </div>
@@ -692,23 +892,26 @@ function DonationHistory() {
             <div className="stat-card orange">
 
               <div className="icon">
-
                 <FaChartLine />
-
               </div>
 
               <div>
+                <h5>
+                  Efficiency
+                  Rating
+                </h5>
 
-                <h5>Efficiency Rating</h5>
-
-                <h2>{stats.efficiency}%</h2>
+                <h2>
+                  {
+                    stats.efficiency
+                  }
+                  %
+                </h2>
 
                 <p>
-
-                  Successful Delivery Rate
-
+                  Successful
+                  Delivery Rate
                 </p>
-
               </div>
 
             </div>
@@ -720,9 +923,7 @@ function DonationHistory() {
       </div>
 
     </div>
-
   );
-
 }
 
 export default DonationHistory;

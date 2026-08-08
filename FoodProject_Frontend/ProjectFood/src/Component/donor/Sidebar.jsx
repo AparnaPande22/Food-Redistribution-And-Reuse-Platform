@@ -1,26 +1,23 @@
 function Sidebar() {
     return (
-        <div
-            style={{
-                width: "230px",
-                background: "#ffffff",
-                borderRight: "1px solid #ddd",
-                padding: "20px"
-            }}
-        >
-            <h2 style={{ color: "#184b37" }}>Beyond Waste</h2>
+        <div className="donor-sidebar">
 
-            <br />
+            <div className="sidebar-brand">
+                <h2>Beyond Waste</h2>
+            </div>
 
-            <p>Dashboard</p>
+            <div className="sidebar-menu">
+                <p>Dashboard</p>
+                <p>Create Donation</p>
+                <p>History</p>
+                <p>Impact</p>
+                <p>Settings</p>
+            </div>
 
-            <p>Create Donation</p>
+            <div className="sidebar-bottom">
+                <button>Sign Out</button>
+            </div>
 
-            <p>History</p>
-
-            <p>Impact</p>
-
-            <p>Settings</p>
         </div>
     );
 }
