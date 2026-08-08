@@ -1,14 +1,16 @@
 .payment-summary{
     background:#ffffff;
-    border-radius:16px;
+    border-radius:20px;
     padding:25px;
     margin-top:20px;
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
 }
 
 .payment-summary h2{
     margin-bottom:20px;
-    color:#166534;
+    color:#173a2d;
+    font-size:20px;
+    font-weight:700;
 }
 
 .summary-row{
@@ -19,11 +21,11 @@
 }
 
 .summary-row span{
-    color:#6b7280;
+    color:#7b7b7b;
 }
 
 .summary-row strong{
-    color:#111827;
+    color:#222;
 }
 
 .total-amount{
@@ -31,30 +33,33 @@
     align-items:center;
     gap:15px;
     margin:20px 0;
+    padding-top:16px;
+    border-top:1px solid #ececec;
 }
 
 .total-amount svg{
-    font-size:40px;
-    color:#16a34a;
+    font-size:38px;
+    color:#d45716;
 }
 
 .total-amount p{
     margin:0;
-    color:#6b7280;
+    color:#7b7b7b;
 }
 
 .total-amount h1{
     margin:5px 0 0;
-    color:#15803d;
+    color:#173a2d;
+    font-size:32px;
 }
 
 .pay-now-btn{
     width:100%;
-    background:#16a34a;
+    background:#d45716;
     color:white;
     border:none;
-    padding:14px;
-    border-radius:10px;
+    padding:15px;
+    border-radius:50px;
     font-size:16px;
     font-weight:600;
     display:flex;
@@ -66,7 +71,7 @@
 }
 
 .pay-now-btn:hover{
-    background:#15803d;
+    background:#b7440d;
     transform:translateY(-2px);
 }
 
@@ -82,7 +87,7 @@ font-size:14px;
 }
 
 .total-amount h1{
-font-size:28px;
+font-size:26px;
 }
 
 }

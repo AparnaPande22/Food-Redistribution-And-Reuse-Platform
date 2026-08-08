@@ -43,25 +43,25 @@ const MonthOverview = () => {
             title: "Waste Collected",
             value: `${overview.totalWaste} kg`,
             icon: <FaRecycle />,
-            color: "#16a34a",
+            color: "#173a2d",
         },
         {
             title: "Total Payments",
             value: `₹${overview.totalPayments.toLocaleString()}`,
             icon: <FaRupeeSign />,
-            color: "#2563eb",
+            color: "#d45716",
         },
         {
             title: "Pickups",
             value: overview.pickups,
             icon: <FaTruck />,
-            color: "#f59e0b",
+            color: "#173a2d",
         },
         {
             title: "Compost Produced",
             value: `${overview.compostProduced} kg`,
             icon: <FaLeaf />,
-            color: "#7c3aed",
+            color: "#d45716",
         },
     ];
 

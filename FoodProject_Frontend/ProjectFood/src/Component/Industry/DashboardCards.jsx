@@ -43,7 +43,8 @@ const DashboardCards = () => {
         {
             title: "Pending Requests",
             value: dashboard.pendingRequests,
-            color: "#16a34a",
+            bg: "#dff4e2",
+            fg: "#173a2d",
             icon: <FaClipboardList />,
             link: "View All"
         },
@@ -51,7 +52,8 @@ const DashboardCards = () => {
         {
             title: "Total Paid Today",
             value: `₹${dashboard.totalPaid.toLocaleString()}`,
-            color: "#2563eb",
+            bg: "#ffe4d5",
+            fg: "#d45716",
             icon: <FaWallet />,
             link: "View Details"
         },
@@ -59,7 +61,8 @@ const DashboardCards = () => {
         {
             title: "In Processing",
             value: dashboard.processing,
-            color: "#f59e0b",
+            bg: "#173a2d",
+            fg: "#fff",
             icon: <FaHourglassHalf />,
             link: "View All"
         },
@@ -67,7 +70,8 @@ const DashboardCards = () => {
         {
             title: "Completed",
             value: dashboard.completed,
-            color: "#7c3aed",
+            bg: "#edf8e7",
+            fg: "#173a2d",
             icon: <FaCheckCircle />,
             link: "View All"
         }
@@ -90,7 +94,8 @@ const DashboardCards = () => {
                         <div
                             className="card-icon"
                             style={{
-                                background: card.color
+                                background: card.bg,
+                                color: card.fg
                             }}
                         >
 

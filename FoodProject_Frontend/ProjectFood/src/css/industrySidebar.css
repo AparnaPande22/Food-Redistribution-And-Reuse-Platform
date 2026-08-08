@@ -1,90 +1,102 @@
 .industry-sidebar{
-
-    width:260px;
-    background:#166534;
-    color:white;
+    width:270px;
+    flex-shrink:0;
+    background:#fff;
+    color:#173a2d;
     min-height:100vh;
     display:flex;
     flex-direction:column;
     justify-content:space-between;
-    padding:25px 20px;
+    padding:28px 22px;
+    border-right:1px solid #eee;
+    position:fixed;
+    left:0;
+    top:0;
+    overflow-y:auto;
+    font-family:'Poppins','Segoe UI',sans-serif;
 }
-.sidebar{
 
-position:fixed;
-
-left:0;
-
-top:0;
-
-width:270px;
-
-height:100vh;
-
-overflow:hidden;
-
-}
 .sidebar-logo{
-
-    text-align:center;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-align:left;
+    margin-bottom:20px;
 }
 
 .sidebar-logo svg{
-
-    font-size:50px;
-    color:#4ade80;
+    width:46px;
+    height:46px;
+    min-width:46px;
+    padding:12px;
+    box-sizing:border-box;
+    border-radius:12px;
+    background:#173a2d;
+    color:#fff;
+    font-size:22px;
 }
 
 .sidebar-logo h2{
-
-    margin-top:10px;
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:#173a2d;
 }
 
 .sidebar-logo p{
-
-    color:#d1fae5;
+    margin-top:2px;
+    color:#888;
+    font-size:12.5px;
 }
 
 .industry-sidebar nav{
-
     display:flex;
     flex-direction:column;
-    margin-top:35px;
-    gap:8px;
+    margin-top:20px;
+    gap:6px;
+    flex:1;
 }
 
 .industry-sidebar nav a{
-
-    color:white;
+    color:#555;
     text-decoration:none;
-    padding:13px 18px;
-    border-radius:10px;
+    padding:13px 16px;
+    border-radius:14px;
     display:flex;
     align-items:center;
-    gap:12px;
-    transition:.3s;
+    gap:14px;
+    font-size:15px;
+    font-weight:500;
+    transition:.25s;
 }
 
 .industry-sidebar nav a:hover{
-
-    background:#22c55e;
+    background:#f5f3ec;
+    color:#173a2d;
 }
 
 .industry-sidebar nav .active{
-
-    background:#22c55e;
+    background:#173a2d;
+    color:#fff;
 }
 
 .logout-btn{
-
     border:none;
-    background:#dc2626;
-    color:white;
-    padding:12px;
-    border-radius:10px;
+    background:#d45716;
+    color:#fff;
+    padding:13px;
+    border-radius:50px;
     cursor:pointer;
     display:flex;
     justify-content:center;
     align-items:center;
     gap:10px;
-} 
+    font-weight:600;
+    font-size:15px;
+    margin-top:16px;
+    transition:.3s;
+}
+
+.logout-btn:hover{
+    background:#b7440d;
+}

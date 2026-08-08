@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Sidebar from "./Sidebar";
+import Sidebar from "../../Component/Industry/Sidebar";
 import Navbar from "../../Component/Industry/Navbar";
 import { getRequestHistory } from "../../services/biogasService";
 
@@ -24,7 +24,7 @@ const RequestHistory = () => {
 
     return (
 
-        <div className="dashboard">
+        <div className="dashboard industry-shell">
 
             <Sidebar />
 

@@ -176,7 +176,7 @@ const DonorDashboard = () => {
   ];
 
   return (
-    <div className="dashboard">
+    <div className="dashboard donor-shell">
       {sidebarOpen && (
         <div className="overlay" onClick={() => setSidebarOpen(false)} />
       )}

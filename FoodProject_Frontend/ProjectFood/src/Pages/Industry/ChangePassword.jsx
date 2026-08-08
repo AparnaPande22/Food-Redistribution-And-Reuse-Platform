@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Sidebar from "./Sidebar";
+import Sidebar from "../../Component/Industry/Sidebar";
 import Navbar from "../../Component/Industry/Navbar";
 import { changePassword } from "../../services/biogasService";
 
@@ -61,7 +61,7 @@ const ChangePassword = () => {
 
     return (
 
-        <div className="dashboard">
+        <div className="dashboard industry-shell">
 
             <Sidebar />
 

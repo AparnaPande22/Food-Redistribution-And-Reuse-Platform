@@ -1,291 +1,151 @@
 .payment-page{
-
     min-height:100vh;
-
-    background:
-    linear-gradient(
-        120deg,
-        #fffaf5,
-        #eef5e9
-    );
-
+    background:#faf9f4;
     padding:30px 70px;
-
-    font-family:
-    "Inter",
-    sans-serif;
-
+    font-family:'Poppins','Segoe UI',sans-serif;
 }
 
-
-
-.payment-header{
-
+.payment-page .payment-header{
     display:flex;
-
     justify-content:space-between;
-
     align-items:center;
-
 }
 
-
-.payment-header h2{
-
-    color:#064e3b;
-
-    font-size:26px;
-
+.payment-page .payment-header h2{
+    color:#173a2d;
+    font-size:24px;
+    font-weight:700;
 }
 
-
-
-.payment-header span{
-
-    color:#555;
-
+.payment-page .payment-header span{
+    color:#7b7b7b;
     font-size:14px;
-
 }
 
-
-
-
-
-.payment-wrapper{
-
+.payment-page .payment-wrapper{
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
-    gap:70px;
-
-    margin-top:70px;
-
+    flex-wrap:wrap;
+    gap:50px;
+    margin-top:60px;
 }
 
-
-
-
-
-.payment-card{
-
+.payment-page .payment-card{
     width:420px;
-
+    max-width:100%;
     background:#ffffff;
-
     padding:40px;
-
     border-radius:22px;
-
-    box-shadow:
-    0 15px 40px rgba(0,0,0,.08);
-
+    box-shadow:0 15px 40px rgba(0,0,0,.06);
 }
 
-
-
-
-.payment-card h1{
-
-    color:#073b2a;
-
-    font-size:32px;
-
-}
-
-
-
-.subtitle{
-
-    color:#666;
-
-}
-
-
-
-
-.donor-box{
-
-
-    margin-top:30px;
-
-    background:#f4f8f1;
-
-    padding:18px;
-
-    border-radius:14px;
-
-}
-
-
-.donor-box p{
-
-    color:#777;
-
+.payment-page .payment-card h1{
+    color:#173a2d;
+    font-size:30px;
+    font-weight:700;
     margin:0;
-
 }
 
-
-
-.donor-box h3{
-
-    color:#064e3b;
-
+.payment-page .subtitle{
+    color:#7b7b7b;
 }
 
+.payment-page .donor-box{
+    margin-top:28px;
+    background:#faf9f4;
+    padding:18px;
+    border-radius:14px;
+}
 
+.payment-page .donor-box p{
+    color:#888;
+    margin:0;
+    font-size:13px;
+}
 
+.payment-page .donor-box h3{
+    color:#173a2d;
+    margin:4px 0 0;
+}
 
-
-
-
-.amount-box{
-
-
+.payment-page .amount-box{
     margin-top:20px;
-
     padding:20px;
-
-    border-radius:15px;
-
-    background:#fff3ed;
-
-
+    border-radius:16px;
+    background:#ffe4d5;
 }
 
-
-
-.amount-box span{
-
-    color:#777;
-
+.payment-page .amount-box span{
+    color:#8a4c26;
 }
 
-
-
-.amount-box h2{
-
-    color:#064e3b;
-
-    font-size:35px;
-
+.payment-page .amount-box h2{
+    color:#b7440d;
+    font-size:34px;
+    margin:4px 0 0;
 }
 
-
-
-
-
-.pay-button{
-
-
+.payment-page .pay-button{
     width:100%;
-
-    margin-top:30px;
-
+    margin-top:28px;
     padding:15px;
-
     border:none;
-
-    border-radius:30px;
-
-
-    background:#064e3b;
-
-
+    border-radius:50px;
+    background:#d45716;
     color:white;
-
-
     font-size:16px;
-
+    font-weight:600;
     cursor:pointer;
-
-
+    transition:.25s;
 }
 
-
-
-.pay-button:hover{
-
-
-    background:#083f2d;
-
+.payment-page .pay-button:hover{
+    background:#b7440d;
 }
 
-
-
-
-
-.impact-card{
-
-
-    width:350px;
-
-    height:350px;
-
-
-    border-radius:30px;
-
-
+.payment-page .impact-card{
+    width:340px;
+    height:340px;
+    max-width:100%;
+    border-radius:26px;
     background:
-
     linear-gradient(
-    rgba(0,40,20,.45),
-    rgba(0,40,20,.55)
+    rgba(23,58,45,.55),
+    rgba(23,58,45,.65)
     ),
-
     url("https://images.unsplash.com/photo-1532187863486-abf9dbad1b69")
     center/cover;
-
-
     display:flex;
-
     align-items:flex-end;
-
 }
 
-
-
-.image-overlay{
-
-
+.payment-page .image-overlay{
     color:white;
-
-    padding:30px;
-
+    padding:28px;
 }
 
-
-.image-overlay h3{
-
-    font-size:13px;
-
-    opacity:.8;
-
+.payment-page .image-overlay h3{
+    font-size:12.5px;
+    opacity:.85;
+    letter-spacing:.04em;
+    text-transform:uppercase;
 }
 
-
-.image-overlay h1{
-
-    font-size:30px;
-
+.payment-page .image-overlay h1{
+    font-size:28px;
+    margin-top:6px;
 }
 
-
-
-footer{
-
-
+.payment-page footer{
     text-align:center;
-
-    margin-top:80px;
-
-    color:#777;
-
+    margin-top:70px;
+    color:#888;
     font-size:13px;
+}
 
-
+@media(max-width:900px){
+    .payment-page{
+        padding:24px;
+    }
 }

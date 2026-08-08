@@ -44,25 +44,25 @@ const EnvironmentCards = () => {
             title: "CO₂ Saved",
             value: `${impact.co2Saved} kg`,
             icon: <FaCloud />,
-            color: "#10b981",
+            color: "#173a2d",
         },
         {
             title: "Waste Processed",
             value: `${impact.wasteProcessed} kg`,
             icon: <FaRecycle />,
-            color: "#3b82f6",
+            color: "#d45716",
         },
         {
             title: "Biogas Generated",
             value: `${impact.biogasGenerated} m³`,
             icon: <FaIndustry />,
-            color: "#f59e0b",
+            color: "#173a2d",
         },
         {
             title: "Organic Compost",
             value: `${impact.compostProduced} kg`,
             icon: <FaLeaf />,
-            color: "#16a34a",
+            color: "#d45716",
         },
     ];
 

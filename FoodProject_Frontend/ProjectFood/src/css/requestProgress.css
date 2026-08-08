@@ -6,17 +6,21 @@
 
     padding:25px;
 
-    border-radius:15px;
+    border-radius:20px;
 
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
 
 }
 
 .progress-card h2{
 
-    color:#166534;
+    color:#173a2d;
 
     margin-bottom:25px;
+
+    font-size:20px;
+
+    font-weight:700;
 
 }
 
@@ -54,13 +58,13 @@
 
     height:45px;
 
-    background:#d1d5db;
+    background:#e5e5e5;
 
 }
 
 .progress-step.active:not(:last-child)::after{
 
-    background:#16a34a;
+    background:#173a2d;
 
 }
 
@@ -72,7 +76,7 @@
 
     border-radius:50%;
 
-    background:#d1d5db;
+    background:#e5e5e5;
 
     color:white;
 
@@ -90,7 +94,7 @@
 
 .progress-step.active .progress-icon{
 
-    background:#16a34a;
+    background:#173a2d;
 
 }
 
@@ -98,13 +102,13 @@
 
     font-weight:600;
 
-    color:#374151;
+    color:#7b7b7b;
 
 }
 
 .progress-step.active .progress-text{
 
-    color:#16a34a;
+    color:#173a2d;
 
 }
 

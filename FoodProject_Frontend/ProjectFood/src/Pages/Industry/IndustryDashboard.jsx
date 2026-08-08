@@ -26,7 +26,7 @@ const IndustryDashboard = () => {
 
     return (
 
-        <div className="dashboard">
+        <div className="dashboard industry-shell">
 
             <Sidebar />
 

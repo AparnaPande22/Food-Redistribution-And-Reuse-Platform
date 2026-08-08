@@ -142,7 +142,7 @@ function ReceiverDashboard() {
       <div className="receiver-sidebar">
         <div>
           <div className="receiver-brand">
-            🌱 Beyond Waste
+            ♻ Beyond Waste
           </div>
           <ul className="receiver-menu">
             <li

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaBell } from "react-icons/fa";
 
-import Sidebar from "./Sidebar";
+import Sidebar from "../../Component/Industry/Sidebar";
 import Navbar from "../../Component/Industry/Navbar";
 import { getNotifications, markNotificationRead } from "../../services/biogasService";
 
@@ -44,7 +44,7 @@ const Notifications = () => {
 
     return (
 
-        <div className="dashboard">
+        <div className="dashboard industry-shell">
 
             <Sidebar />
 
