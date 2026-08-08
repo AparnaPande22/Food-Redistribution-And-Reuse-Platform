@@ -67,7 +67,7 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "DONOR")
 
                         // REQUESTS
-                        .requestMatchers("/api/request/**")
+                        .requestMatchers("/api/requests/**")
                         .hasAnyRole(
                                 "ADMIN",
                                 "DONOR",

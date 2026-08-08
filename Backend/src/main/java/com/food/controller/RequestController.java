@@ -23,7 +23,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/request")
+@RequestMapping("/api/requests")
 @RequiredArgsConstructor
 @Validated
 @CrossOrigin(origins = "http://localhost:5173")
