@@ -26,8 +26,8 @@ const createDonation = async (data) => {
   return response.data;
 };
 
-const getMyDonations = async () => {
-  const res = await getMyRequests();
+const getMyDonations = async (userId) => {
+  const res = await getMyRequests(userId);
   return res.data;
 };
 

@@ -93,27 +93,42 @@ function DonationHistory() {
   const loadHistory = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const user = JSON.parse(localStorage.getItem("user"));
 
+      console.log("Stored user =", user);
+      console.log("User ID =", user?.userId);
+
+      if (!user?.userId) {
+        throw new Error("User ID not found. Please login again.");
+      }
+
       const response = await donationService.getMyDonations(user.userId);
-console.log("History Response =", response);
-      if (Array.isArray(response))
-        setDonations(response);
-      else
-        setDonations(response.data || []);
+
+      console.log("History Response =", response);
+
+      setDonations(
+        Array.isArray(response)
+          ? response
+          : response?.data || []
+      );
+
     } catch (err) {
-      console.log(err);
+      console.error("History Error =", err);
+      console.error("Backend Response =", err.response);
 
       setError(
         err.response?.data?.message ||
-          "Unable to load donation history."
+        err.message ||
+        "Unable to load donation history."
       );
     } finally {
       setLoading(false);
     }
   };
-    const years = useMemo(() => {
+  
+  const years = useMemo(() => {
     const list = donations
       .map((d) =>
         new Date(d.neededBy || d.createdAt).getFullYear()
@@ -193,7 +208,7 @@ console.log("History Response =", response);
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE
   );
-    const stats = useMemo(() => {
+  const stats = useMemo(() => {
     const completed = donations.filter(
       (item) => item.status === "COMPLETED"
     );
@@ -219,10 +234,10 @@ console.log("History Response =", response);
       donations.length === 0
         ? 0
         : Math.round(
-            (completed.length /
-              donations.length) *
-              100
-          );
+          (completed.length /
+            donations.length) *
+          100
+        );
 
     return {
       meals,
@@ -232,481 +247,481 @@ console.log("History Response =", response);
     };
   }, [donations]);
   const exportCSV = () => {
-  const header = [
-    "Donation ID",
-    "Date",
-    "Meals",
-    "Community",
-    "Status",
-  ];
+    const header = [
+      "Donation ID",
+      "Date",
+      "Meals",
+      "Community",
+      "Status",
+    ];
 
-  const rows = filteredDonations.map((d) => [
-    formatDonationId(d.requestId),
-    formatDate(d.neededBy || d.createdAt),
-    d.estimatedMeals,
-    d.communityName || "Pending Match",
-    getStatus(d.status).text,
-  ]);
+    const rows = filteredDonations.map((d) => [
+      formatDonationId(d.requestId),
+      formatDate(d.neededBy || d.createdAt),
+      d.estimatedMeals,
+      d.communityName || "Pending Match",
+      getStatus(d.status).text,
+    ]);
 
-  const csv = [header, ...rows]
-    .map((row) => row.join(","))
-    .join("\n");
+    const csv = [header, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
 
-  const blob = new Blob([csv], {
-    type: "text/csv;charset=utf-8;",
-  });
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    });
 
-  const url = window.URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
+    const link = document.createElement("a");
 
-  link.href = url;
+    link.href = url;
 
-  link.download = "DonationHistory.csv";
+    link.download = "DonationHistory.csv";
 
-  link.click();
+    link.click();
 
-  window.URL.revokeObjectURL(url);
-};
+    window.URL.revokeObjectURL(url);
+  };
 
-return (
-  <div className="history-page">
-    <Sidebar />
+  return (
+    <div className="history-page">
+      <Sidebar />
 
-    <div className="main-section">
-      <TopNavbar />
+      <div className="main-section">
+        <TopNavbar />
 
-      <div className="page-content">
+        <div className="page-content">
 
-        {/* Header */}
+          {/* Header */}
 
-        <div className="page-header">
+          <div className="page-header">
 
-          <div>
+            <div>
 
-            <h1>Donation History</h1>
+              <h1>Donation History</h1>
 
-            <p>
-              Review your environmental impact and donation records.
-            </p>
+              <p>
+                Review your environmental impact and donation records.
+              </p>
 
-          </div>
+            </div>
 
-          <button
-            className="export-btn"
-            onClick={exportCSV}
-          >
-            <FaFileDownload />
-
-            Export All CSV
-
-          </button>
-
-        </div>
-
-        {/* Search */}
-
-        <div className="filter-section">
-
-          <div className="search-box">
-
-            <FaSearch className="search-icon"/>
-
-            <input
-              type="text"
-              placeholder="Search by Donation ID or Community..."
-              value={search}
-              onChange={(e)=>setSearch(e.target.value)}
-            />
-
-          </div>
-
-          {/* Status */}
-
-          <div className="filter">
-
-            <select
-              value={statusFilter}
-              onChange={(e)=>setStatusFilter(e.target.value)}
+            <button
+              className="export-btn"
+              onClick={exportCSV}
             >
+              <FaFileDownload />
 
-              <option value="ALL">Status : All</option>
+              Export All CSV
 
-              <option value="COMPLETED">
-                Completed
-              </option>
-
-              <option value="MATCHED">
-                Matched
-              </option>
-
-              <option value="IN_TRANSIT">
-                In Transit
-              </option>
-
-              <option value="PENDING">
-                Pending
-              </option>
-
-              <option value="DRAFT">
-                Draft
-              </option>
-
-              <option value="CANCELLED">
-                Cancelled
-              </option>
-
-            </select>
-
-            <FaChevronDown className="down"/>
+            </button>
 
           </div>
 
-          {/* Year */}
+          {/* Search */}
 
-          <div className="filter">
+          <div className="filter-section">
 
-            <select
-              value={yearFilter}
-              onChange={(e)=>setYearFilter(e.target.value)}
-            >
+            <div className="search-box">
 
-              <option value="ALL">
-                This Year
-              </option>
+              <FaSearch className="search-icon" />
 
-              {years.map((year)=>(
-                <option
-                  key={year}
-                  value={year}
-                >
-                  {year}
+              <input
+                type="text"
+                placeholder="Search by Donation ID or Community..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+
+            </div>
+
+            {/* Status */}
+
+            <div className="filter">
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+
+                <option value="ALL">Status : All</option>
+
+                <option value="COMPLETED">
+                  Completed
                 </option>
-              ))}
 
-            </select>
+                <option value="MATCHED">
+                  Matched
+                </option>
 
-            <FaChevronDown className="down"/>
+                <option value="IN_TRANSIT">
+                  In Transit
+                </option>
+
+                <option value="PENDING">
+                  Pending
+                </option>
+
+                <option value="DRAFT">
+                  Draft
+                </option>
+
+                <option value="CANCELLED">
+                  Cancelled
+                </option>
+
+              </select>
+
+              <FaChevronDown className="down" />
+
+            </div>
+
+            {/* Year */}
+
+            <div className="filter">
+
+              <select
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
+              >
+
+                <option value="ALL">
+                  This Year
+                </option>
+
+                {years.map((year) => (
+                  <option
+                    key={year}
+                    value={year}
+                  >
+                    {year}
+                  </option>
+                ))}
+
+              </select>
+
+              <FaChevronDown className="down" />
+
+            </div>
+
+            {/* Sort */}
+
+            <div className="filter">
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+
+                <option value="NEWEST">
+                  Sort : Newest
+                </option>
+
+                <option value="OLDEST">
+                  Sort : Oldest
+                </option>
+
+              </select>
+
+              <FaChevronDown className="down" />
+
+            </div>
 
           </div>
+          <div className="table-card">
 
-          {/* Sort */}
+            {loading ? (
 
-          <div className="filter">
+              <div className="loading">
 
-            <select
-              value={sortBy}
-              onChange={(e)=>setSortBy(e.target.value)}
-            >
+                Loading Donation History...
 
-              <option value="NEWEST">
-                Sort : Newest
-              </option>
+              </div>
 
-              <option value="OLDEST">
-                Sort : Oldest
-              </option>
+            ) : error ? (
 
-            </select>
+              <div className="error">
 
-            <FaChevronDown className="down"/>
+                {error}
+
+              </div>
+
+            ) : filteredDonations.length === 0 ? (
+
+              <div className="empty">
+
+                No Donations Found
+
+              </div>
+
+            ) : (
+
+              <>
+                <table className="history-table">
+
+                  <thead>
+
+                    <tr>
+
+                      <th>Donation ID</th>
+
+                      <th>Date</th>
+
+                      <th>Meals Shared</th>
+
+                      <th>Communities Served</th>
+
+                      <th>Status</th>
+
+                      <th>Actions</th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody>
+
+                    {currentRows.map((donation) => {
+
+                      console.log("Donation Object:", donation);
+
+                      const status = getStatus(donation.status);
+
+                      return (
+
+                        <tr key={donation.id}>
+
+                          <td className="id">
+
+                            {formatDonationId(donation.id)}
+
+                          </td>
+
+                          <td>
+
+                            {formatDate(
+                              donation.neededBy ||
+                              donation.createdAt
+                            )}
+
+                          </td>
+
+                          <td>
+
+                            <strong>
+
+                              {donation.estimatedMeals}
+
+                            </strong>{" "}
+
+                            Meals
+
+                          </td>
+
+                          <td>
+
+                            {donation.communityName ||
+
+                              <span className="pending">
+
+                                Pending Match
+
+                              </span>
+
+                            }
+
+                          </td>
+
+                          <td>
+
+                            <span
+                              className={`status ${status.className}`}
+                            >
+
+                              {status.text}
+
+                            </span>
+
+                          </td>
+
+                          <td>
+
+                            <button
+                              className="details-btn"
+                              onClick={() => navigate(
+                                `/donor/donation-details/${donation.id}`
+                              )}
+                            >
+
+                              <FaEye />
+
+                              Details
+
+                            </button>
+
+                          </td>
+
+                        </tr>
+
+                      );
+
+                    })}
+
+                  </tbody>
+
+                </table>
+                <div className="table-footer">
+
+                  <div>
+
+                    Showing {(page - 1) * PAGE_SIZE + 1}
+
+                    to
+
+                    {Math.min(page * PAGE_SIZE, filteredDonations.length)}
+
+                    of {filteredDonations.length}
+
+                    entries
+
+                  </div>
+
+                  <div className="pagination">
+
+                    <button
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                    >
+
+                      <FaChevronLeft />
+
+                    </button>
+
+                    {Array.from(
+                      { length: totalPages },
+                      (_, i) => i + 1
+                    ).map((number) => (
+
+                      <button
+
+                        key={number}
+
+                        className={
+                          page === number
+                            ?
+                            "active"
+                            :
+                            ""
+                        }
+
+                        onClick={() => setPage(number)}
+
+                      >
+
+                        {number}
+
+                      </button>
+
+                    ))}
+
+                    <button
+                      disabled={page === totalPages}
+                      onClick={() => setPage(page + 1)}
+                    >
+
+                      <FaChevronRight />
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </>
+
+            )}
+
+          </div>
+          <div className="stats">
+
+            <div className="stat-card green">
+
+              <div className="icon">
+
+                <FaLeaf />
+
+              </div>
+
+              <div>
+
+                <h5>Total Impact</h5>
+
+                <h2>{stats.carbon} Tons</h2>
+
+                <p>CO₂ Saved This Year</p>
+
+              </div>
+
+            </div>
+
+            <div className="stat-card green">
+
+              <div className="icon">
+
+                <FaUtensils />
+
+              </div>
+
+              <div>
+
+                <h5>Meals Provided</h5>
+
+                <h2>{stats.meals}</h2>
+
+                <p>
+
+                  Across {stats.communities} Communities
+
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="stat-card orange">
+
+              <div className="icon">
+
+                <FaChartLine />
+
+              </div>
+
+              <div>
+
+                <h5>Efficiency Rating</h5>
+
+                <h2>{stats.efficiency}%</h2>
+
+                <p>
+
+                  Successful Delivery Rate
+
+                </p>
+
+              </div>
+
+            </div>
 
           </div>
 
         </div>
-                <div className="table-card">
 
-          {loading ? (
+      </div>
 
-            <div className="loading">
+    </div>
 
-              Loading Donation History...
-
-            </div>
-
-          ) : error ? (
-
-            <div className="error">
-
-              {error}
-
-            </div>
-
-          ) : filteredDonations.length===0 ? (
-
-            <div className="empty">
-
-              No Donations Found
-
-            </div>
-
-          ) : (
-
-            <>
-            <table className="history-table">
-
-<thead>
-
-<tr>
-
-<th>Donation ID</th>
-
-<th>Date</th>
-
-<th>Meals Shared</th>
-
-<th>Communities Served</th>
-
-<th>Status</th>
-
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{currentRows.map((donation) => {
-
-    console.log("Donation Object:", donation);
-
-    const status = getStatus(donation.status);
-
-    return (
-
-        <tr key={donation.id}>
-
-<td className="id">
-
-{formatDonationId(donation.id)}
-
-</td>
-
-<td>
-
-{formatDate(
-donation.neededBy ||
-donation.createdAt
-)}
-
-</td>
-
-<td>
-
-<strong>
-
-{donation.estimatedMeals}
-
-</strong>{" "}
-
-Meals
-
-</td>
-
-<td>
-
-{donation.communityName ||
-
-<span className="pending">
-
-Pending Match
-
-</span>
-
-}
-
-</td>
-
-<td>
-
-<span
-className={`status ${status.className}`}
->
-
-{status.text}
-
-</span>
-
-</td>
-
-<td>
-
-<button
-className="details-btn"
-onClick={()=>navigate(
-`/donor/donation-details/${donation.id}`
-)}
->
-
-<FaEye/>
-
-Details
-
-</button>
-
-</td>
-
-</tr>
-
-);
-
-})}
-
-</tbody>
-
-</table>
-<div className="table-footer">
-
-<div>
-
-Showing {(page-1)*PAGE_SIZE+1}
-
-to
-
-{Math.min(page*PAGE_SIZE,filteredDonations.length)}
-
-of {filteredDonations.length}
-
-entries
-
-</div>
-
-<div className="pagination">
-
-<button
-disabled={page===1}
-onClick={()=>setPage(page-1)}
->
-
-<FaChevronLeft/>
-
-</button>
-
-{Array.from(
-{length:totalPages},
-(_,i)=>i+1
-).map((number)=>(
-
-<button
-
-key={number}
-
-className={
-page===number
-?
-"active"
-:
-""
-}
-
-onClick={()=>setPage(number)}
-
->
-
-{number}
-
-</button>
-
-))}
-
-<button
-disabled={page===totalPages}
-onClick={()=>setPage(page+1)}
->
-
-<FaChevronRight/>
-
-</button>
-
-</div>
-
-</div>
-
-</>
-
-)}
-
-</div>
-<div className="stats">
-
-<div className="stat-card green">
-
-<div className="icon">
-
-<FaLeaf/>
-
-</div>
-
-<div>
-
-<h5>Total Impact</h5>
-
-<h2>{stats.carbon} Tons</h2>
-
-<p>CO₂ Saved This Year</p>
-
-</div>
-
-</div>
-
-<div className="stat-card green">
-
-<div className="icon">
-
-<FaUtensils/>
-
-</div>
-
-<div>
-
-<h5>Meals Provided</h5>
-
-<h2>{stats.meals}</h2>
-
-<p>
-
-Across {stats.communities} Communities
-
-</p>
-
-</div>
-
-</div>
-
-<div className="stat-card orange">
-
-<div className="icon">
-
-<FaChartLine/>
-
-</div>
-
-<div>
-
-<h5>Efficiency Rating</h5>
-
-<h2>{stats.efficiency}%</h2>
-
-<p>
-
-Successful Delivery Rate
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-);
+  );
 
 }
 
