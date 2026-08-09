@@ -1081,3 +1081,18 @@
     width: 100%;
   }
 }
+.receiver-user-badge { gap:10px; }
+.receiver-avatar {
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#173a2d;
+  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:700;
+}
+.receiver-info-panel h2 { margin-top:0; color:#173a2d; }
+.receiver-info-panel p { color:#666; line-height:1.6; }

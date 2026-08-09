@@ -21,7 +21,10 @@ import {
   FaClock,
   FaSignOutAlt,
   FaSearch,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaCog,
+  FaLifeRing,
+  FaUserCircle
 } from "react-icons/fa";
 
 
@@ -951,6 +954,21 @@ function ReceiverDashboard() {
               <FaTruck />
               <span>Track Deliveries</span>
             </li>
+            <li
+              className={activeTab === "settings" ? "active" : ""}
+              onClick={() => setActiveTab("settings")}
+            >
+              <FaCog />
+              <span>Settings</span>
+            </li>
+
+            <li
+              className={activeTab === "support" ? "active" : ""}
+              onClick={() => setActiveTab("support")}
+            >
+              <FaLifeRing />
+              <span>Support</span>
+            </li>
 
           </ul>
         </div>
@@ -998,20 +1016,10 @@ function ReceiverDashboard() {
 
 
           <div className="receiver-user-badge">
-
-            <span>
-
-              Role:{" "}
-
-              <strong>
-                {
-                  currentUser.accountType ||
-                  "RECEIVER"
-                }
-              </strong>
-
+            <span className="receiver-avatar">
+              {(currentUser.name || "Receiver").split(" ").map((p) => p[0]).join("").slice(0,2).toUpperCase()}
             </span>
-
+            <strong>{currentUser.name || "Receiver"}</strong>
           </div>
 
         </div>
@@ -2259,6 +2267,21 @@ function ReceiverDashboard() {
 
         )}
 
+
+        {activeTab === "settings" && (
+          <div className="receiver-content-card receiver-info-panel">
+            <h2>Receiver Settings</h2>
+            <p>Signed in as <strong>{currentUser.name || "Receiver"}</strong>.</p>
+            <p>Your food requests and matched donations are loaded using your receiver account.</p>
+          </div>
+        )}
+
+        {activeTab === "support" && (
+          <div className="receiver-content-card receiver-info-panel">
+            <h2>Support</h2>
+            <p>If a matched donation or delivery is not visible, use the refresh action on the relevant section. Delivery details appear after an administrator assigns a volunteer.</p>
+          </div>
+        )}
 
         {/* ==================================================
                     DELIVERY TRACKING MODAL

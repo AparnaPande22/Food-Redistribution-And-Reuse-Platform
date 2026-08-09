@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./VolunteerDashboard.css";
 import volunteerService from "../services/volunteerService";
 import { useNavigate } from "react-router-dom";
@@ -10,32 +10,46 @@ import {
   FaSignOutAlt,
   FaPlay,
   FaRegCheckCircle,
+  FaHistory,
+  FaCog,
+  FaLifeRing,
+  FaBars,
+  FaTimes,
   FaRoute,
-  FaUser
+  FaUserCircle,
 } from "react-icons/fa";
 
 function VolunteerDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("assigned"); // "assigned", "history"
+  const [activeTab, setActiveTab] = useState("assigned");
   const [deliveries, setDeliveries] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState({});
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchDeliveries();
+    try {
+      setCurrentUser(JSON.parse(localStorage.getItem("user") || "{}"));
+    } catch {
+      setCurrentUser({});
+    }
   }, []);
 
-  const fetchDeliveries = async () => {
+  useEffect(() => {
+    if (currentUser?.userId) fetchDeliveries(currentUser.userId);
+  }, [currentUser?.userId]);
+
+  const fetchDeliveries = async (partnerId = currentUser?.userId) => {
     setLoading(true);
-    setError(null);
+    setError("");
     try {
-      const data = await volunteerService.getAssignedDeliveries();
+      const data = await volunteerService.getAssignedDeliveries(partnerId);
       setDeliveries(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching volunteer deliveries:", err);
       setDeliveries([]);
+      setError(err.response?.data?.message || "Unable to load assigned deliveries.");
     } finally {
       setLoading(false);
     }
@@ -44,24 +58,18 @@ function VolunteerDashboard() {
   const handleStartDelivery = async (id) => {
     try {
       await volunteerService.startDelivery(id);
-      alert(`Delivery #${id} started! Status updated to IN TRANSIT.`);
-      fetchDeliveries();
+      await fetchDeliveries();
     } catch (err) {
-      console.error("Error starting delivery:", err);
-      alert(`Delivery #${id} started.`);
-      fetchDeliveries();
+      alert(err.response?.data?.message || "Unable to start delivery.");
     }
   };
 
   const handleCompleteDelivery = async (id) => {
     try {
       await volunteerService.completeDelivery(id);
-      alert(`Delivery #${id} completed successfully!`);
-      fetchDeliveries();
+      await fetchDeliveries();
     } catch (err) {
-      console.error("Error completing delivery:", err);
-      alert(`Delivery #${id} marked as completed.`);
-      fetchDeliveries();
+      alert(err.response?.data?.message || "Unable to complete delivery.");
     }
   };
 
@@ -71,186 +79,155 @@ function VolunteerDashboard() {
     navigate("/login");
   };
 
-  const activeDeliveries = deliveries.filter(
-    (d) => d.status === "ASSIGNED" || d.status === "IN_TRANSIT" || d.status === "PENDING"
+  const activeDeliveries = useMemo(
+    () => deliveries.filter((d) => ["ASSIGNED", "IN_PROGRESS", "PENDING"].includes(d.status)),
+    [deliveries]
   );
-  const completedDeliveries = deliveries.filter(
-    (d) => d.status === "COMPLETED" || d.status === "DELIVERED"
+
+  const completedDeliveries = useMemo(
+    () => deliveries.filter((d) => ["COMPLETED", "DELIVERED"].includes(d.status)),
+    [deliveries]
   );
+
+  const initials = (currentUser.name || "Volunteer")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div className="volunteer-dashboard">
-      {/* Sidebar */}
-      <div className="volunteer-sidebar">
-        <div>
-          <div className="volunteer-brand">
-            🚚 Volunteer Hub
-          </div>
-          <ul className="volunteer-menu">
-            <li
-              className={activeTab === "assigned" ? "active" : ""}
-              onClick={() => setActiveTab("assigned")}
-            >
-              <FaTruck /> Assigned Deliveries
-            </li>
-            <li
-              className={activeTab === "history" ? "active" : ""}
-              onClick={() => setActiveTab("history")}
-            >
-              <FaCheckCircle /> Delivery History
-            </li>
-          </ul>
-        </div>
+    <div className="dashboard donor-shell volunteer-shell">
+      {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
 
-        <ul className="volunteer-menu">
-          <li onClick={handleLogout}>
-            <FaSignOutAlt /> Sign Out
-          </li>
-        </ul>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="volunteer-main">
-        <div className="volunteer-header">
+      <aside className={`sidebar ${sidebarOpen ? "show" : ""}`}>
+        <div className="logo-area">
+          <div className="logo-box">♻</div>
           <div>
-            <h1>Volunteer Delivery Portal</h1>
-            <p style={{ margin: 0, color: "#64748b" }}>
-              Welcome back, {currentUser.name || "Volunteer Partner"}
-            </p>
+            <h3>Beyond Waste</h3>
+            <p>Volunteer Portal</p>
           </div>
-          <div style={{ background: "white", padding: "0.5rem 1rem", borderRadius: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-            <span>Role: <strong>{currentUser.accountType || "VOLUNTEER"}</strong></span>
-          </div>
+          <button className="close-sidebar d-lg-none" onClick={() => setSidebarOpen(false)}>
+            <FaTimes />
+          </button>
         </div>
 
-        {/* Stats Grid */}
-        <div className="volunteer-stats-grid">
-          <div className="volunteer-card">
-            <div className="volunteer-icon"><FaTruck /></div>
-            <div>
-              <h3 style={{ margin: 0, fontSize: "1.5rem" }}>{deliveries.length}</h3>
-              <p style={{ margin: 0, color: "#64748b", fontSize: "0.85rem" }}>Total Assigned Tasks</p>
-            </div>
-          </div>
-          <div className="volunteer-card">
-            <div className="volunteer-icon"><FaClock /></div>
-            <div>
-              <h3 style={{ margin: 0, fontSize: "1.5rem" }}>{activeDeliveries.length}</h3>
-              <p style={{ margin: 0, color: "#64748b", fontSize: "0.85rem" }}>Pending / In Transit</p>
-            </div>
-          </div>
-          <div className="volunteer-card">
-            <div className="volunteer-icon"><FaCheckCircle /></div>
-            <div>
-              <h3 style={{ margin: 0, fontSize: "1.5rem" }}>{completedDeliveries.length}</h3>
-              <p style={{ margin: 0, color: "#64748b", fontSize: "0.85rem" }}>Completed Deliveries</p>
-            </div>
-          </div>
+        <button className="new-donation-btn volunteer-refresh" onClick={() => fetchDeliveries()}>
+          <FaTruck />
+          <span>Refresh Tasks</span>
+        </button>
+
+        <div className="menu">
+          <button className={`menu-item ${activeTab === "assigned" ? "active" : ""}`} onClick={() => { setActiveTab("assigned"); setSidebarOpen(false); }}>
+            <FaTruck /><span>Assigned Deliveries</span>
+          </button>
+          <button className={`menu-item ${activeTab === "history" ? "active" : ""}`} onClick={() => { setActiveTab("history"); setSidebarOpen(false); }}>
+            <FaHistory /><span>Delivery History</span>
+          </button>
+          <button className={`menu-item ${activeTab === "route" ? "active" : ""}`} onClick={() => { setActiveTab("route"); setSidebarOpen(false); }}>
+            <FaRoute /><span>Route Details</span>
+          </button>
         </div>
 
-        {/* TAB 1: ASSIGNED DELIVERIES */}
-        {activeTab === "assigned" && (
-          <div className="volunteer-content-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Active & Assigned Deliveries</h2>
-              <button className="btn-start" onClick={fetchDeliveries}>Refresh Deliveries</button>
-            </div>
+        <div className="sidebar-bottom">
+          <button className="menu-item" onClick={() => setActiveTab("settings")}><FaCog /><span>Settings</span></button>
+          <button className="menu-item" onClick={() => setActiveTab("support")}><FaLifeRing /><span>Support</span></button>
+          <button className="menu-item" onClick={handleLogout}><FaSignOutAlt /><span>Sign Out</span></button>
+        </div>
+      </aside>
 
-            {loading ? (
-              <p>Loading assigned deliveries...</p>
-            ) : deliveries.length > 0 ? (
-              <table className="volunteer-table">
-                <thead>
-                  <tr>
-                    <th>Delivery ID</th>
-                    <th>Match / Req ID</th>
-                    <th>Pickup Location</th>
-                    <th>Destination</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {deliveries.map((del) => (
-                    <tr key={del.deliveryId || del.id}>
-                      <td>#{del.deliveryId || del.id}</td>
-                      <td>#{del.matchId || del.requestId || "-"}</td>
-                      <td><FaMapMarkerAlt color="#0284c7" /> {del.pickupAddress || "Donor Warehouse"}</td>
-                      <td><FaMapMarkerAlt color="#16a34a" /> {del.deliveryAddress || del.dropAddress || "Receiver Shelter"}</td>
-                      <td>
-                        <span className={`badge-del-status ${del.status || "ASSIGNED"}`}>
-                          {del.status || "ASSIGNED"}
-                        </span>
-                      </td>
-                      <td>
-                        {(del.status === "ASSIGNED" || del.status === "PENDING" || !del.status) && (
-                          <button
-                            className="btn-start"
-                            onClick={() => handleStartDelivery(del.deliveryId || del.id)}
-                          >
-                            <FaPlay /> Start Delivery
-                          </button>
-                        )}
-                        {del.status === "IN_TRANSIT" && (
-                          <button
-                            className="btn-complete"
-                            onClick={() => handleCompleteDelivery(del.deliveryId || del.id)}
-                          >
-                            <FaRegCheckCircle /> Mark Delivered
-                          </button>
-                        )}
-                        {del.status === "COMPLETED" && (
-                          <span style={{ color: "#16a34a", fontWeight: "600" }}>✓ Done</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ textAlign: "center", padding: "2rem", color: "#64748b" }}>
-                <FaTruck size={40} style={{ marginBottom: "1rem", color: "#cbd5e1" }} />
-                <p>No active delivery tasks assigned at the moment.</p>
+      <main className="main">
+        <header className="topbar">
+          <div className="left-top">
+            <button className="mobile-menu d-lg-none" onClick={() => setSidebarOpen(true)}><FaBars /></button>
+            <div className="search-box volunteer-heading">
+              <strong>Volunteer Delivery Center</strong>
+            </div>
+          </div>
+          <div className="right-top">
+            <div className="profile">
+              <div className="profile-img">{initials}</div>
+              <span>{currentUser.name || "Volunteer"}</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="page-content">
+          <section className="welcome-section">
+            <h1>Welcome back, {currentUser.name || "Volunteer"}!</h1>
+            <p>Manage your assigned food deliveries, pickup details, receiver information and delivery progress from one place.</p>
+          </section>
+
+          <div className="stats-grid">
+            <div className="stats-card"><div className="stats-top"><div><small>Total Tasks</small><h2>{deliveries.length}</h2><span>Assigned to you</span></div><div className="stats-icon green"><FaTruck /></div></div></div>
+            <div className="stats-card"><div className="stats-top"><div><small>Active Deliveries</small><h2>{activeDeliveries.length}</h2><span>Pending / in progress</span></div><div className="stats-icon darkgreen"><FaClock /></div></div></div>
+            <div className="stats-card"><div className="stats-top"><div><small>Completed</small><h2>{completedDeliveries.length}</h2><span>Successfully delivered</span></div><div className="stats-icon peach"><FaCheckCircle /></div></div></div>
+            <div className="stats-card"><div className="stats-top"><div><small>Current Role</small><h2 style={{fontSize:"25px"}}>VOLUNTEER</h2><span>{currentUser.city || "Beyond Waste partner"}</span></div><div className="stats-icon lightgreen"><FaUserCircle /></div></div></div>
+          </div>
+
+          {activeTab === "assigned" && (
+            <div className="dashboard-card">
+              <div className="section-header">
+                <h4>My Assigned Deliveries</h4>
+                <button className="volunteer-link-btn" onClick={() => fetchDeliveries()}>Refresh</button>
               </div>
-            )}
-          </div>
-        )}
+              {error && <div className="volunteer-error">{error}</div>}
+              {loading ? <p>Loading assigned deliveries...</p> : deliveries.length === 0 ? (
+                <div className="empty-state"><FaTruck size={42}/><h3>No delivery assigned yet</h3><p>Once an admin assigns a volunteer to an approved match, the pickup and receiver details will appear here.</p></div>
+              ) : (
+                <div className="volunteer-table-wrap">
+                  <table className="volunteer-table">
+                    <thead><tr><th>Delivery</th><th>Donor / Pickup</th><th>Receiver / Drop</th><th>Food Match</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                      {deliveries.map((del) => {
+                        const id = del.deliveryId || del.id;
+                        return <tr key={id}>
+                          <td>#{id}<br/><small>Match #{del.matchId || "-"}</small></td>
+                          <td><strong>{del.donorName || "Donor"}</strong><br/><FaMapMarkerAlt /> {del.pickupAddress || "Address unavailable"}</td>
+                          <td><strong>{del.receiverName || "Receiver"}</strong><br/><FaMapMarkerAlt /> {del.receiverAddress || "Address unavailable"}</td>
+                          <td>Donation #{del.donationRequestId || "-"}<br/>Request #{del.receiverRequestId || "-"}</td>
+                          <td><span className={`activity-badge ${del.status === "COMPLETED" ? "light" : "dark"}`}>{del.status || "ASSIGNED"}</span></td>
+                          <td>
+                            {(del.status === "ASSIGNED" || del.status === "PENDING") && <button className="volunteer-action-btn" onClick={() => handleStartDelivery(id)}><FaPlay /> Start</button>}
+                            {del.status === "IN_PROGRESS" && <button className="volunteer-action-btn complete" onClick={() => handleCompleteDelivery(id)}><FaRegCheckCircle /> Delivered</button>}
+                            {["COMPLETED","DELIVERED"].includes(del.status) && <span className="done-text">✓ Done</span>}
+                          </td>
+                        </tr>;
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* TAB 2: HISTORY */}
-        {activeTab === "history" && (
-          <div className="volunteer-content-card">
-            <h2 style={{ fontSize: "1.25rem", marginBottom: "1.25rem" }}>Completed Deliveries History</h2>
-            {completedDeliveries.length > 0 ? (
-              <table className="volunteer-table">
-                <thead>
-                  <tr>
-                    <th>Delivery ID</th>
-                    <th>Pickup</th>
-                    <th>Drop Location</th>
-                    <th>Status</th>
-                    <th>Completed Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {completedDeliveries.map((del) => (
-                    <tr key={del.deliveryId || del.id}>
-                      <td>#{del.deliveryId || del.id}</td>
-                      <td>{del.pickupAddress || "Donor"}</td>
-                      <td>{del.deliveryAddress || "Receiver"}</td>
-                      <td>
-                        <span className="badge-del-status COMPLETED">COMPLETED</span>
-                      </td>
-                      <td>{del.updatedAt ? new Date(del.updatedAt).toLocaleDateString() : "Recently"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p style={{ textAlign: "center", color: "#64748b" }}>No completed deliveries yet.</p>
-            )}
-          </div>
-        )}
-      </div>
+          {activeTab === "history" && (
+            <div className="dashboard-card">
+              <div className="section-header"><h4>Delivery History</h4></div>
+              {completedDeliveries.length === 0 ? <div className="empty-state"><FaHistory size={38}/><p>No completed deliveries yet.</p></div> :
+                <div className="volunteer-table-wrap"><table className="volunteer-table"><thead><tr><th>Delivery</th><th>Donor</th><th>Receiver</th><th>Completed</th></tr></thead><tbody>
+                  {completedDeliveries.map((del) => <tr key={del.deliveryId || del.id}><td>#{del.deliveryId || del.id}</td><td>{del.donorName || "Donor"}<br/>{del.pickupAddress}</td><td>{del.receiverName || "Receiver"}<br/>{del.receiverAddress}</td><td>{del.deliveryTime ? new Date(del.deliveryTime).toLocaleString() : "Completed"}</td></tr>)}
+                </tbody></table></div>}
+            </div>
+          )}
+
+          {activeTab === "route" && (
+            <div className="dashboard-card info-panel">
+              <h4>Route Details</h4>
+              <p>Each assigned delivery shows the donor pickup address and receiver drop address. Use those two locations to plan your route.</p>
+              {activeDeliveries.map((del) => <div className="route-row" key={del.deliveryId || del.id}><strong>#{del.deliveryId}</strong><span>{del.pickupAddress || "Pickup"} → {del.receiverAddress || "Receiver"}</span></div>)}
+            </div>
+          )}
+
+          {activeTab === "settings" && (
+            <div className="dashboard-card info-panel"><h4>Volunteer Settings</h4><p>Your account is currently signed in as <strong>{currentUser.name || "Volunteer"}</strong>.</p><p>Delivery assignments are automatically loaded for your volunteer account.</p></div>
+          )}
+
+          {activeTab === "support" && (
+            <div className="dashboard-card info-panel"><h4>Support</h4><p>If a pickup address, receiver address or delivery assignment is missing, refresh the dashboard first. If it is still missing, contact the administrator managing the matching queue.</p></div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

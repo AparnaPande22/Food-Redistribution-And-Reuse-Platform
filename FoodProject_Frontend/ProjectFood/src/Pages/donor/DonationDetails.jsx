@@ -12,6 +12,7 @@ import {
 import Sidebar from "../../Component/donor/Sidebar";
 import TopNavbar from "../../Component/donor/TopNavbar";
 import donationService from "../../services/donationService";
+import { getMatchesByDonation } from "../../services/matchService";
 
 import "./DonationDetails.css";
 
@@ -24,6 +25,7 @@ function DonationDetails() {
     const [loading,setLoading]=useState(true);
 
     const [donation,setDonation]=useState(null);
+    const [matches,setMatches]=useState([]);
 
   useEffect(() => {
     loadDonation();
@@ -38,6 +40,14 @@ const loadDonation = async () => {
         console.log(response);
 
         setDonation(response);
+
+        try {
+            const matchResponse = await getMatchesByDonation(id);
+            setMatches(matchResponse.data || []);
+        } catch (matchErr) {
+            console.log("Unable to load receiver match details:", matchErr);
+            setMatches([]);
+        }
 
     } catch (err) {
         console.log(err);
@@ -244,6 +254,24 @@ Food Items
 )}
 
 </div>
+{matches.length > 0 && (
+<div className="matched-receiver-card">
+    <h2><FaCheckCircle/> Receiver requesting this food</h2>
+    {matches.map((match) => (
+        <div className="matched-receiver-row" key={match.id}>
+            <div>
+                <strong>{match.receiverName || "Receiver"}</strong>
+                <p>{match.receiverAddress || "Pickup address not available"}</p>
+                {match.receiverEmail && <small>{match.receiverEmail}</small>}
+            </div>
+            <span className={`status ${String(match.status || "").toLowerCase()}`}>
+                {match.status}
+            </span>
+        </div>
+    ))}
+</div>
+)}
+
 <div className="timeline">
 
 <h2>

@@ -38,14 +38,14 @@ public class MatchServiceImpl implements MatchService {
 		Request receiverRequest = requestRepo.findById(request.getReceiverRequestId())
 				.orElseThrow(() -> new ResourceNotFoundException("Receiver Request not found"));
 
-		User admin = userRepo.findById(request.getMatchedBy())
-				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		User matchedBy = userRepo.findById(request.getMatchedBy())
+		        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		Matches match = new Matches();
 
 		match.setDonationRequest(donationRequest);
 		match.setReceiverRequest(receiverRequest);
-		match.setMatchedBy(admin);
+		match.setMatchedBy(matchedBy);
 		match.setMatchStatus(MatchStatus.PENDING);
 		match.setMatchedAt(LocalDateTime.now());
 

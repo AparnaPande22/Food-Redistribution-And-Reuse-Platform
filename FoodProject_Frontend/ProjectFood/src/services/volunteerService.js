@@ -1,15 +1,16 @@
-// Kept for backward compatibility with VolunteerDashboard.jsx -
-// forwards to the corrected deliveryService (/api/deliveries).
 import {
   getAssignedDeliveries as getAssigned,
+  getAssignedDeliveriesByPartner,
   startDelivery as start,
   completeDelivery as complete,
   trackDelivery as track,
   createDelivery as create,
 } from "./deliveryService";
 
-export const getAssignedDeliveries = async () => {
-  const res = await getAssigned();
+export const getAssignedDeliveries = async (partnerId) => {
+  const res = partnerId
+    ? await getAssignedDeliveriesByPartner(partnerId)
+    : await getAssigned();
   return res.data;
 };
 
