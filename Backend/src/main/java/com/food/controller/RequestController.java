@@ -1,3 +1,4 @@
+
 package com.food.controller;
 
 import org.springframework.http.HttpStatus;
@@ -26,75 +27,166 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/requests")
 @RequiredArgsConstructor
 @Validated
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(
+    origins = {
+        "http://localhost:5173",
+        "http://localhost:5174"
+    }
+)
 public class RequestController {
 
-	private final RequestService requestService;
+    private final RequestService requestService;
 
-	// add new request
-	@PostMapping
-	public ResponseEntity<RequestResponseDTO> addNewRequest(@Valid @RequestBody RequestDTO dto) {
+    // ======================================================
+    // CREATE REQUEST
+    // POST /api/requests
+    // ======================================================
 
-		RequestResponseDTO response = requestService.addNewRequest(dto);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
+    @PostMapping
+    public ResponseEntity<RequestResponseDTO> addNewRequest(
+            @Valid @RequestBody RequestDTO dto) {
 
-	// find by id
-	@GetMapping("/id/{id}")
-	public ResponseEntity<?> findById(@Positive(message = "Id must be greater than 0") @PathVariable Long id) {
+        RequestResponseDTO response =
+            requestService.addNewRequest(dto);
 
-		return ResponseEntity.ok(requestService.findById(id));
-	}
+        return new ResponseEntity<>(
+            response,
+            HttpStatus.CREATED
+        );
+    }
 
-	// find all requests
-	@GetMapping
-	public ResponseEntity<?> findAllRequests() {
-		return ResponseEntity.ok(requestService.findAllRequest());
-	}
+    // ======================================================
+    // FIND REQUEST BY ID
+    // GET /api/requests/id/{id}
+    // ======================================================
 
-	// delete by id
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteById(@Positive(message = "Id must be greater than 0") @PathVariable Long id) {
-		return ResponseEntity.ok(requestService.deleteById(id));
-	}
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> findById(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long id) {
 
-	// find by status
-	@GetMapping("/active")
-	public ResponseEntity<?> findActiveRequest() {
-		return ResponseEntity.ok(requestService.findByStatus(RequestStatus.ACTIVE));
-	}
+        return ResponseEntity.ok(
+            requestService.findById(id)
+        );
+    }
 
-	// find my request
-	@GetMapping("/my/{userId}")
-	public ResponseEntity<?> findMyRequest(@Positive(message = "Id must be greater than 0") @PathVariable Long userId) {
-		return ResponseEntity.ok(requestService.findMyRequest(userId));
-	}
+    // ======================================================
+    // FIND ALL REQUESTS
+    // GET /api/requests
+    // ======================================================
 
-	// submit request
-	@PutMapping("/submit/{id}")
-	public ResponseEntity<?> submitRequest(@Positive(message = "Id must be greater than 0") @PathVariable Long id) {
-		return ResponseEntity.ok(requestService.submitRequest(id));
-	}
+    @GetMapping
+    public ResponseEntity<?> findAllRequests() {
 
-	// cancel request
-	@PutMapping("/cancel/{id}")
-	public ResponseEntity<?> cancelRequest(@Positive(message = "Id must be greater than 0") @PathVariable Long id) {
-		return ResponseEntity.ok(requestService.cancelRequest(id));
-	}
+        return ResponseEntity.ok(
+            requestService.findAllRequest()
+        );
+    }
 
-	// find request history
-	@GetMapping("/history/{userId}")
-	public ResponseEntity<?> findRequestHistory(
-			@Positive(message = "Id must be greater than 0") @PathVariable Long userId) {
-		return ResponseEntity.ok(requestService.findRequestHistory(userId));
-	}
+    // ======================================================
+    // DELETE REQUEST
+    // DELETE /api/requests/{id}
+    // ======================================================
 
-	// update request
-	@PutMapping("/update/{id}")
-	public ResponseEntity<?> updateRequest(@Positive(message = "Id must be greater than 0") @PathVariable Long id,
-			@Valid @RequestBody RequestDTO dto) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long id) {
 
-		return ResponseEntity.ok(requestService.updateRequest(id, dto));
-	}
+        return ResponseEntity.ok(
+            requestService.deleteById(id)
+        );
+    }
 
+    // ======================================================
+    // ACTIVE REQUESTS
+    // GET /api/requests/active
+    // ======================================================
+
+    @GetMapping("/active")
+    public ResponseEntity<?> findActiveRequest() {
+
+        return ResponseEntity.ok(
+            requestService.findByStatus(
+                RequestStatus.ACTIVE
+            )
+        );
+    }
+
+    // ======================================================
+    // MY REQUESTS
+    // GET /api/requests/my/{userId}
+    // ======================================================
+
+    @GetMapping("/my/{userId}")
+    public ResponseEntity<?> findMyRequest(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(
+            requestService.findMyRequest(userId)
+        );
+    }
+
+    // ======================================================
+    // SUBMIT REQUEST
+    // PUT /api/requests/submit/{id}
+    // ======================================================
+
+    @PutMapping("/submit/{id}")
+    public ResponseEntity<?> submitRequest(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            requestService.submitRequest(id)
+        );
+    }
+
+    // ======================================================
+    // CANCEL REQUEST
+    // PUT /api/requests/cancel/{id}
+    // ======================================================
+
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelRequest(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            requestService.cancelRequest(id)
+        );
+    }
+
+    // ======================================================
+    // REQUEST HISTORY
+    // GET /api/requests/history/{userId}
+    // ======================================================
+
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<?> findRequestHistory(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(
+            requestService.findRequestHistory(userId)
+        );
+    }
+
+    // ======================================================
+    // UPDATE REQUEST
+    // PUT /api/requests/update/{id}
+    // ======================================================
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateRequest(
+            @Positive(message = "Id must be greater than 0")
+            @PathVariable Long id,
+            @Valid @RequestBody RequestDTO dto) {
+
+        return ResponseEntity.ok(
+            requestService.updateRequest(id, dto)
+        );
+    }
 }
+

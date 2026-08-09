@@ -1,164 +1,145 @@
 
 import api from "./api";
 
-/*
- * Receiver Service
- *
- * Backend base URL:
- * http://localhost:8080/food/api
- *
- * Backend RequestController:
- * /api/request
- */
-
 // ======================================================
 // REQUEST APIs
+// Backend base URL:
+// http://localhost:8080/food/api
+//
+// Backend Controller:
+// @RequestMapping("/api/requests")
 // ======================================================
 
-/**
- * Create receiver food request
- *
- * Backend:
- * POST /api/request
- */
+// ------------------------------------------------------
+// CREATE RECEIVER FOOD REQUEST
+// POST /api/requests
+// ------------------------------------------------------
 export const createFoodRequest = async (requestData) => {
-  const response = await api.post("/request", requestData);
+  const response = await api.post("/requests", requestData);
   return response.data;
 };
 
-
-/**
- * Get all active food requests
- *
- * Backend:
- * GET /api/request/active
- */
+// ------------------------------------------------------
+// GET ALL ACTIVE FOOD REQUESTS
+// GET /api/requests/active
+// ------------------------------------------------------
 export const getActiveRequests = async () => {
-  const response = await api.get("/request/active");
+  const response = await api.get("/requests/active");
   return response.data;
 };
 
-
-/**
- * Get receiver's own requests
- *
- * Backend:
- * GET /api/request/my/{userId}
- */
+// ------------------------------------------------------
+// GET RECEIVER'S OWN REQUESTS
+// GET /api/requests/my/{userId}
+// ------------------------------------------------------
 export const getMyRequests = async (userId) => {
   if (!userId) {
     throw new Error("User ID is required");
   }
 
-  const response = await api.get(`/request/my/${userId}`);
+  const response = await api.get(`/requests/my/${userId}`);
   return response.data;
 };
 
-
-/**
- * Get receiver request history
- *
- * Backend:
- * GET /api/request/history/{userId}
- */
+// ------------------------------------------------------
+// GET REQUEST HISTORY
+// GET /api/requests/history/{userId}
+// ------------------------------------------------------
 export const getRequestHistory = async (userId) => {
   if (!userId) {
     throw new Error("User ID is required");
   }
 
-  const response = await api.get(`/request/history/${userId}`);
+  const response = await api.get(`/requests/history/${userId}`);
   return response.data;
 };
 
-
-/**
- * Get request by ID
- *
- * Backend:
- * GET /api/request/id/{id}
- */
+// ------------------------------------------------------
+// GET REQUEST BY ID
+// GET /api/requests/id/{id}
+// ------------------------------------------------------
 export const getRequestById = async (requestId) => {
-  const response = await api.get(`/request/id/${requestId}`);
+  if (!requestId) {
+    throw new Error("Request ID is required");
+  }
+
+  const response = await api.get(`/requests/id/${requestId}`);
   return response.data;
 };
 
-
-/**
- * Submit receiver request
- *
- * Backend:
- * PUT /api/request/submit/{id}
- */
+// ------------------------------------------------------
+// SUBMIT REQUEST
+// PUT /api/requests/submit/{id}
+// ------------------------------------------------------
 export const submitRequest = async (requestId) => {
+  if (!requestId) {
+    throw new Error("Request ID is required");
+  }
+
   const response = await api.put(
-    `/request/submit/${requestId}`
+    `/requests/submit/${requestId}`
   );
 
   return response.data;
 };
 
-
-/**
- * Cancel receiver request
- *
- * Backend:
- * PUT /api/request/cancel/{id}
- */
+// ------------------------------------------------------
+// CANCEL REQUEST
+// PUT /api/requests/cancel/{id}
+// ------------------------------------------------------
 export const cancelRequest = async (requestId) => {
+  if (!requestId) {
+    throw new Error("Request ID is required");
+  }
+
   const response = await api.put(
-    `/request/cancel/${requestId}`
+    `/requests/cancel/${requestId}`
   );
 
   return response.data;
 };
 
-
-/**
- * Update receiver request
- *
- * Backend:
- * PUT /api/request/update/{id}
- */
+// ------------------------------------------------------
+// UPDATE REQUEST
+// PUT /api/requests/update/{id}
+// ------------------------------------------------------
 export const updateRequest = async (requestId, data) => {
+  if (!requestId) {
+    throw new Error("Request ID is required");
+  }
+
   const response = await api.put(
-    `/request/update/${requestId}`,
+    `/requests/update/${requestId}`,
     data
   );
 
   return response.data;
 };
 
-
-/**
- * Delete receiver request
- *
- * Backend:
- * DELETE /api/request/{id}
- */
+// ------------------------------------------------------
+// DELETE REQUEST
+// DELETE /api/requests/{id}
+// ------------------------------------------------------
 export const deleteRequest = async (requestId) => {
+  if (!requestId) {
+    throw new Error("Request ID is required");
+  }
+
   const response = await api.delete(
-    `/request/${requestId}`
+    `/requests/${requestId}`
   );
 
   return response.data;
 };
 
-
 // ======================================================
 // MATCH APIs
 // ======================================================
 
-/**
- * Create a match between donation request and receiver request.
- *
- * Backend MatchDTO requires:
- *
- * {
- *   donationRequestId,
- *   receiverRequestId,
- *   matchedBy
- * }
- */
+// ------------------------------------------------------
+// CREATE MATCH
+// POST /api/match
+// ------------------------------------------------------
 export const createMatch = async (
   donationRequestId,
   receiverRequestId,
@@ -190,25 +171,25 @@ export const createMatch = async (
   return response.data;
 };
 
-
 // ======================================================
 // DELIVERY APIs
 // ======================================================
 
-/**
- * Track delivery
- *
- * Backend:
- * GET /api/deliveries/{id}/track
- */
+// ------------------------------------------------------
+// TRACK DELIVERY
+// GET /api/deliveries/{id}/track
+// ------------------------------------------------------
 export const trackDelivery = async (deliveryId) => {
+  if (!deliveryId) {
+    throw new Error("Delivery ID is required");
+  }
+
   const response = await api.get(
     `/deliveries/${deliveryId}/track`
   );
 
   return response.data;
 };
-
 
 // ======================================================
 // DEFAULT EXPORT
@@ -229,4 +210,3 @@ const receiverService = {
 };
 
 export default receiverService;
-

@@ -1,3 +1,4 @@
+
 package com.food.security;
 
 import java.util.List;
@@ -30,121 +31,253 @@ public class SecurityConfig {
     private final CustomJwtVerificationFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                .csrf(csrf -> csrf.disable())
+            // ==================================================
+            // CORS
+            // ==================================================
+            .cors(cors ->
+                cors.configurationSource(
+                    corsConfigurationSource()
+                )
+            )
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // ==================================================
+            // CSRF
+            // ==================================================
+            .csrf(csrf ->
+                csrf.disable()
+            )
 
-                .authorizeHttpRequests(request -> request
+            // ==================================================
+            // STATELESS SESSION
+            // ==================================================
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
 
-                        // Allow preflight requests
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            // ==================================================
+            // AUTHORIZATION
+            // ==================================================
+            .authorizeHttpRequests(request -> request
 
-                        // Public APIs
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
-                        ).permitAll()
+                // --------------------------------------------------
+                // CORS PREFLIGHT
+                // --------------------------------------------------
+                .requestMatchers(
+                    HttpMethod.OPTIONS,
+                    "/**"
+                ).permitAll()
 
-                        // ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/activity-logs/**").hasRole("ADMIN")
-                        .requestMatchers("/api/documents/**").hasRole("ADMIN")
+                // --------------------------------------------------
+                // PUBLIC AUTH APIs
+                // --------------------------------------------------
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**"
+                ).permitAll()
 
-                        // DONOR
-                        .requestMatchers("/api/donor/**")
-                        .hasAnyRole("ADMIN", "DONOR")
+                // ==================================================
+                // ADMIN
+                // ==================================================
+                .requestMatchers(
+                    "/api/admin/**"
+                ).hasRole("ADMIN")
 
-                        .requestMatchers("/api/media/**")
-                        .hasAnyRole("ADMIN", "DONOR")
+                .requestMatchers(
+                    "/api/users/**"
+                ).hasRole("ADMIN")
 
-                        // REQUESTS
-                        .requestMatchers("/api/requests/**")
-                        .hasAnyRole(
-                                "ADMIN",
-                                "DONOR",
-                                "RECEIVER",
-                                "BIOGAS_PARTNER"
-                        )
+                .requestMatchers(
+                    "/api/activity-logs/**"
+                ).hasRole("ADMIN")
 
-                        .requestMatchers("/api/request-item/**")
-                        .hasAnyRole("ADMIN", "RECEIVER")
+                .requestMatchers(
+                    "/api/documents/**"
+                ).hasRole("ADMIN")
 
-                        // VOLUNTEER
-                        .requestMatchers("/api/deliveries/**")
-                        .hasAnyRole("ADMIN", "VOLUNTEER")
+                // ==================================================
+                // DONOR
+                // ==================================================
+                .requestMatchers(
+                    "/api/donor/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "DONOR"
+                )
 
-                        .requestMatchers("/api/match/**")
-                        .hasAnyRole("ADMIN", "VOLUNTEER")
+                .requestMatchers(
+                    "/api/media/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "DONOR"
+                )
 
-                        // BIOGAS
-                        .requestMatchers("/api/waste/**")
-                        .hasAnyRole("ADMIN", "BIOGAS_PARTNER")
+                // ==================================================
+                // REQUESTS
+                // IMPORTANT:
+                // Controller = /api/requests/**
+                // ==================================================
+                .requestMatchers(
+                    "/api/requests/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "DONOR",
+                    "RECEIVER",
+                    "BIOGAS_PARTNER"
+                )
 
-                        // Authenticated
-                        .requestMatchers("/api/dashboard/**").authenticated()
-                        .requestMatchers("/api/notification/**").authenticated()
-                        .requestMatchers("/api/delivery-outcomes/**").authenticated()
+                // ==================================================
+                // REQUEST ITEM
+                // ==================================================
+                .requestMatchers(
+                    "/api/request-item/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "RECEIVER"
+                )
 
-                        .anyRequest().authenticated())
+                // ==================================================
+                // VOLUNTEER
+                // ==================================================
+                .requestMatchers(
+                    "/api/deliveries/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "VOLUNTEER"
+                )
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                .requestMatchers(
+                    "/api/match/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "VOLUNTEER",
+                    "RECEIVER"
+                )
+
+                // ==================================================
+                // BIOGAS
+                // ==================================================
+                .requestMatchers(
+                    "/api/waste/**"
+                ).hasAnyRole(
+                    "ADMIN",
+                    "BIOGAS_PARTNER"
+                )
+
+                // ==================================================
+                // DASHBOARD
+                // ==================================================
+                .requestMatchers(
+                    "/api/dashboard/**"
+                ).authenticated()
+
+                // ==================================================
+                // NOTIFICATION
+                // ==================================================
+                .requestMatchers(
+                    "/api/notification/**"
+                ).authenticated()
+
+                // ==================================================
+                // DELIVERY OUTCOME
+                // ==================================================
+                .requestMatchers(
+                    "/api/delivery-outcomes/**"
+                ).authenticated()
+
+                // ==================================================
+                // EVERYTHING ELSE
+                // ==================================================
+                .anyRequest().authenticated()
+            )
+
+            // ==================================================
+            // JWT FILTER
+            // ==================================================
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
 
+    // ======================================================
+    // CORS CONFIGURATION
+    // ======================================================
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+            new CorsConfiguration();
 
-        // Allow both Vite ports
-        configuration.setAllowedOriginPatterns(List.of(
+        configuration.setAllowedOriginPatterns(
+            List.of(
                 "http://localhost:5173",
                 "http://localhost:5174"
-        ));
+            )
+        );
 
-        configuration.setAllowedMethods(List.of(
+        configuration.setAllowedMethods(
+            List.of(
                 "GET",
                 "POST",
                 "PUT",
                 "DELETE",
                 "OPTIONS"
-        ));
+            )
+        );
 
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(
+            List.of("*")
+        );
 
-        configuration.setExposedHeaders(List.of("*"));
+        configuration.setExposedHeaders(
+            List.of("*")
+        );
 
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+            new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(
+            "/**",
+            configuration
+        );
 
         return source;
     }
 
+    // ======================================================
+    // PASSWORD ENCODER
+    // ======================================================
+
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 
+    // ======================================================
+    // AUTHENTICATION MANAGER
+    // ======================================================
+
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
+            AuthenticationConfiguration config)
+            throws Exception {
 
         return config.getAuthenticationManager();
     }
 }
+
