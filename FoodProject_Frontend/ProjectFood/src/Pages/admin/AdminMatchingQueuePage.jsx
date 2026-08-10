@@ -110,7 +110,7 @@ function AdminMatchingQueuePage() {
                                 {queue.map((item) => (
                                     <tr key={item.id}>
                                         <td>#{item.id}</td>
-                                        <td>#{item.donationRequestId || item.requestId || "N/A"}</td>
+                                        <td>#{item.requestId || item.request?.id || "N/A"}</td>
                                         <td>
                                             <span className="status">{item.status || "PENDING"}</span>
                                         </td>

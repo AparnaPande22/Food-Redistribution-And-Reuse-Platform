@@ -2,27 +2,25 @@ package com.food.service;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.food.DTO.DeliveryDTO;
-import com.food.entities.Deliveries;
+import com.food.DTO.DeliveryResponseDTO;
 
 public interface DeliveryService {
 	// Create delivery
 	public String createDelivery(DeliveryDTO request);
 
-//Find by id
-	public Deliveries findById(Long id);
+	//Find by id
+	public DeliveryResponseDTO findById(Long id);
 
-//find the assigned delivery
-	public List<Deliveries> findAssignedDeliveries();
+	//find the assigned delivery (for the CURRENTLY LOGGED IN volunteer)
+	public List<DeliveryResponseDTO> findAssignedDeliveries();
 
-//start delivery
+	//start delivery
 	public String startDelivery(Long id);
 
-//complete delivery
+	//complete delivery
 	public String completeDelivery(Long id);
 
-//track delivery
-	public Deliveries trackDelivery(Long id);
+	//track delivery
+	public DeliveryResponseDTO trackDelivery(Long id);
 }

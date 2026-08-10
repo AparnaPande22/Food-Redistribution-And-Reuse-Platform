@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 import { FaEye, FaCheck, FaTimes } from "react-icons/fa";
 
-import { getPendingRequests, acceptRequest, rejectRequest } from "../../services/biogasService";
+// BUGFIX: previously imported acceptRequest/rejectRequest/getPendingRequests
+// from biogasService.js, which call "/api/biogas/requests/..." - none of
+// which exist on the backend. Now wired to the real waste queue.
+import wasteService from "../../services/wasteService";
 
 import "../../css/pendingRequests.css";
 
 const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
     const [requests, setRequests] = useState([]);
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
     const loadRequests = () => {
 
-        getPendingRequests()
+        wasteService.getWasteQueue()
             .then((res) => setRequests(res.data || []))
             .catch((err) => console.error("Error fetching pending requests:", err));
     };
@@ -28,7 +32,8 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
     const handleAccept = async (id) => {
         try {
-            await acceptRequest(id);
+            // "Accept" = claim this waste pickup for myself.
+            await wasteService.assignWastePartner(id, currentUser.userId);
             alert("Request #" + id + " accepted.");
             loadRequests();
         } catch (err) {
@@ -38,8 +43,11 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
     };
 
     const handleReject = async (id) => {
+        const remark = window.prompt("Reason for rejecting this pickup (optional):", "");
+        if (remark === null) return; // user cancelled
+
         try {
-            await rejectRequest(id);
+            await wasteService.rejectWastePickup(id, remark);
             alert("Request #" + id + " rejected.");
             loadRequests();
         } catch (err) {
@@ -58,8 +66,8 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                     🚛 Pending Waste Pickups
                 </h2>
 
-                <button>
-                    View All
+                <button onClick={loadRequests}>
+                    Refresh
                 </button>
 
             </div>
@@ -77,7 +85,6 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                             <th>Address</th>
                             <th>Meals</th>
                             <th>Status</th>
-                            <th>Assigned Date</th>
                             <th>Actions</th>
 
                         </tr>
@@ -93,18 +100,16 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                                 requests.map((request) => (
 
                                     <tr
-                                        key={request.id || request.requestId}
+                                        key={request.requestId}
                                         className={
-                                            selectedRequest &&
-                                            (selectedRequest.id || selectedRequest.requestId) ===
-                                                (request.id || request.requestId)
+                                            selectedRequest?.requestId === request.requestId
                                                 ? "row-selected"
                                                 : ""
                                         }
                                     >
 
                                         <td>
-                                            #{request.id || request.requestId}
+                                            #{request.requestId}
                                         </td>
 
                                         <td>
@@ -127,16 +132,6 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
                                         </td>
 
-                                        <td>
-
-                                            {
-                                                request.assignedDate
-                                                    ? new Date(request.assignedDate).toLocaleString()
-                                                    : "-"
-                                            }
-
-                                        </td>
-
                                         <td className="action-buttons">
 
                                             <button
@@ -148,7 +143,7 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
                                             <button
                                                 className="accept-btn"
-                                                onClick={() => handleAccept(request.id || request.requestId)}
+                                                onClick={() => handleAccept(request.requestId)}
                                             >
                                                 <FaCheck />
                                                 Accept
@@ -156,7 +151,7 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
                                             <button
                                                 className="reject-btn"
-                                                onClick={() => handleReject(request.id || request.requestId)}
+                                                onClick={() => handleReject(request.requestId)}
                                             >
                                                 <FaTimes />
                                                 Reject
@@ -171,7 +166,7 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                             ) : (
 
                                 <tr>
-                                    <td colSpan="7">
+                                    <td colSpan="6">
                                         No Pending Waste Requests
                                     </td>
                                 </tr>

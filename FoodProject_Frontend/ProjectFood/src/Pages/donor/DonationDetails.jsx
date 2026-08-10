@@ -12,7 +12,7 @@ import {
 import Sidebar from "../../Component/donor/Sidebar";
 import TopNavbar from "../../Component/donor/TopNavbar";
 import donationService from "../../services/donationService";
-import { getMatchesByDonation } from "../../services/matchService";
+import requestItemService from "../../services/requestItemService";
 
 import "./DonationDetails.css";
 
@@ -25,7 +25,6 @@ function DonationDetails() {
     const [loading,setLoading]=useState(true);
 
     const [donation,setDonation]=useState(null);
-    const [matches,setMatches]=useState([]);
 
   useEffect(() => {
     loadDonation();
@@ -37,17 +36,22 @@ const loadDonation = async () => {
 
         const response = await donationService.getDonationById(id);
 
+        // BUGFIX: this page never actually fetched the food items for
+        // the donation - it only rendered `donation.items`, which was
+        // always undefined, hence "No food items available for this
+        // donation." shown for every donation. Fetch them from the
+        // (now-fixed) request-item endpoint and attach them here.
+        let items = [];
+        try {
+            const itemsRes = await requestItemService.getRequestItemsByRequest(id);
+            items = Array.isArray(itemsRes.data) ? itemsRes.data : [];
+        } catch (itemErr) {
+            console.log("Error fetching food items:", itemErr);
+        }
+
         console.log(response);
 
-        setDonation(response);
-
-        try {
-            const matchResponse = await getMatchesByDonation(id);
-            setMatches(matchResponse.data || []);
-        } catch (matchErr) {
-            console.log("Unable to load receiver match details:", matchErr);
-            setMatches([]);
-        }
+        setDonation({ ...response, items });
 
     } catch (err) {
         console.log(err);
@@ -254,24 +258,6 @@ Food Items
 )}
 
 </div>
-{matches.length > 0 && (
-<div className="matched-receiver-card">
-    <h2><FaCheckCircle/> Receiver requesting this food</h2>
-    {matches.map((match) => (
-        <div className="matched-receiver-row" key={match.id}>
-            <div>
-                <strong>{match.receiverName || "Receiver"}</strong>
-                <p>{match.receiverAddress || "Pickup address not available"}</p>
-                {match.receiverEmail && <small>{match.receiverEmail}</small>}
-            </div>
-            <span className={`status ${String(match.status || "").toLowerCase()}`}>
-                {match.status}
-            </span>
-        </div>
-    ))}
-</div>
-)}
-
 <div className="timeline">
 
 <h2>

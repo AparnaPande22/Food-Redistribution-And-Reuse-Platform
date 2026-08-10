@@ -1,7 +1,6 @@
 package com.food.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -25,15 +24,17 @@ public class RequestItemServiceImpl implements RequestItemService {
 	private final RequestItemRepository requestItemRepo;
 
 	@Override
-	public RequestItems findById(Long id) {
-		return requestItemRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("RequestItem not Found"));
+	public RequestItemDTO findById(Long id) {
+		RequestItems item = requestItemRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("RequestItem not Found"));
+		return toDTO(item);
 	}
 
 	@Override
-	public List<RequestItems> findByRequest(Long requestId) {
+	public List<RequestItemDTO> findByRequest(Long requestId) {
 		Request request = requestRepo.findById(requestId)
 				.orElseThrow(() -> new ResourceNotFoundException("Request Not Found!!"));
-		return requestItemRepo.findByRequest(request);
+		return requestItemRepo.findByRequest(request).stream().map(this::toDTO).toList();
 	}
 
 	@Override
@@ -85,5 +86,19 @@ public class RequestItemServiceImpl implements RequestItemService {
 		requestItemRepo.save(items);
 
 		return "RequestItem Updated Successfully!";
+	}
+
+	private RequestItemDTO toDTO(RequestItems item) {
+		RequestItemDTO dto = new RequestItemDTO();
+		dto.setId(item.getId());
+		dto.setItemName(item.getItemName());
+		dto.setFoodCategory(item.getFoodCategory());
+		dto.setQuantity(item.getQuantity());
+		dto.setUnit(item.getUnit());
+		dto.setExpiryTime(item.getExpiryTime());
+		if (item.getRequest() != null) {
+			dto.setRequestId(item.getRequest().getId());
+		}
+		return dto;
 	}
 }

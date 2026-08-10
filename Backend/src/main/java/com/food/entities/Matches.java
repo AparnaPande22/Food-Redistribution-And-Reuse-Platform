@@ -43,7 +43,10 @@ public class Matches {
     private Request receiverRequest;
 
     @NotNull(message = "Match status is required")
-    @Column(name = "match_status",nullable = false)
+    @Column(
+        name = "match_status",
+        nullable = false
+    )
     @Enumerated(EnumType.STRING)
     private MatchStatus matchStatus;
 

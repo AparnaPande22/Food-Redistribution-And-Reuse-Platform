@@ -18,6 +18,7 @@ import CreateDonation from "./Pages/donor/CreateDonation";
 import DonationSubmitted from "./Pages/donor/DonationSubmitted";
 import DonationHistory from "./Pages/donor/DonationHistory";
 import DonationDetails from "./Pages/donor/DonationDetails";
+import ImpactDashboard from "./Pages/donor/ImpactDashboard";
 import Payment from "./Pages/Industry/Payment";
 import IndustryDashboard from "./Pages/Industry/IndustryDashboard";
 import RequestDetails from "./Pages/Industry/RequestDetails";
@@ -62,6 +63,10 @@ function App() {
       <Route path="/donor/donation-submitted" element={<DonationSubmitted />} />
       <Route path="/donor/history" element={<DonationHistory />} />
       <Route path="/donor/donation-details/:id" element={<DonationDetails />} />
+      {/* BUGFIX: DonorDashboard/Sidebar linked to "/donor/impact" but no
+          route existed for it, and ImpactDashboard.jsx had no export -
+          both are now fixed so the Impact page actually loads. */}
+      <Route path="/donor/impact" element={<ImpactDashboard />} />
 
       <Route path="/Payment" element={<Payment />} />
       <Route path="/payment" element={<Payment />} />

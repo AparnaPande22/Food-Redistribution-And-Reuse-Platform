@@ -352,30 +352,3 @@
   }
 
 }
-.matched-receiver-card {
-  margin-top: 28px;
-  background: #f7f4ed;
-  border: 1px solid #e8e2d6;
-  border-radius: 18px;
-  padding: 22px;
-}
-.matched-receiver-card h2 {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:#173a2d;
-  font-size:20px;
-  margin:0 0 16px;
-}
-.matched-receiver-row {
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-}
-.matched-receiver-row strong { color:#173a2d; font-size:17px; }
-.matched-receiver-row p { margin:5px 0 2px; color:#666; }
-.matched-receiver-row small { color:#888; }

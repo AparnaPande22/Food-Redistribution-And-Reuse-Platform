@@ -305,3 +305,8 @@ const ImpactDashboard = () => {
         </div>
     );
 };
+
+// BUGFIX: this component had no export at all, so it could not be
+// imported/routed anywhere - the "Impact" link on the Donor sidebar and
+// the "Impact Report" quick action both pointed at a dead route.
+export default ImpactDashboard;

@@ -18,4 +18,13 @@ public interface DeliveryRepository extends JpaRepository<Deliveries, Long> {
 
 	Long countByStatus(DeliveryStatus completed);
 
+	// BUGFIX: deliveries belonging to one specific volunteer
+	// (previously the dashboard queried ALL assigned deliveries for
+	// every volunteer, not just the logged-in one).
+	List<Deliveries> findByDeliveryPartner_Id(Long deliveryPartnerId);
+
+	List<Deliveries> findByDeliveryPartner_IdAndStatus(Long deliveryPartnerId, DeliveryStatus status);
+
+	Deliveries findByMatch_Id(Long matchId);
+
 }

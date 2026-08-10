@@ -21,10 +21,7 @@ import {
   FaClock,
   FaSignOutAlt,
   FaSearch,
-  FaExclamationTriangle,
-  FaCog,
-  FaLifeRing,
-  FaUserCircle
+  FaExclamationTriangle
 } from "react-icons/fa";
 
 
@@ -401,6 +398,11 @@ function ReceiverDashboard() {
         "DRAFT",
 
       mealPreference:
+        requestForm.foodType.trim(),
+
+      // BUGFIX: same as the Donor form - the Request entity now requires
+      // foodCategory (NotBlank) on every request, donation or receiver.
+      foodCategory:
         requestForm.foodType.trim(),
 
       estimatedMeals:
@@ -840,51 +842,48 @@ function ReceiverDashboard() {
   // FILTER FOOD
   // ======================================================
 
-  const filteredFood =
-    availableFood.filter(
-      (item) => {
+const filteredFood =
+    availableFood
+      .filter((item) => item.requestType === "DONATION")
+      .filter(
+        (item) => {
 
-        const term =
-          searchTerm
-            .toLowerCase()
-            .trim();
+          const term =
+            searchTerm
+              .toLowerCase()
+              .trim();
 
+          if (!term) {
+            return true;
+          }
 
-        if (!term) {
-          return true;
+          const foodType =
+            (
+              item.foodType ||
+              item.mealPreference ||
+              ""
+            ).toLowerCase();
+
+          const address =
+            (
+              item.pickupAddress ||
+              item.pickUpAddress ||
+              ""
+            ).toLowerCase();
+
+          const donor =
+            (
+              item.donorName ||
+              ""
+            ).toLowerCase();
+
+          return (
+            foodType.includes(term) ||
+            address.includes(term) ||
+            donor.includes(term)
+          );
         }
-
-
-        const foodType =
-          (
-            item.foodType ||
-            item.mealPreference ||
-            ""
-          ).toLowerCase();
-
-
-        const address =
-          (
-            item.pickupAddress ||
-            item.pickUpAddress ||
-            ""
-          ).toLowerCase();
-
-
-        const donor =
-          (
-            item.donorName ||
-            ""
-          ).toLowerCase();
-
-
-        return (
-          foodType.includes(term) ||
-          address.includes(term) ||
-          donor.includes(term)
-        );
-      }
-    );
+      );
 
 
   // ======================================================
@@ -954,21 +953,6 @@ function ReceiverDashboard() {
               <FaTruck />
               <span>Track Deliveries</span>
             </li>
-            <li
-              className={activeTab === "settings" ? "active" : ""}
-              onClick={() => setActiveTab("settings")}
-            >
-              <FaCog />
-              <span>Settings</span>
-            </li>
-
-            <li
-              className={activeTab === "support" ? "active" : ""}
-              onClick={() => setActiveTab("support")}
-            >
-              <FaLifeRing />
-              <span>Support</span>
-            </li>
 
           </ul>
         </div>
@@ -1015,11 +999,34 @@ function ReceiverDashboard() {
           </div>
 
 
+          {/* BUGFIX: this badge used to show "Role: RECEIVER" instead of
+              the logged-in user's actual name - now matches the Donor
+              dashboard's user badge (name + avatar). */}
           <div className="receiver-user-badge">
-            <span className="receiver-avatar">
-              {(currentUser.name || "Receiver").split(" ").map((p) => p[0]).join("").slice(0,2).toUpperCase()}
-            </span>
-            <strong>{currentUser.name || "Receiver"}</strong>
+
+            <div className="receiver-user-text">
+              <h4>
+                {
+                  currentUser.name ||
+                  "Receiver Partner"
+                }
+              </h4>
+              <p>
+                {
+                  currentUser.accountType ||
+                  "RECEIVER"
+                }
+              </p>
+            </div>
+
+            <div className="receiver-avatar">
+              {
+                currentUser.name
+                  ? currentUser.name.charAt(0).toUpperCase()
+                  : "R"
+              }
+            </div>
+
           </div>
 
         </div>
@@ -2267,21 +2274,6 @@ function ReceiverDashboard() {
 
         )}
 
-
-        {activeTab === "settings" && (
-          <div className="receiver-content-card receiver-info-panel">
-            <h2>Receiver Settings</h2>
-            <p>Signed in as <strong>{currentUser.name || "Receiver"}</strong>.</p>
-            <p>Your food requests and matched donations are loaded using your receiver account.</p>
-          </div>
-        )}
-
-        {activeTab === "support" && (
-          <div className="receiver-content-card receiver-info-panel">
-            <h2>Support</h2>
-            <p>If a matched donation or delivery is not visible, use the refresh action on the relevant section. Delivery details appear after an administrator assigns a volunteer.</p>
-          </div>
-        )}
 
         {/* ==================================================
                     DELIVERY TRACKING MODAL

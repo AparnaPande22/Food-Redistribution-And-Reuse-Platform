@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./DonorDashboard.css";
 import api from "../../services/api";
 import donationService from "../../services/donationService";
+import matchService from "../../services/matchService";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -112,6 +113,9 @@ const DonorDashboard = () => {
   const [userName, setUserName] = useState("");
   const [dashboardData, setDashboardData] = useState(null);
   const [myDonations, setMyDonations] = useState([]);
+  // NEW: matches for this donor's donations, so we can show "which
+  // receiver wants this food" once a donation status flips to MATCHED.
+  const [myMatches, setMyMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -127,18 +131,25 @@ const DonorDashboard = () => {
 
   const loadDonorData = async (userId) => {
     try {
-      const [dashRes, donationsRes] = await Promise.all([
+      const [dashRes, donationsRes, matchesRes] = await Promise.all([
         api.get(`/dashboard/donor/${userId}`).then((r) => r.data).catch(() => null),
         donationService.getMyDonations(userId).catch(() => []),
+        matchService.getMatchesForUser(userId).then((r) => r.data).catch(() => []),
       ]);
       setDashboardData(dashRes);
       setMyDonations(Array.isArray(donationsRes) ? donationsRes : []);
+      setMyMatches(Array.isArray(matchesRes) ? matchesRes : []);
     } catch (err) {
       console.log("Error fetching donor dashboard data:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Look up the match (if any) for a given donation, so we can show
+  // "Matched with <receiver>" instead of just a bare status badge.
+  const getMatchForDonation = (donationId) =>
+    myMatches.find((m) => m.donationRequestId === donationId);
 
   const activeCount = dashboardData?.activeRequests ?? myDonations.filter(d => d.status === "ACTIVE").length;
   const completedCount = dashboardData?.completedRequests ?? myDonations.filter(d => d.status === "COMPLETED").length;
@@ -336,18 +347,31 @@ const DonorDashboard = () => {
                 ) : myDonations.length === 0 ? (
                   <p style={{ padding: "16px 0", color: "#6b7280" }}>No food surplus listings posted yet.</p>
                 ) : (
-                  myDonations.slice(0, 5).map((donation) => (
-                    <div className="activity-item" key={donation.id}>
-                      <div className="activity-icon green"><FaUtensils /></div>
-                      <div className="activity-content">
-                        <h6>{donation.title || donation.mealPreference || `Donation #${donation.id}`}</h6>
-                        <p>{donation.estimatedMeals || donation.quantity || 0} Meals • {donation.pickUpAddress}</p>
+                  myDonations.slice(0, 5).map((donation) => {
+                    // NEW: surface which receiver requested this donation
+                    // once it has been matched, instead of just a bare
+                    // "MATCHED" status badge.
+                    const match = getMatchForDonation(donation.id);
+                    return (
+                      <div className="activity-item" key={donation.id}>
+                        <div className="activity-icon green"><FaUtensils /></div>
+                        <div className="activity-content">
+                          <h6>{donation.title || donation.mealPreference || `Donation #${donation.id}`}</h6>
+                          <p>{donation.estimatedMeals || donation.quantity || 0} Meals • {donation.pickUpAddress}</p>
+                          {match && (
+                            <p style={{ color: "#173a2d", fontWeight: 600, marginTop: 2 }}>
+                              {match.deliveryPartnerName
+                                ? `Matched with ${match.receiverName} • Volunteer: ${match.deliveryPartnerName}`
+                                : `Matched with ${match.receiverName}`}
+                            </p>
+                          )}
+                        </div>
+                        <span className="activity-badge light">
+                          {donation.status}
+                        </span>
                       </div>
-                      <span className="activity-badge light">
-                        {donation.status}
-                      </span>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

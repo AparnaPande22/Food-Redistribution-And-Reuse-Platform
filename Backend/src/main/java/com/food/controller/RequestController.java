@@ -107,9 +107,7 @@ public class RequestController {
     public ResponseEntity<?> findActiveRequest() {
 
         return ResponseEntity.ok(
-            requestService.findByStatus(
-                RequestStatus.ACTIVE
-            )
+            requestService.findActiveDonations()
         );
     }
 

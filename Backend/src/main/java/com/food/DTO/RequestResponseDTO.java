@@ -21,6 +21,8 @@ public class RequestResponseDTO {
 
 	private String mealPreference;
 
+	private String foodCategory;
+
 	private Long estimatedMeals;
 
 	private String pickUpAddress;

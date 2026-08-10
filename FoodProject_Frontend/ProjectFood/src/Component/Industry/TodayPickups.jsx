@@ -5,7 +5,11 @@ import {
     FaClock
 } from "react-icons/fa";
 
-import { getTodayPickups } from "../../services/biogasService";
+// BUGFIX: previously called getTodayPickups() from biogasService.js
+// ("/api/biogas/pickups/today"), which doesn't exist on the backend.
+// Now shows this partner's currently-assigned pickups (WASTE_ASSIGNED)
+// from the real waste endpoint.
+import wasteService from "../../services/wasteService";
 
 import "../../css/todayPickups.css";
 
@@ -15,10 +19,17 @@ const TodayPickups = () => {
 
     useEffect(() => {
 
-        // Optional API - if the backend hasn't implemented it yet, fail quietly.
-        getTodayPickups()
-            .then((res) => setPickups(res.data || []))
-            .catch((err) => console.log("Today's pickups unavailable:", err));
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (!user.userId) return;
+
+        wasteService.getAssignedWaste(user.userId)
+            .then((res) => {
+                const assigned = (res.data || []).filter(
+                    (item) => item.status === "WASTE_ASSIGNED"
+                );
+                setPickups(assigned);
+            })
+            .catch((err) => console.log("Assigned pickups unavailable:", err));
 
     }, []);
 
@@ -28,7 +39,7 @@ const TodayPickups = () => {
 
             <div className="today-header">
 
-                <h2>🚛 Today's Pickups</h2>
+                <h2>🚛 My Assigned Pickups</h2>
 
             </div>
 
@@ -39,7 +50,7 @@ const TodayPickups = () => {
                     pickups.map((pickup) => (
 
                         <div
-                            key={pickup.id || pickup.requestId}
+                            key={pickup.requestId}
                             className="pickup-item"
                         >
 
@@ -68,8 +79,8 @@ const TodayPickups = () => {
                                 <FaClock />
 
                                 {
-                                    pickup.pickupTime
-                                        ? new Date(pickup.pickupTime).toLocaleString()
+                                    pickup.wasteAssignedDate
+                                        ? new Date(pickup.wasteAssignedDate).toLocaleString()
                                         : "-"
                                 }
 
@@ -81,7 +92,7 @@ const TodayPickups = () => {
 
                 ) : (
 
-                    <p className="no-pickups">No pickups scheduled for today.</p>
+                    <p className="no-pickups">No pickups assigned right now.</p>
 
                 )
 

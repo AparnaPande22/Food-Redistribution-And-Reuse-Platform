@@ -141,6 +141,7 @@ public class SecurityConfig {
                     "/api/request-item/**"
                 ).hasAnyRole(
                     "ADMIN",
+                    "DONOR",
                     "RECEIVER"
                 )
 

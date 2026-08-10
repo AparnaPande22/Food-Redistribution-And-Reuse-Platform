@@ -10,7 +10,9 @@ import com.food.DTO.RequestResponseDTO;
 import com.food.Exception.ResourceNotFoundException;
 import com.food.entities.Request;
 import com.food.entities.RequestStatus;
+import com.food.entities.RequestType;
 import com.food.entities.User;
+import com.food.mapper.RequestMapper;
 import com.food.repository.RequestRepository;
 import com.food.repository.UserRepository;
 
@@ -24,7 +26,7 @@ public class RequestServiceImpl implements RequestService {
 
 	private final UserRepository userRepo;
 	private final RequestRepository requestRepo;
-
+	private final RequestMapper requestMapper;
 	@Override
 	public RequestResponseDTO addNewRequest(RequestDTO dto) {
 
@@ -34,8 +36,19 @@ public class RequestServiceImpl implements RequestService {
 		Request request = new Request();
 
 		request.setRequestType(dto.getRequestType());
-		request.setStatus(RequestStatus.DRAFT);
+		// BUGFIX: previously this always hardcoded DRAFT, ignoring the status
+		// sent by the frontend (Donor creates with "ACTIVE" so it is
+		// immediately visible to Receivers under /requests/active).
+		request.setStatus(dto.getStatus() != null ? dto.getStatus() : RequestStatus.ACTIVE);
 		request.setMealPreference(dto.getMealPreference());
+		// BUGFIX: entity requires foodCategory (NotBlank) but it was never
+		// set here, causing every create to fail with "Food category is
+		// required". Falls back to mealPreference if the frontend hasn't
+		// sent a distinct category value.
+		request.setFoodCategory(
+				dto.getFoodCategory() != null && !dto.getFoodCategory().isBlank()
+						? dto.getFoodCategory()
+						: dto.getMealPreference());
 		request.setEstimatedMeals(dto.getEstimatedMeals());
 		request.setPickUpAddress(dto.getPickUpAddress());
 		request.setDeliveryAvailable(dto.isDeliveryAvailable());
@@ -56,6 +69,7 @@ public class RequestServiceImpl implements RequestService {
 		response.setRequestType(savedRequest.getRequestType());
 		response.setStatus(savedRequest.getStatus());
 		response.setMealPreference(savedRequest.getMealPreference());
+		response.setFoodCategory(savedRequest.getFoodCategory());
 		response.setEstimatedMeals(savedRequest.getEstimatedMeals());
 		response.setPickUpAddress(savedRequest.getPickUpAddress());
 		response.setDeliveryAvailable(savedRequest.isDeliveryAvailable());
@@ -143,6 +157,10 @@ public class RequestServiceImpl implements RequestService {
 		request.setRequestType(dto.getRequestType());
 		request.setStatus(dto.getStatus());
 		request.setMealPreference(dto.getMealPreference());
+		request.setFoodCategory(
+				dto.getFoodCategory() != null && !dto.getFoodCategory().isBlank()
+						? dto.getFoodCategory()
+						: dto.getMealPreference());
 		request.setEstimatedMeals(dto.getEstimatedMeals());
 		request.setPickUpAddress(dto.getPickUpAddress());
 		request.setDeliveryAvailable(dto.isDeliveryAvailable());
@@ -157,4 +175,16 @@ public class RequestServiceImpl implements RequestService {
 		return "Request Updated Successfully!";
 	}
 
+	@Override
+	public List<RequestResponseDTO> findActiveDonations() {
+
+	    return requestRepo
+	            .findByStatusAndRequestType(
+	                    RequestStatus.ACTIVE,
+	                    RequestType.DONATION
+	            )
+	            .stream()
+	            .map(requestMapper::toRequestResponseDTO)
+	            .toList();
+	}
 }

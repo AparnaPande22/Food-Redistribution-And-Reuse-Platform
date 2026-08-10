@@ -49,6 +49,16 @@ public class MatchesController {
 
 	}
 
+	// Matches that belong to a specific Donor OR Receiver user.
+	// Used by DonorDashboard ("which receiver wants my food") and
+	// ReceiverDashboard ("what's the status of my request").
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<?> findMatchesForUser(
+			@Positive(message = "Id must be greater than 0") @PathVariable Long userId) {
+
+		return ResponseEntity.ok(matchService.findMatchesForUser(userId));
+	}
+
 	@PutMapping("/{id}/approve")
 	public ResponseEntity<?> approveMatch(@PathVariable Long id) {
 

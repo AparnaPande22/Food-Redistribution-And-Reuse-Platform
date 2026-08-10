@@ -1,99 +1,416 @@
-@import "./donor/DonorDashboard.css";
+/* =========================================================
+   VOLUNTEER DASHBOARD - re-themed to match Donor / Receiver
+   ("Beyond Waste") look & feel.
+   ========================================================= */
 
-.volunteer-shell .volunteer-refresh { background:#173a2d; }
-.volunteer-shell .volunteer-refresh:hover { background:#10291f; }
-.volunteer-shell .menu-item {
-  border:0;
-  width:100%;
-  background:transparent;
-  font-family:inherit;
-  text-align:left;
+.volunteer-dashboard {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #faf9f4;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #173a2d;
 }
-.volunteer-shell .volunteer-heading {
-  width:auto;
-  background:transparent;
-  display:flex;
-  align-items:center;
-  font-size:18px;
-  color:#173a2d;
+
+/* -------------------- SIDEBAR -------------------- */
+
+.volunteer-sidebar {
+  width: 270px;
+  min-width: 270px;
+  height: 100vh;
+  box-sizing: border-box;
+
+  background-color: #ffffff;
+  color: #173a2d;
+
+  padding: 30px 22px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  border-right: 1px solid #eeeeee;
+
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
-.volunteer-shell .profile-img {
-  background:#173a2d;
-  color:#fff;
-  font-size:14px;
-  font-weight:700;
+
+.volunteer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 35px 0;
+  color: #173a2d;
 }
-.volunteer-shell .volunteer-table-wrap { overflow-x:auto; width:100%; }
-.volunteer-shell .volunteer-table {
-  width:100%;
-  border-collapse:collapse;
-  min-width:980px;
+
+.volunteer-brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #173a2d;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
 }
-.volunteer-shell .volunteer-table th,
-.volunteer-shell .volunteer-table td {
-  padding:16px 12px;
-  border-bottom:1px solid #ececec;
-  text-align:left;
-  vertical-align:top;
-  color:#555;
-  font-size:14px;
+
+.volunteer-brand h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #173a2d;
 }
-.volunteer-shell .volunteer-table th {
-  background:#faf9f4;
-  color:#173a2d;
-  font-weight:700;
+
+.volunteer-brand p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: #888;
 }
-.volunteer-shell .volunteer-table tbody tr:hover { background:#fcfbf7; }
-.volunteer-shell .volunteer-table small { color:#888; }
-.volunteer-shell .volunteer-table svg { color:#d45716; margin-right:4px; }
-.volunteer-shell .volunteer-link-btn {
-  border:0;
-  background:none;
-  color:#d45716;
-  font-weight:700;
-  cursor:pointer;
+
+.volunteer-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-.volunteer-shell .volunteer-action-btn {
-  border:0;
-  border-radius:50px;
-  padding:9px 14px;
-  background:#173a2d;
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
+
+.volunteer-menu li {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.2s ease;
 }
-.volunteer-shell .volunteer-action-btn.complete { background:#d45716; }
-.volunteer-shell .done-text { color:#16803c; font-weight:700; }
-.volunteer-shell .volunteer-error {
-  padding:12px 15px;
-  margin-bottom:18px;
-  border-radius:12px;
-  background:#fff1eb;
-  color:#a33d10;
+
+.volunteer-menu li:hover,
+.volunteer-menu li.active {
+  background-color: #173a2d;
+  color: #ffffff;
 }
-.volunteer-shell .empty-state {
-  padding:45px 20px;
-  text-align:center;
-  color:#777;
+
+.volunteer-menu-bottom {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #ececec;
 }
-.volunteer-shell .empty-state svg { color:#d45716; margin-bottom:10px; }
-.volunteer-shell .empty-state h3 { color:#173a2d; margin:6px 0; }
-.volunteer-shell .info-panel h4 { margin-top:0; color:#173a2d; font-size:22px; }
-.volunteer-shell .route-row {
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  padding:15px 0;
-  border-bottom:1px solid #eee;
+
+/* -------------------- MAIN -------------------- */
+
+.volunteer-main {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
 }
-.volunteer-shell .sidebar-bottom {
-  margin-top:auto;
-  padding-top:20px;
-  border-top:1px solid #ececec;
+
+.volunteer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
-@media (max-width: 992px) {
-  .volunteer-shell .volunteer-heading { font-size:15px; }
+
+.volunteer-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #173a2d;
+  margin: 0;
+}
+
+.volunteer-subtitle {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+/* Matches Donor/Receiver top-right user badge - shows the actual
+   logged-in user's name + avatar rather than a bare "Role: X" label. */
+.volunteer-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.volunteer-user-text {
+  text-align: right;
+}
+
+.volunteer-user-text h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #173a2d;
+}
+
+.volunteer-user-text p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #888;
+  text-transform: capitalize;
+}
+
+.volunteer-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #173a2d;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* -------------------- STATS -------------------- */
+
+.volunteer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.volunteer-card {
+  background: #ffffff;
+  padding: 1.25rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.volunteer-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #173a2d;
+}
+
+.volunteer-card p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.volunteer-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eef3ea;
+  color: #173a2d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* -------------------- CONTENT CARD -------------------- */
+
+.volunteer-content-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2rem;
+}
+
+.volunteer-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.volunteer-content-header h2,
+.volunteer-content-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #173a2d;
+}
+
+.volunteer-content-header h2 {
+  margin-bottom: 0;
+}
+
+.btn-outline-green {
+  background: transparent;
+  border: 1.5px solid #173a2d;
+  color: #173a2d;
+  padding: 0.5rem 1.1rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-outline-green:hover {
+  background: #173a2d;
+  color: #fff;
+}
+
+/* -------------------- TABLE -------------------- */
+
+.volunteer-table-wrap {
+  overflow-x: auto;
+}
+
+.volunteer-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.volunteer-table th,
+.volunteer-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1efe6;
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.volunteer-table th {
+  background-color: #faf9f4;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.volunteer-subtext {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.volunteer-done {
+  color: #173a2d;
+  font-weight: 600;
+}
+
+.volunteer-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #6b7280;
+}
+
+.volunteer-empty svg {
+  margin-bottom: 1rem;
+  color: #d8d4c4;
+}
+
+.volunteer-empty-text {
+  text-align: center;
+  color: #6b7280;
+}
+
+/* -------------------- BUTTONS -------------------- */
+
+.btn-start {
+  background-color: #173a2d;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-start:hover {
+  background-color: #0f2a20;
+}
+
+.btn-complete {
+  background-color: #d45716;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-complete:hover {
+  background-color: #b7440d;
+}
+
+/* -------------------- STATUS BADGES -------------------- */
+
+.badge-del-status {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.badge-del-status.ASSIGNED { background: #fef3c7; color: #92400e; }
+.badge-del-status.PENDING { background: #fef3c7; color: #92400e; }
+.badge-del-status.IN_PROGRESS { background: #dbeafe; color: #1e40af; }
+.badge-del-status.COMPLETED { background: #d1fae5; color: #065f46; }
+.badge-del-status.DELIVERED { background: #d1fae5; color: #065f46; }
+
+@media (max-width: 900px) {
+  .volunteer-dashboard {
+    flex-direction: column;
+  }
+
+  .volunteer-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+  }
+
+  .volunteer-sidebar > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .volunteer-brand {
+    margin-bottom: 0;
+  }
+
+  .volunteer-menu {
+    display: flex;
+    gap: 8px;
+  }
+
+  .volunteer-menu-bottom {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .volunteer-main {
+    padding: 1.5rem;
+  }
 }

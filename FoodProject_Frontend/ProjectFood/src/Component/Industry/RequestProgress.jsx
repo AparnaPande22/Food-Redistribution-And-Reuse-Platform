@@ -1,95 +1,98 @@
 import { useEffect, useState } from "react";
 import {
-  FaCheckCircle,
+  FaClipboardList,
   FaTruck,
   FaLeaf,
-  FaClipboardCheck,
 } from "react-icons/fa";
 
 import "../../css/requestProgress.css";
 
 const RequestProgress = ({ request }) => {
 
-  const [status, setStatus] = useState("PROCESSING");
+  const [status, setStatus] = useState(null);
 
- useEffect(() => {
-
-    if(request){
-        setStatus(request.status);
+  useEffect(() => {
+    if (request) {
+      setStatus(request.status);
     }
+  }, [request]);
 
-}, [request]);
-
+  // BUGFIX: these steps previously used fictional status values
+  // ("ACCEPTED" / "PROCESSING" / "RECEIVED" / "COMPLETED") that never
+  // matched the backend's real RequestStatus enum, so getIndex() always
+  // returned -1 and no step was ever shown as active/completed - the
+  // progress bar was permanently stuck at the start regardless of the
+  // donation's real status.
   const steps = [
     {
-        title: "Request Accepted",
-        value: "ACCEPTED",
-        icon: <FaCheckCircle />,
+      title: "Marked for Waste",
+      value: "MARKED_FOR_WASTE",
+      icon: <FaClipboardList />,
     },
     {
-        title: "Pickup In Progress",
-        value: "PROCESSING",
-        icon: <FaTruck />,
+      title: "Assigned to Partner",
+      value: "WASTE_ASSIGNED",
+      icon: <FaTruck />,
     },
     {
-        title: "Waste Received",
-        value: "RECEIVED",
-        icon: <FaLeaf />,
+      title: "Processed",
+      value: "WASTE_PROCESSED",
+      icon: <FaLeaf />,
     },
-    {
-        title: "Completed",
-        value: "COMPLETED",
-        icon: <FaClipboardCheck />,
-    },
-];
+  ];
 
-  const getIndex = () => {
+  const getIndex = () => steps.findIndex((x) => x.value === status);
 
-    return steps.findIndex((x) => x.value === status);
-
-  };
-if (!request) {
+  if (!request) {
     return (
-        <div className="progress-card">
-            <h2>📈 Request Progress</h2>
-            <p>No Request Selected</p>
-        </div>
+      <div className="progress-card">
+        <h2>📈 Request Progress</h2>
+        <p>No Request Selected</p>
+      </div>
     );
-}
+  }
 
-return (
+  if (status !== "MARKED_FOR_WASTE" && status !== "WASTE_ASSIGNED" && status !== "WASTE_PROCESSED") {
+    return (
+      <div className="progress-card">
+        <h2>📈 Request Progress</h2>
+        <p>This donation is not in the waste pipeline (status: {status}).</p>
+      </div>
+    );
+  }
+
+  return (
     <div className="progress-card">
 
-        <h2>📈 Request Progress</h2>
+      <h2>📈 Request Progress</h2>
 
-        <div className="progress-timeline">
+      <div className="progress-timeline">
 
-            {steps.map((step, index) => (
+        {steps.map((step, index) => (
 
-                <div
-                    key={index}
-                    className={`progress-step ${
-                        index <= getIndex() ? "active" : ""
-                    }`}
-                >
-                    <div className="progress-icon">
-                        {step.icon}
-                    </div>
+          <div
+            key={index}
+            className={`progress-step ${
+              index <= getIndex() ? "active" : ""
+            }`}
+          >
+            <div className="progress-icon">
+              {step.icon}
+            </div>
 
-                    <div className="progress-text">
-                        {step.title}
-                    </div>
+            <div className="progress-text">
+              {step.title}
+            </div>
 
-                </div>
+          </div>
 
-            ))}
+        ))}
 
-        </div>
+      </div>
 
     </div>
-);
+  );
 
-};   // <-- YOU ARE MISSING THIS
+};
 
 export default RequestProgress;
-

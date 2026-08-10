@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.food.entities.Request;
 import com.food.entities.RequestStatus;
+import com.food.entities.RequestType;
 import com.food.entities.User;
 
 import jakarta.transaction.Transactional;
@@ -54,4 +55,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 			""")
 	Double getTotalFertilizerGenerated();
 
+	List<Request> findByStatusAndRequestType(
+	        RequestStatus status,
+	        RequestType requestType
+	);
 }

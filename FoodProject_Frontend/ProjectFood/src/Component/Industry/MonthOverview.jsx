@@ -1,65 +1,82 @@
 import { useState, useEffect } from "react";
 import {
     FaRecycle,
-    FaRupeeSign,
-    FaTruck,
     FaLeaf,
+    FaTruck,
+    FaClipboardCheck,
 } from "react-icons/fa";
 
-import { getStatistics } from "../../services/biogasService";
+// BUGFIX: previously called getStatistics() from biogasService.js
+// ("/api/biogas/statistics"), which doesn't exist on the backend. Now
+// computed client-side from the real processed-waste history.
+import wasteService from "../../services/wasteService";
 
 import "../../css/monthOverview.css";
 
 const MonthOverview = () => {
 
     const [overview, setOverview] = useState({
-        totalWaste: 0,
-        totalPayments: 0,
-        pickups: 0,
+        requestsProcessed: 0,
+        biogasGenerated: 0,
+        pickupsThisMonth: 0,
         compostProduced: 0,
     });
 
     useEffect(() => {
 
-        getStatistics()
+        wasteService.getWasteHistory()
             .then((res) => {
 
-                const data = res.data || {};
+                const processed = res.data || [];
+
+                const now = new Date();
+                const thisMonth = processed.filter((item) => {
+                    if (!item.wasteProcessedDate) return false;
+                    const d = new Date(item.wasteProcessedDate);
+                    return (
+                        d.getMonth() === now.getMonth() &&
+                        d.getFullYear() === now.getFullYear()
+                    );
+                });
 
                 setOverview({
-                    totalWaste: data.totalWaste ?? 0,
-                    totalPayments: data.totalPayments ?? 0,
-                    pickups: data.pickups ?? 0,
-                    compostProduced: data.compostProduced ?? 0,
+                    requestsProcessed: processed.length,
+                    biogasGenerated: processed.reduce(
+                        (sum, item) => sum + (item.biogasGenerated || 0), 0
+                    ),
+                    pickupsThisMonth: thisMonth.length,
+                    compostProduced: processed.reduce(
+                        (sum, item) => sum + (item.fertilizerGenerated || 0), 0
+                    ),
                 });
 
             })
-            .catch((err) => console.error("Failed to load statistics:", err));
+            .catch((err) => console.error("Failed to load waste history:", err));
 
     }, []);
 
     const cards = [
         {
-            title: "Waste Collected",
-            value: `${overview.totalWaste} kg`,
-            icon: <FaRecycle />,
+            title: "Requests Processed",
+            value: overview.requestsProcessed,
+            icon: <FaClipboardCheck />,
             color: "#173a2d",
         },
         {
-            title: "Total Payments",
-            value: `₹${overview.totalPayments.toLocaleString()}`,
-            icon: <FaRupeeSign />,
+            title: "Biogas Generated (L)",
+            value: overview.biogasGenerated.toLocaleString(),
+            icon: <FaRecycle />,
             color: "#d45716",
         },
         {
-            title: "Pickups",
-            value: overview.pickups,
+            title: "Pickups This Month",
+            value: overview.pickupsThisMonth,
             icon: <FaTruck />,
             color: "#173a2d",
         },
         {
-            title: "Compost Produced",
-            value: `${overview.compostProduced} kg`,
+            title: "Compost Produced (kg)",
+            value: overview.compostProduced.toLocaleString(),
             icon: <FaLeaf />,
             color: "#d45716",
         },
@@ -69,7 +86,7 @@ const MonthOverview = () => {
         <div className="month-overview">
 
             <div className="overview-header">
-                <h2>📊 This Month Overview</h2>
+                <h2>📊 Waste Processing Overview</h2>
             </div>
 
             <div className="overview-grid">

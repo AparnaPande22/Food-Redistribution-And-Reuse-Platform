@@ -28,6 +28,11 @@ public class RequestDTO {
 	@NotBlank(message = "Meal preference is required")
 	private String mealPreference;
 
+	// Was added to the Request entity on the live backend but never wired
+	// through the DTO/service/frontend, causing every donation submit to
+	// fail with "Food category is required".
+	private String foodCategory;
+
 	@NotNull(message = "Estimated meals is required")
 	private Long estimatedMeals;
 

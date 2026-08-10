@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import {
     FaClipboardList,
-    FaWallet,
+    FaLeaf,
     FaHourglassHalf,
     FaCheckCircle
 } from "react-icons/fa";
 
-import { getDashboard } from "../../services/biogasService";
+// BUGFIX: this previously called getDashboard() from biogasService.js,
+// which hits "/api/biogas/dashboard" - an endpoint that doesn't exist on
+// the backend, so every card silently showed 0. Now computed from the
+// real waste queue / assigned / processed endpoints.
+import wasteService from "../../services/wasteService";
 
 import "../../css/industryCards.css";
 
@@ -14,29 +18,41 @@ const DashboardCards = () => {
 
     const [dashboard, setDashboard] = useState({
         pendingRequests: 0,
-        totalPaid: 0,
+        biogasGenerated: 0,
         processing: 0,
         completed: 0
     });
 
     useEffect(() => {
-
-        getDashboard()
-            .then((res) => {
-
-                const data = res.data || {};
-
-                setDashboard({
-                    pendingRequests: data.pendingRequests ?? 0,
-                    totalPaid: data.totalPaid ?? 0,
-                    processing: data.processing ?? 0,
-                    completed: data.completed ?? 0
-                });
-
-            })
-            .catch((err) => console.error("Failed to load dashboard:", err));
-
+        loadDashboard();
     }, []);
+
+    const loadDashboard = () => {
+
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        Promise.all([
+            wasteService.getWasteQueue().then((r) => r.data || []).catch(() => []),
+            user.userId
+                ? wasteService.getAssignedWaste(user.userId).then((r) => r.data || []).catch(() => [])
+                : Promise.resolve([]),
+            wasteService.getWasteHistory().then((r) => r.data || []).catch(() => []),
+        ]).then(([pending, assigned, processed]) => {
+
+            const biogasGenerated = processed.reduce(
+                (sum, item) => sum + (item.biogasGenerated || 0),
+                0
+            );
+
+            setDashboard({
+                pendingRequests: pending.length,
+                biogasGenerated,
+                processing: assigned.length,
+                completed: processed.length,
+            });
+
+        });
+    };
 
     const cards = [
 
@@ -50,11 +66,11 @@ const DashboardCards = () => {
         },
 
         {
-            title: "Total Paid Today",
-            value: `₹${dashboard.totalPaid.toLocaleString()}`,
+            title: "Biogas Generated (L)",
+            value: dashboard.biogasGenerated.toLocaleString(),
             bg: "#ffe4d5",
             fg: "#d45716",
-            icon: <FaWallet />,
+            icon: <FaLeaf />,
             link: "View Details"
         },
 

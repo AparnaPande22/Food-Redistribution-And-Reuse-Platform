@@ -28,4 +28,6 @@ public interface RequestService {
 	public List<RequestResponseDTO> findRequestHistory(Long id);
 
 	public String updateRequest(Long id, RequestDTO dto);
+
+	public List<RequestResponseDTO> findActiveDonations();
 }

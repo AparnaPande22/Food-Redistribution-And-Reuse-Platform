@@ -12,6 +12,7 @@ import Sidebar from "../../Component/donor/Sidebar";
 import TopNavbar from "../../Component/donor/TopNavbar";
 import FoodItemCard from "../../Component/donor/FoodItemCard";
 import donationService from "../../services/donationService";
+import requestItemService from "../../services/requestItemService";
 
 function CreateDonation() {
   const navigate = useNavigate();
@@ -26,6 +27,10 @@ function CreateDonation() {
     longitude: null,
     deliveryAvailable: false,
     instructions: "",
+    // NEW: routes the donation to the right dashboard - edible food goes
+    // to Receivers, non-edible/spoiled food goes straight to the
+    // Biogas/Industry waste queue instead of ever being "requestable".
+    isEdible: "yes",
   });
 
   const [foodItems, setFoodItems] = useState([
@@ -139,6 +144,7 @@ function CreateDonation() {
       longitude: null,
       deliveryAvailable: false,
       instructions: "",
+      isEdible: "yes",
     });
 
     setReceiverType("");
@@ -262,9 +268,19 @@ function CreateDonation() {
 
         requestType: "DONATION",
 
-        status: "ACTIVE",
+        // NEW: edible food goes ACTIVE (visible to Receivers under
+        // /requests/active); non-edible food is routed straight into the
+        // Biogas/Industry waste queue instead of ever being requestable.
+        status: donation.isEdible === "no" ? "MARKED_FOR_WASTE" : "ACTIVE",
 
         mealPreference:
+          foodItems[0]?.category ||
+          "Cooked Meals",
+
+        // BUGFIX: the live Request entity added a required "foodCategory"
+        // field that this payload never sent, causing every donation
+        // submission to fail with a 400 ("Food category is required").
+        foodCategory:
           foodItems[0]?.category ||
           "Cooked Meals",
 
@@ -284,7 +300,9 @@ function CreateDonation() {
 
         neededBy: expiryFormatted,
 
-        notes: `${donation.instructions || ""} (Items: ${foodItems
+        notes: `${donation.instructions || ""}${
+          donation.isEdible === "no" ? " [Marked non-edible: sent to waste/biogas partners]" : ""
+        } (Items: ${foodItems
           .map(
             (item) =>
               `${item.name} - ${item.quantity}${item.unit}`
@@ -297,14 +315,41 @@ function CreateDonation() {
         requestData
       );
 
-      await donationService.createDonation(
+      const created = await donationService.createDonation(
         requestData
       );
+
+      // NEW: persist each food item as a real RequestItems row so
+      // Donation Details can actually show "Food Items" instead of
+      // "No food items available for this donation." This is
+      // best-effort - a failure here shouldn't block the donation
+      // itself, which has already been created successfully.
+      const createdId = created?.id;
+      if (createdId) {
+        await Promise.all(
+          foodItems.map((item) =>
+            requestItemService
+              .addRequestItem({
+                requestId: createdId,
+                itemName: item.name,
+                foodCategory: item.category || "Cooked Meals",
+                quantity: Number(item.quantity) || 0,
+                unit: item.unit || "Kg",
+                expiryTime: expiryFormatted,
+              })
+              .catch((err) =>
+                console.error("Failed to save food item:", item.name, err)
+              )
+          )
+        );
+      }
 
       resetForm();
 
       alert(
-        "Surplus Food Listing Created Successfully!"
+        donation.isEdible === "no"
+          ? "Marked as non-edible. This listing has been sent to our biogas/waste partners instead of receivers."
+          : "Surplus Food Listing Created Successfully!"
       );
 
       navigate("/donor/donation-submitted");
@@ -564,6 +609,45 @@ function CreateDonation() {
                         donation.deliveryAvailable
                       }
                       onChange={handleInput}
+                    />
+
+                    <span className="slider"></span>
+
+                  </label>
+
+                </div>
+
+                {/* NEW: Edible vs Non-edible - routes the donation to the
+                    Receiver browse list (edible) or straight to the
+                    Biogas/Industry waste queue (non-edible), instead of
+                    every donation always going to receivers. */}
+                <div className="toggle">
+
+                  <div>
+
+                    <span className="toggle-title">
+                      Is this food still edible?
+                    </span>
+
+                    <small>
+                      Non-edible/spoiled food is sent to our biogas
+                      &amp; composting partners instead of receivers.
+                    </small>
+
+                  </div>
+
+                  <label className="switch">
+
+                    <input
+                      type="checkbox"
+                      name="isEdible"
+                      checked={donation.isEdible === "yes"}
+                      onChange={(e) =>
+                        setDonation((prev) => ({
+                          ...prev,
+                          isEdible: e.target.checked ? "yes" : "no",
+                        }))
+                      }
                     />
 
                     <span className="slider"></span>

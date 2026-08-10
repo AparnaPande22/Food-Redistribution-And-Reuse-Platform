@@ -1,27 +1,34 @@
-import {
-    acceptRequest,
-    rejectRequest,
-    markProcessing,
-    completeRequest
-} from "../../services/biogasService";
+import { useState } from "react";
+
+// BUGFIX: previously imported acceptRequest/rejectRequest/markProcessing/
+// completeRequest from biogasService.js ("/api/biogas/requests/...") -
+// none of which exist on the backend. Now wired to the real waste
+// pipeline, and only shows actions valid for the request's actual status
+// (MARKED_FOR_WASTE -> WASTE_ASSIGNED -> WASTE_PROCESSED).
+import wasteService from "../../services/wasteService";
 
 import "./RequestDetails.css";
 
 const RequestDetails = ({ request, onStatusChange }) => {
 
+    const [biogasGenerated, setBiogasGenerated] = useState("");
+    const [fertilizerGenerated, setFertilizerGenerated] = useState("");
+
     if (!request) {
         return (
             <div className="details-page">
                 <h2>No Request Selected</h2>
+                <p>Pick a pending pickup on the left to see its details here.</p>
             </div>
         );
     }
 
-    const reqId = request.id || request.requestId;
+    const reqId = request.requestId;
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
     const handleAccept = async () => {
         try {
-            await acceptRequest(reqId);
+            await wasteService.assignWastePartner(reqId, currentUser.userId);
             alert("Request #" + reqId + " accepted.");
             onStatusChange?.();
         } catch (err) {
@@ -31,8 +38,11 @@ const RequestDetails = ({ request, onStatusChange }) => {
     };
 
     const handleReject = async () => {
+        const remark = window.prompt("Reason for rejecting this pickup (optional):", "");
+        if (remark === null) return;
+
         try {
-            await rejectRequest(reqId);
+            await wasteService.rejectWastePickup(reqId, remark);
             alert("Request #" + reqId + " rejected.");
             onStatusChange?.();
         } catch (err) {
@@ -41,27 +51,26 @@ const RequestDetails = ({ request, onStatusChange }) => {
         }
     };
 
-    const handleMarkProcessing = async () => {
+    const handleProcess = async () => {
+        if (!biogasGenerated && !fertilizerGenerated) {
+            alert("Enter at least a biogas or fertilizer amount before marking as processed.");
+            return;
+        }
+
         try {
-            await markProcessing(reqId);
-            alert("Request #" + reqId + " marked as processing.");
+            await wasteService.processWaste(reqId, {
+                biogasGenerated: biogasGenerated ? Number(biogasGenerated) : null,
+                fertilizerGenerated: fertilizerGenerated ? Number(fertilizerGenerated) : null,
+            });
+            alert("Request #" + reqId + " marked as processed.");
             onStatusChange?.();
         } catch (err) {
-            console.error("Processing error:", err);
+            console.error("Process error:", err);
             alert(err.response?.data?.message || err.response?.data || "Unable to update status.");
         }
     };
 
-    const handleComplete = async () => {
-        try {
-            await completeRequest(reqId);
-            alert("Request #" + reqId + " marked as completed.");
-            onStatusChange?.();
-        } catch (err) {
-            console.error("Complete error:", err);
-            alert(err.response?.data?.message || err.response?.data || "Unable to complete request.");
-        }
-    };
+    const status = request.status;
 
     return (
 
@@ -80,8 +89,8 @@ const RequestDetails = ({ request, onStatusChange }) => {
 
                     <div>
                         <label>Status</label>
-                        <span className={`status ${(request.status || "").toLowerCase()}`}>
-                            {request.status}
+                        <span className={`status ${(status || "").toLowerCase()}`}>
+                            {status}
                         </span>
                     </div>
 
@@ -95,71 +104,83 @@ const RequestDetails = ({ request, onStatusChange }) => {
                     </div>
 
                     <div>
-                        <label>Contact</label>
-                        <p>{request.phone}</p>
-                    </div>
-
-                </div>
-
-                <div className="row">
-
-                    <div>
-                        <label>Food Type</label>
-                        <p>{request.foodType}</p>
-                    </div>
-
-                    <div>
-                        <label>Quantity</label>
-                        <p>{request.quantity} Kg</p>
-                    </div>
-
-                </div>
-
-                <div className="row">
-
-                    <div>
-                        <label>Address</label>
-                        <p>{request.pickupAddress}</p>
-                    </div>
-
-                    <div>
                         <label>Estimated Meals</label>
                         <p>{request.estimatedMeals}</p>
                     </div>
 
                 </div>
 
-                <div className="buttons">
+                <div className="row">
 
-                    <button
-                        className="accept"
-                        onClick={handleAccept}
-                    >
-                        Accept
-                    </button>
+                    <div>
+                        <label>Pickup Address</label>
+                        <p>{request.pickupAddress}</p>
+                    </div>
 
-                    <button
-                        className="reject"
-                        onClick={handleReject}
-                    >
-                        Reject
-                    </button>
-
-                    <button
-                        className="processing"
-                        onClick={handleMarkProcessing}
-                    >
-                        Mark Processing
-                    </button>
-
-                    <button
-                        className="complete"
-                        onClick={handleComplete}
-                    >
-                        Complete
-                    </button>
+                    <div>
+                        <label>Assigned Partner</label>
+                        <p>{request.wastePartnerName || "-"}</p>
+                    </div>
 
                 </div>
+
+                {request.wasteRemarks && (
+                    <div className="row">
+                        <div>
+                            <label>Remarks</label>
+                            <p>{request.wasteRemarks}</p>
+                        </div>
+                    </div>
+                )}
+
+                {status === "MARKED_FOR_WASTE" && (
+                    <div className="buttons">
+                        <button className="accept" onClick={handleAccept}>
+                            Accept
+                        </button>
+                        <button className="reject" onClick={handleReject}>
+                            Reject
+                        </button>
+                    </div>
+                )}
+
+                {status === "WASTE_ASSIGNED" && (
+                    <>
+                        <div className="row">
+                            <div>
+                                <label>Biogas Generated (L)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={biogasGenerated}
+                                    onChange={(e) => setBiogasGenerated(e.target.value)}
+                                    placeholder="e.g. 12.5"
+                                />
+                            </div>
+                            <div>
+                                <label>Fertilizer/Compost Generated (kg)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={fertilizerGenerated}
+                                    onChange={(e) => setFertilizerGenerated(e.target.value)}
+                                    placeholder="e.g. 5"
+                                />
+                            </div>
+                        </div>
+                        <div className="buttons">
+                            <button className="processing" onClick={handleProcess}>
+                                Mark Processed
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {status === "WASTE_PROCESSED" && (
+                    <div className="buttons">
+                        <span className="status completed">✓ Already Processed</span>
+                    </div>
+                )}
 
             </div>
 

@@ -1,85 +1,66 @@
-import { useEffect, useState } from "react";
 import { FaMoneyBillWave, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import "../../css/paymentSummary.css";
 
-const PaymentSummary = () => {
+// BUGFIX: this component previously ignored its `request` prop entirely
+// and read from `localStorage.getItem("selectedRequest")`, which is
+// never set anywhere in the app - so this card was permanently stuck on
+// "No payment selected." It also assumed pricing fields (pricePerKg,
+// amount, foodName) that don't exist anywhere on the real waste data -
+// there's no pricing/payment logic wired into the waste pipeline, so
+// those are no longer invented here. This now shows the real pickup
+// info for whatever is selected in Pending Requests, and only offers
+// "Proceed to Payment" once a rate has actually been agreed elsewhere.
+const PaymentSummary = ({ request }) => {
   const navigate = useNavigate();
 
-const [payment, setPayment] = useState(null);
-
-useEffect(() => {
-    const request = JSON.parse(localStorage.getItem("selectedRequest"));
-
-    if (request) {
-        setPayment(request);
-    }
-}, []);
-
-
-
   const handlePayment = () => {
-    navigate("/payment", {
-      state: payment,
-    });
+    navigate("/payment", { state: request });
   };
-if (!payment) {
+
+  if (!request) {
     return (
-        <div className="payment-summary">
-            <h2>💳 Payment Summary</h2>
-            <p>No payment selected.</p>
-        </div>
+      <div className="payment-summary">
+        <h2>💳 Pickup Summary</h2>
+        <p>Select a pending pickup to see its summary here.</p>
+      </div>
     );
-}
+  }
+
   return (
     <div className="payment-summary">
 
-      <h2>💳 Payment Summary</h2>
+      <h2>💳 Pickup Summary</h2>
 
       <div className="summary-row">
         <span>Donor</span>
-        <strong>{payment.donorName}</strong>
+        <strong>{request.donorName}</strong>
       </div>
 
       <div className="summary-row">
-        <span>Food Type</span>
-        <strong>{payment.foodName}</strong>
+        <span>Estimated Meals</span>
+        <strong>{request.estimatedMeals}</strong>
       </div>
 
       <div className="summary-row">
-        <span>Quantity</span>
-        <strong>{payment.quantity} KG</strong>
+        <span>Pickup Address</span>
+        <strong>{request.pickupAddress}</strong>
       </div>
 
       <div className="summary-row">
-        <span>Rate</span>
-        <strong>₹{payment.pricePerKg}/KG</strong>
-      </div>
-
-      <div className="summary-row">
-        <span>Pickup Date</span>
-        <strong>{payment.pickupDate}</strong>
+        <span>Status</span>
+        <strong>{request.status}</strong>
       </div>
 
       <hr />
-
-      <div className="total-amount">
-
-        <FaMoneyBillWave />
-
-        <div>
-          <p>Total Amount</p>
-          <h1>₹{payment.amount}</h1>
-        </div>
-
-      </div>
 
       <button
         className="pay-now-btn"
         onClick={handlePayment}
       >
-        Pay Now
+        <FaMoneyBillWave />
+        Proceed to Payment
         <FaArrowRight />
       </button>
 

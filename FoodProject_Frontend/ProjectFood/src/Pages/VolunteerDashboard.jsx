@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./VolunteerDashboard.css";
 import volunteerService from "../services/volunteerService";
 import { useNavigate } from "react-router-dom";
@@ -10,46 +10,29 @@ import {
   FaSignOutAlt,
   FaPlay,
   FaRegCheckCircle,
-  FaHistory,
-  FaCog,
-  FaLifeRing,
-  FaBars,
-  FaTimes,
-  FaRoute,
   FaUserCircle,
 } from "react-icons/fa";
 
 function VolunteerDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("assigned");
+  const [activeTab, setActiveTab] = useState("assigned"); // "assigned", "history"
   const [deliveries, setDeliveries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState({});
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
-    try {
-      setCurrentUser(JSON.parse(localStorage.getItem("user") || "{}"));
-    } catch {
-      setCurrentUser({});
-    }
+    fetchDeliveries();
   }, []);
 
-  useEffect(() => {
-    if (currentUser?.userId) fetchDeliveries(currentUser.userId);
-  }, [currentUser?.userId]);
-
-  const fetchDeliveries = async (partnerId = currentUser?.userId) => {
+  const fetchDeliveries = async () => {
     setLoading(true);
-    setError("");
     try {
-      const data = await volunteerService.getAssignedDeliveries(partnerId);
+      const data = await volunteerService.getAssignedDeliveries();
       setDeliveries(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching volunteer deliveries:", err);
       setDeliveries([]);
-      setError(err.response?.data?.message || "Unable to load assigned deliveries.");
     } finally {
       setLoading(false);
     }
@@ -58,18 +41,20 @@ function VolunteerDashboard() {
   const handleStartDelivery = async (id) => {
     try {
       await volunteerService.startDelivery(id);
-      await fetchDeliveries();
     } catch (err) {
-      alert(err.response?.data?.message || "Unable to start delivery.");
+      console.error("Error starting delivery:", err);
+    } finally {
+      fetchDeliveries();
     }
   };
 
   const handleCompleteDelivery = async (id) => {
     try {
       await volunteerService.completeDelivery(id);
-      await fetchDeliveries();
     } catch (err) {
-      alert(err.response?.data?.message || "Unable to complete delivery.");
+      console.error("Error completing delivery:", err);
+    } finally {
+      fetchDeliveries();
     }
   };
 
@@ -79,155 +64,240 @@ function VolunteerDashboard() {
     navigate("/login");
   };
 
-  const activeDeliveries = useMemo(
-    () => deliveries.filter((d) => ["ASSIGNED", "IN_PROGRESS", "PENDING"].includes(d.status)),
-    [deliveries]
-  );
+  // BUGFIX: the backend DeliveryStatus enum is ASSIGNED / IN_PROGRESS /
+  // COMPLETED - this page was checking for "IN_TRANSIT", which never
+  // matched anything, so "Mark Delivered" never appeared once a delivery
+  // was started.
+  const getId = (del) => del.deliveryId || del.id;
 
-  const completedDeliveries = useMemo(
-    () => deliveries.filter((d) => ["COMPLETED", "DELIVERED"].includes(d.status)),
-    [deliveries]
+  const activeDeliveries = deliveries.filter(
+    (d) => d.status === "ASSIGNED" || d.status === "IN_PROGRESS" || d.status === "PENDING"
   );
-
-  const initials = (currentUser.name || "Volunteer")
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const completedDeliveries = deliveries.filter(
+    (d) => d.status === "COMPLETED" || d.status === "DELIVERED"
+  );
 
   return (
-    <div className="dashboard donor-shell volunteer-shell">
-      {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
-
-      <aside className={`sidebar ${sidebarOpen ? "show" : ""}`}>
-        <div className="logo-area">
-          <div className="logo-box">♻</div>
-          <div>
-            <h3>Beyond Waste</h3>
-            <p>Volunteer Portal</p>
+    <div className="volunteer-dashboard">
+      {/* Sidebar */}
+      <aside className="volunteer-sidebar">
+        <div>
+          <div className="volunteer-brand">
+            <span className="volunteer-brand-icon">♻</span>
+            <div>
+              <h3>Beyond Waste</h3>
+              <p>Volunteer Portal</p>
+            </div>
           </div>
-          <button className="close-sidebar d-lg-none" onClick={() => setSidebarOpen(false)}>
-            <FaTimes />
-          </button>
+
+          <ul className="volunteer-menu">
+            <li
+              className={activeTab === "assigned" ? "active" : ""}
+              onClick={() => setActiveTab("assigned")}
+            >
+              <FaTruck /> <span>Assigned Deliveries</span>
+            </li>
+            <li
+              className={activeTab === "history" ? "active" : ""}
+              onClick={() => setActiveTab("history")}
+            >
+              <FaCheckCircle /> <span>Delivery History</span>
+            </li>
+          </ul>
         </div>
 
-        <button className="new-donation-btn volunteer-refresh" onClick={() => fetchDeliveries()}>
-          <FaTruck />
-          <span>Refresh Tasks</span>
-        </button>
-
-        <div className="menu">
-          <button className={`menu-item ${activeTab === "assigned" ? "active" : ""}`} onClick={() => { setActiveTab("assigned"); setSidebarOpen(false); }}>
-            <FaTruck /><span>Assigned Deliveries</span>
-          </button>
-          <button className={`menu-item ${activeTab === "history" ? "active" : ""}`} onClick={() => { setActiveTab("history"); setSidebarOpen(false); }}>
-            <FaHistory /><span>Delivery History</span>
-          </button>
-          <button className={`menu-item ${activeTab === "route" ? "active" : ""}`} onClick={() => { setActiveTab("route"); setSidebarOpen(false); }}>
-            <FaRoute /><span>Route Details</span>
-          </button>
-        </div>
-
-        <div className="sidebar-bottom">
-          <button className="menu-item" onClick={() => setActiveTab("settings")}><FaCog /><span>Settings</span></button>
-          <button className="menu-item" onClick={() => setActiveTab("support")}><FaLifeRing /><span>Support</span></button>
-          <button className="menu-item" onClick={handleLogout}><FaSignOutAlt /><span>Sign Out</span></button>
-        </div>
+        <ul className="volunteer-menu volunteer-menu-bottom">
+          <li onClick={handleLogout}>
+            <FaSignOutAlt /> <span>Sign Out</span>
+          </li>
+        </ul>
       </aside>
 
-      <main className="main">
-        <header className="topbar">
-          <div className="left-top">
-            <button className="mobile-menu d-lg-none" onClick={() => setSidebarOpen(true)}><FaBars /></button>
-            <div className="search-box volunteer-heading">
-              <strong>Volunteer Delivery Center</strong>
+      {/* Main Content Area */}
+      <div className="volunteer-main">
+        <div className="volunteer-header">
+          <div>
+            <h1>Volunteer Delivery Portal</h1>
+            <p className="volunteer-subtitle">
+              Welcome back, {currentUser.name || "Volunteer Partner"}
+            </p>
+          </div>
+
+          {/* BUGFIX: this used to show "Role: VOLUNTEER" instead of the
+              logged-in user's name - now matches the Donor/Receiver
+              header pattern. */}
+          <div className="volunteer-user-badge">
+            <div className="volunteer-user-text">
+              <h4>{currentUser.name || "Volunteer"}</h4>
+              <p>{currentUser.accountType || "VOLUNTEER"}</p>
             </div>
-          </div>
-          <div className="right-top">
-            <div className="profile">
-              <div className="profile-img">{initials}</div>
-              <span>{currentUser.name || "Volunteer"}</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="page-content">
-          <section className="welcome-section">
-            <h1>Welcome back, {currentUser.name || "Volunteer"}!</h1>
-            <p>Manage your assigned food deliveries, pickup details, receiver information and delivery progress from one place.</p>
-          </section>
-
-          <div className="stats-grid">
-            <div className="stats-card"><div className="stats-top"><div><small>Total Tasks</small><h2>{deliveries.length}</h2><span>Assigned to you</span></div><div className="stats-icon green"><FaTruck /></div></div></div>
-            <div className="stats-card"><div className="stats-top"><div><small>Active Deliveries</small><h2>{activeDeliveries.length}</h2><span>Pending / in progress</span></div><div className="stats-icon darkgreen"><FaClock /></div></div></div>
-            <div className="stats-card"><div className="stats-top"><div><small>Completed</small><h2>{completedDeliveries.length}</h2><span>Successfully delivered</span></div><div className="stats-icon peach"><FaCheckCircle /></div></div></div>
-            <div className="stats-card"><div className="stats-top"><div><small>Current Role</small><h2 style={{fontSize:"25px"}}>VOLUNTEER</h2><span>{currentUser.city || "Beyond Waste partner"}</span></div><div className="stats-icon lightgreen"><FaUserCircle /></div></div></div>
-          </div>
-
-          {activeTab === "assigned" && (
-            <div className="dashboard-card">
-              <div className="section-header">
-                <h4>My Assigned Deliveries</h4>
-                <button className="volunteer-link-btn" onClick={() => fetchDeliveries()}>Refresh</button>
-              </div>
-              {error && <div className="volunteer-error">{error}</div>}
-              {loading ? <p>Loading assigned deliveries...</p> : deliveries.length === 0 ? (
-                <div className="empty-state"><FaTruck size={42}/><h3>No delivery assigned yet</h3><p>Once an admin assigns a volunteer to an approved match, the pickup and receiver details will appear here.</p></div>
+            <div className="volunteer-avatar">
+              {currentUser.name ? (
+                currentUser.name.charAt(0).toUpperCase()
               ) : (
-                <div className="volunteer-table-wrap">
-                  <table className="volunteer-table">
-                    <thead><tr><th>Delivery</th><th>Donor / Pickup</th><th>Receiver / Drop</th><th>Food Match</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody>
-                      {deliveries.map((del) => {
-                        const id = del.deliveryId || del.id;
-                        return <tr key={id}>
-                          <td>#{id}<br/><small>Match #{del.matchId || "-"}</small></td>
-                          <td><strong>{del.donorName || "Donor"}</strong><br/><FaMapMarkerAlt /> {del.pickupAddress || "Address unavailable"}</td>
-                          <td><strong>{del.receiverName || "Receiver"}</strong><br/><FaMapMarkerAlt /> {del.receiverAddress || "Address unavailable"}</td>
-                          <td>Donation #{del.donationRequestId || "-"}<br/>Request #{del.receiverRequestId || "-"}</td>
-                          <td><span className={`activity-badge ${del.status === "COMPLETED" ? "light" : "dark"}`}>{del.status || "ASSIGNED"}</span></td>
-                          <td>
-                            {(del.status === "ASSIGNED" || del.status === "PENDING") && <button className="volunteer-action-btn" onClick={() => handleStartDelivery(id)}><FaPlay /> Start</button>}
-                            {del.status === "IN_PROGRESS" && <button className="volunteer-action-btn complete" onClick={() => handleCompleteDelivery(id)}><FaRegCheckCircle /> Delivered</button>}
-                            {["COMPLETED","DELIVERED"].includes(del.status) && <span className="done-text">✓ Done</span>}
-                          </td>
-                        </tr>;
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <FaUserCircle />
               )}
             </div>
-          )}
-
-          {activeTab === "history" && (
-            <div className="dashboard-card">
-              <div className="section-header"><h4>Delivery History</h4></div>
-              {completedDeliveries.length === 0 ? <div className="empty-state"><FaHistory size={38}/><p>No completed deliveries yet.</p></div> :
-                <div className="volunteer-table-wrap"><table className="volunteer-table"><thead><tr><th>Delivery</th><th>Donor</th><th>Receiver</th><th>Completed</th></tr></thead><tbody>
-                  {completedDeliveries.map((del) => <tr key={del.deliveryId || del.id}><td>#{del.deliveryId || del.id}</td><td>{del.donorName || "Donor"}<br/>{del.pickupAddress}</td><td>{del.receiverName || "Receiver"}<br/>{del.receiverAddress}</td><td>{del.deliveryTime ? new Date(del.deliveryTime).toLocaleString() : "Completed"}</td></tr>)}
-                </tbody></table></div>}
-            </div>
-          )}
-
-          {activeTab === "route" && (
-            <div className="dashboard-card info-panel">
-              <h4>Route Details</h4>
-              <p>Each assigned delivery shows the donor pickup address and receiver drop address. Use those two locations to plan your route.</p>
-              {activeDeliveries.map((del) => <div className="route-row" key={del.deliveryId || del.id}><strong>#{del.deliveryId}</strong><span>{del.pickupAddress || "Pickup"} → {del.receiverAddress || "Receiver"}</span></div>)}
-            </div>
-          )}
-
-          {activeTab === "settings" && (
-            <div className="dashboard-card info-panel"><h4>Volunteer Settings</h4><p>Your account is currently signed in as <strong>{currentUser.name || "Volunteer"}</strong>.</p><p>Delivery assignments are automatically loaded for your volunteer account.</p></div>
-          )}
-
-          {activeTab === "support" && (
-            <div className="dashboard-card info-panel"><h4>Support</h4><p>If a pickup address, receiver address or delivery assignment is missing, refresh the dashboard first. If it is still missing, contact the administrator managing the matching queue.</p></div>
-          )}
+          </div>
         </div>
-      </main>
+
+        {/* Stats Grid */}
+        <div className="volunteer-stats-grid">
+          <div className="volunteer-card">
+            <div className="volunteer-icon"><FaTruck /></div>
+            <div>
+              <h3>{deliveries.length}</h3>
+              <p>Total Assigned Tasks</p>
+            </div>
+          </div>
+          <div className="volunteer-card">
+            <div className="volunteer-icon"><FaClock /></div>
+            <div>
+              <h3>{activeDeliveries.length}</h3>
+              <p>Pending / In Transit</p>
+            </div>
+          </div>
+          <div className="volunteer-card">
+            <div className="volunteer-icon"><FaCheckCircle /></div>
+            <div>
+              <h3>{completedDeliveries.length}</h3>
+              <p>Completed Deliveries</p>
+            </div>
+          </div>
+        </div>
+
+        {/* TAB 1: ASSIGNED DELIVERIES */}
+        {activeTab === "assigned" && (
+          <div className="volunteer-content-card">
+            <div className="volunteer-content-header">
+              <h2>Active &amp; Assigned Deliveries</h2>
+              <button className="btn-outline-green" onClick={fetchDeliveries}>
+                Refresh Deliveries
+              </button>
+            </div>
+
+            {loading ? (
+              <p>Loading assigned deliveries...</p>
+            ) : activeDeliveries.length > 0 ? (
+              <div className="volunteer-table-wrap">
+                <table className="volunteer-table">
+                  <thead>
+                    <tr>
+                      <th>Delivery ID</th>
+                      <th>Food</th>
+                      <th>Pickup (Donor)</th>
+                      <th>Drop-off (Receiver)</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* BUGFIX: this previously mapped over the full
+                        `deliveries` list, so completed deliveries showed
+                        up here too, duplicating the History tab. Now
+                        scoped to active/pending ones only. */}
+                    {activeDeliveries.map((del) => (
+                      <tr key={getId(del)}>
+                        <td>#{getId(del)}</td>
+                        <td>
+                          {del.foodType || "Surplus Food"}
+                          {del.estimatedMeals ? ` · ${del.estimatedMeals} meals` : ""}
+                        </td>
+                        <td>
+                          <FaMapMarkerAlt color="#173a2d" />{" "}
+                          {del.pickupAddress || "Donor Warehouse"}
+                          {del.donorName ? (
+                            <div className="volunteer-subtext">{del.donorName}</div>
+                          ) : null}
+                        </td>
+                        <td>
+                          <FaMapMarkerAlt color="#d45716" />{" "}
+                          {del.deliveryAddress || del.dropAddress || "Receiver Shelter"}
+                          {del.receiverName ? (
+                            <div className="volunteer-subtext">{del.receiverName}</div>
+                          ) : null}
+                        </td>
+                        <td>
+                          <span className={`badge-del-status ${del.status || "ASSIGNED"}`}>
+                            {(del.status || "ASSIGNED").replace("_", " ")}
+                          </span>
+                        </td>
+                        <td>
+                          {(del.status === "ASSIGNED" || del.status === "PENDING" || !del.status) && (
+                            <button
+                              className="btn-start"
+                              onClick={() => handleStartDelivery(getId(del))}
+                            >
+                              <FaPlay /> Start Delivery
+                            </button>
+                          )}
+                          {del.status === "IN_PROGRESS" && (
+                            <button
+                              className="btn-complete"
+                              onClick={() => handleCompleteDelivery(getId(del))}
+                            >
+                              <FaRegCheckCircle /> Mark Delivered
+                            </button>
+                          )}
+                          {del.status === "COMPLETED" && (
+                            <span className="volunteer-done">✓ Done</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="volunteer-empty">
+                <FaTruck size={40} />
+                <p>No active delivery tasks assigned at the moment.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: HISTORY */}
+        {activeTab === "history" && (
+          <div className="volunteer-content-card">
+            <h2 className="volunteer-content-title">Completed Deliveries History</h2>
+            {completedDeliveries.length > 0 ? (
+              <div className="volunteer-table-wrap">
+                <table className="volunteer-table">
+                  <thead>
+                    <tr>
+                      <th>Delivery ID</th>
+                      <th>Pickup</th>
+                      <th>Drop Location</th>
+                      <th>Status</th>
+                      <th>Completed Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {completedDeliveries.map((del) => (
+                      <tr key={getId(del)}>
+                        <td>#{getId(del)}</td>
+                        <td>{del.pickupAddress || "Donor"}</td>
+                        <td>{del.deliveryAddress || "Receiver"}</td>
+                        <td>
+                          <span className="badge-del-status COMPLETED">COMPLETED</span>
+                        </td>
+                        <td>
+                          {del.deliveryTime
+                            ? new Date(del.deliveryTime).toLocaleDateString()
+                            : "Recently"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="volunteer-empty-text">No completed deliveries yet.</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

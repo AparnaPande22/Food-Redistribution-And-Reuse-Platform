@@ -49,6 +49,13 @@ public class Request {
 	@Column(name = "meal_preference")
 	private String mealPreference;
 
+	// NOTE: added to match the field already present on the live/running
+	// backend (this was missing from the uploaded zip, which is why new
+	// donations were failing validation with "Food category is required").
+	@NotBlank(message = "Food category is required")
+	@Column(name = "food_category")
+	private String foodCategory;
+
 	@NotNull(message = "Estimated meals is required")
 	@Positive(message = "Estimated meals must be greater than 0")
 	@Column(name = "estimated_meals")
