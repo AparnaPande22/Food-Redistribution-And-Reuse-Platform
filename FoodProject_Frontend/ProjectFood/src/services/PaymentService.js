@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:7186/api/payment";
+const BASE_URL = "https://localhost:7186/api/payment";
 
 const paymentApi = axios.create({
     baseURL: BASE_URL,
@@ -9,48 +9,56 @@ const paymentApi = axios.create({
     }
 });
 
-paymentApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+paymentApi.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 export const createOrder = async (paymentData) => {
+    console.log("Creating payment order:", paymentData);
+
     const response = await paymentApi.post(
         "/create-order",
         paymentData
     );
+
     return response.data;
 };
 
 export const verifyPayment = async (paymentData) => {
+    console.log("Verifying payment:", paymentData);
+
     const response = await paymentApi.post(
         "/verify",
         paymentData
     );
+
     return response.data;
 };
 
 export const getPayment = async (orderId) => {
-    const response = await paymentApi.get(
-        `/${orderId}`
-    );
+    const response = await paymentApi.get(`/${orderId}`);
+
     return response.data;
 };
 
 export const donorHistory = async (donorId) => {
-    const response = await paymentApi.get(
-        `/donor/${donorId}`
-    );
+    const response = await paymentApi.get(`/donor/${donorId}`);
+
     return response.data;
 };
 
 export const industryHistory = async (industryId) => {
-    const response = await paymentApi.get(
-        `/industry/${industryId}`
-    );
+    const response = await paymentApi.get(`/industry/${industryId}`);
+
     return response.data;
 };
 

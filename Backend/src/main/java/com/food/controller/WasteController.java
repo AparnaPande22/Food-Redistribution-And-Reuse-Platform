@@ -1,9 +1,17 @@
+
 package com.food.controller;
 
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.food.DTO.WasteAssignmentDTO;
 import com.food.DTO.WasteProcessingDTO;
@@ -14,19 +22,20 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequestMapping("/api/waste")
 @RequiredArgsConstructor
 public class WasteController {
 
-
     private final WasteService wasteService;
 
 
-    // marking as waste
+    // =========================================================
+    // MARK REQUEST AS WASTE
+    // =========================================================
+
     @PutMapping("/{requestId}/mark-waste")
-    public ResponseEntity<?> markAsWaste(
+    public ResponseEntity<WasteResponseDTO> markAsWaste(
             @Positive(message = "Id must be greater than 0")
             @PathVariable Long requestId) {
 
@@ -36,8 +45,10 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // GET ALL PENDING WASTE REQUESTS
+    // =========================================================
 
-    // get all waste request
     @GetMapping("/waste_queue")
     public ResponseEntity<List<WasteResponseDTO>> getWasteQueue() {
 
@@ -47,11 +58,13 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // ASSIGN WASTE TO INDUSTRY / BIOGAS PARTNER
+    // =========================================================
 
-    // assign waste partner
     @PutMapping("/assign-partner")
     public ResponseEntity<WasteResponseDTO> assignWastePartner(
-            @RequestBody @Valid WasteAssignmentDTO dto) {
+            @Valid @RequestBody WasteAssignmentDTO dto) {
 
         return ResponseEntity.ok(
                 wasteService.assignWastePartner(dto)
@@ -59,8 +72,10 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // GET WASTE ASSIGNED TO INDUSTRY
+    // =========================================================
 
-    // assigned waste to partner
     @GetMapping("/assigned/{partnerId}")
     public ResponseEntity<List<WasteResponseDTO>> getAssignedWaste(
             @PathVariable Long partnerId) {
@@ -71,12 +86,14 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // PROCESS WASTE
+    // =========================================================
 
-    // waste processing
     @PutMapping("/process/{requestId}")
     public ResponseEntity<WasteResponseDTO> processWaste(
             @PathVariable Long requestId,
-            @RequestBody @Valid WasteProcessingDTO dto) {
+            @Valid @RequestBody WasteProcessingDTO dto) {
 
         return ResponseEntity.ok(
                 wasteService.processWaste(requestId, dto)
@@ -84,10 +101,12 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // UNASSIGN WASTE PARTNER
+    // =========================================================
 
-    // unassign partner
     @PutMapping("/unassigned/{requestId}")
-    public ResponseEntity<?> unassignWastePartner(
+    public ResponseEntity<WasteResponseDTO> unassignWastePartner(
             @PathVariable Long requestId) {
 
         return ResponseEntity.ok(
@@ -96,8 +115,10 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // WASTE HISTORY
+    // =========================================================
 
-    // history
     @GetMapping("/history")
     public ResponseEntity<List<WasteResponseDTO>> getWasteHistory() {
 
@@ -107,21 +128,28 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // REJECT WASTE PICKUP
+    // =========================================================
 
-    // reject pickup
     @PutMapping("/reject/{requestId}")
-    public ResponseEntity<?> rejectWastePickUp(
+    public ResponseEntity<WasteResponseDTO> rejectWastePickup(
             @PathVariable Long requestId,
             @RequestBody String remark) {
 
         return ResponseEntity.ok(
-                wasteService.rejectWastePickup(requestId, remark)
+                wasteService.rejectWastePickup(
+                        requestId,
+                        remark
+                )
         );
     }
 
 
+    // =========================================================
+    // GET PROCESSED WASTE
+    // =========================================================
 
-    // processed waste
     @GetMapping("/processed")
     public ResponseEntity<List<WasteResponseDTO>> getProcessedWaste() {
 
@@ -131,8 +159,10 @@ public class WasteController {
     }
 
 
+    // =========================================================
+    // GET PROCESSED WASTE BY ID
+    // =========================================================
 
-    // processed waste by id
     @GetMapping("/processed/{id}")
     public ResponseEntity<WasteResponseDTO> getProcessedWasteById(
             @PathVariable Long id) {
@@ -141,5 +171,5 @@ public class WasteController {
                 wasteService.getProcessedWasteById(id)
         );
     }
-
 }
+

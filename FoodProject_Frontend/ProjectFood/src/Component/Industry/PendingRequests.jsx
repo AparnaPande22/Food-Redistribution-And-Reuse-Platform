@@ -1,60 +1,235 @@
-import { useEffect, useState } from "react";
-import { FaEye, FaCheck, FaTimes } from "react-icons/fa";
 
-// BUGFIX: previously imported acceptRequest/rejectRequest/getPendingRequests
-// from biogasService.js, which call "/api/biogas/requests/..." - none of
-// which exist on the backend. Now wired to the real waste queue.
+import { useEffect, useState } from "react";
+import {
+    FaEye,
+    FaCheck,
+    FaTimes,
+    FaCreditCard
+} from "react-icons/fa";
+
 import wasteService from "../../services/wasteService";
 
 import "../../css/pendingRequests.css";
 
-const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
+const PendingRequests = ({
+    selectedRequest,
+    setSelectedRequest,
+    onPayNow
+}) => {
 
     const [requests, setRequests] = useState([]);
-    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const [loading, setLoading] = useState(false);
+    const [payingRequestId, setPayingRequestId] = useState(null);
 
-    const loadRequests = () => {
+    const currentUser = JSON.parse(
+        localStorage.getItem("user") || "{}"
+    );
 
-        wasteService.getWasteQueue()
-            .then((res) => setRequests(res.data || []))
-            .catch((err) => console.error("Error fetching pending requests:", err));
+
+    // ==========================================
+    // LOAD REQUESTS
+    // ==========================================
+    const loadRequests = async () => {
+
+        setLoading(true);
+
+        try {
+
+            const res =
+                await wasteService.getWasteQueue();
+
+            setRequests(
+                Array.isArray(res.data)
+                    ? res.data
+                    : []
+            );
+
+        } catch (err) {
+
+            console.error(
+                "Error fetching pending requests:",
+                err
+            );
+
+            setRequests([]);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
     };
+
 
     useEffect(() => {
+
         loadRequests();
+
     }, []);
 
+
+    // ==========================================
+    // VIEW DETAILS
+    // ==========================================
     const viewDetails = (request) => {
-        if (setSelectedRequest) {
-            setSelectedRequest(request);
-        }
+
+        setSelectedRequest?.(request);
+
     };
 
+
+    // ==========================================
+    // ACCEPT
+    // ==========================================
     const handleAccept = async (id) => {
-        try {
-            // "Accept" = claim this waste pickup for myself.
-            await wasteService.assignWastePartner(id, currentUser.userId);
-            alert("Request #" + id + " accepted.");
-            loadRequests();
-        } catch (err) {
-            console.error("Error accepting request:", err);
-            alert(err.response?.data?.message || err.response?.data || "Unable to accept request.");
+
+        if (!currentUser.userId) {
+
+            alert(
+                "User session not found. Please login again."
+            );
+
+            return;
+
         }
+
+        try {
+
+            await wasteService.assignWastePartner(
+                id,
+                currentUser.userId
+            );
+
+            alert(
+                `Request #${id} accepted successfully.`
+            );
+
+            await loadRequests();
+
+        } catch (err) {
+
+            console.error(
+                "Error accepting request:",
+                err
+            );
+
+            alert(
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Unable to accept request."
+            );
+
+        }
+
     };
 
+
+    // ==========================================
+    // REJECT
+    // ==========================================
     const handleReject = async (id) => {
-        const remark = window.prompt("Reason for rejecting this pickup (optional):", "");
-        if (remark === null) return; // user cancelled
+
+        const remark = window.prompt(
+            "Reason for rejecting this pickup (optional):",
+            ""
+        );
+
+        if (remark === null) {
+            return;
+        }
 
         try {
-            await wasteService.rejectWastePickup(id, remark);
-            alert("Request #" + id + " rejected.");
-            loadRequests();
+
+            await wasteService.rejectWastePickup(
+                id,
+                remark
+            );
+
+            alert(
+                `Request #${id} rejected.`
+            );
+
+            await loadRequests();
+
         } catch (err) {
-            console.error("Error rejecting request:", err);
-            alert(err.response?.data?.message || err.response?.data || "Unable to reject request.");
+
+            console.error(
+                "Error rejecting request:",
+                err
+            );
+
+            alert(
+                err.response?.data?.message ||
+                err.response?.data ||
+                "Unable to reject request."
+            );
+
         }
+
     };
+
+
+    // ==========================================
+    // PAY NOW
+    // ==========================================
+    const handlePayNow = async (request) => {
+
+        if (!onPayNow) {
+
+            alert(
+                "Payment service is not configured."
+            );
+
+            return;
+
+        }
+
+        try {
+
+            setPayingRequestId(
+                request.requestId
+            );
+
+            await onPayNow(request);
+
+        } catch (err) {
+
+            console.error(
+                "Payment error:",
+                err
+            );
+
+            alert(
+                err.response?.data?.message ||
+                "Unable to start payment."
+            );
+
+        } finally {
+
+            setPayingRequestId(null);
+
+        }
+
+    };
+
+
+    // ==========================================
+    // PAYMENT STATUS
+    // ==========================================
+    const isPaid = (request) => {
+
+        const status =
+            request.paymentStatus ||
+            request.payment_status;
+
+        return (
+            status &&
+            status.toString().toUpperCase() === "PAID"
+        );
+
+    };
+
 
     return (
 
@@ -66,11 +241,18 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                     🚛 Pending Waste Pickups
                 </h2>
 
-                <button onClick={loadRequests}>
-                    Refresh
+                <button
+                    onClick={loadRequests}
+                    disabled={loading}
+                >
+                    {loading
+                        ? "Refreshing..."
+                        : "Refresh"
+                    }
                 </button>
 
             </div>
+
 
             <div className="table-responsive">
 
@@ -85,44 +267,74 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
                             <th>Address</th>
                             <th>Meals</th>
                             <th>Status</th>
+                            <th>Payment</th>
                             <th>Actions</th>
 
                         </tr>
 
                     </thead>
 
+
                     <tbody>
 
-                        {
+                        {loading ? (
 
-                            requests.length > 0 ? (
+                            <tr>
 
-                                requests.map((request) => (
+                                <td colSpan="7">
+                                    Loading waste requests...
+                                </td>
+
+                            </tr>
+
+                        ) : requests.length > 0 ? (
+
+                            requests.map((request) => {
+
+                                const requestId =
+                                    request.requestId ||
+                                    request.id;
+
+                                return (
 
                                     <tr
-                                        key={request.requestId}
+                                        key={requestId}
                                         className={
-                                            selectedRequest?.requestId === request.requestId
+                                            selectedRequest?.requestId ===
+                                            requestId
                                                 ? "row-selected"
                                                 : ""
                                         }
                                     >
 
                                         <td>
-                                            #{request.requestId}
+                                            #{requestId}
                                         </td>
 
-                                        <td>
-                                            {request.donorName}
-                                        </td>
 
                                         <td>
-                                            {request.pickupAddress}
+                                            {
+                                                request.donorName ||
+                                                "Unknown"
+                                            }
                                         </td>
 
+
                                         <td>
-                                            {request.estimatedMeals}
+                                            {
+                                                request.pickupAddress ||
+                                                "N/A"
+                                            }
                                         </td>
+
+
+                                        <td>
+                                            {
+                                                request.estimatedMeals ??
+                                                0
+                                            }
+                                        </td>
+
 
                                         <td>
 
@@ -132,26 +344,98 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
                                         </td>
 
+
+                                        {/* PAYMENT */}
+
+                                        <td>
+
+                                            {isPaid(request) ? (
+
+                                                <span className="payment-paid">
+                                                    ✓ Paid
+                                                </span>
+
+                                            ) : (
+
+                                                <button
+                                                    type="button"
+                                                    className="pay-now-btn"
+                                                    onClick={() =>
+                                                        handlePayNow(
+                                                            request
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        payingRequestId ===
+                                                        requestId
+                                                    }
+                                                >
+
+                                                    <FaCreditCard />
+
+                                                    <span>
+
+                                                        {
+                                                            payingRequestId ===
+                                                            requestId
+                                                                ? "Processing..."
+                                                                : `Pay ₹${
+                                                                    request.paymentAmount ??
+                                                                    20
+                                                                }`
+                                                        }
+
+                                                    </span>
+
+                                                </button>
+
+                                            )}
+
+                                        </td>
+
+
+                                        {/* ACTIONS */}
+
                                         <td className="action-buttons">
 
                                             <button
+                                                type="button"
                                                 className="view-btn"
-                                                onClick={() => viewDetails(request)}
+                                                onClick={() =>
+                                                    viewDetails(
+                                                        request
+                                                    )
+                                                }
+                                                title="View Details"
                                             >
                                                 <FaEye />
                                             </button>
 
+
                                             <button
+                                                type="button"
                                                 className="accept-btn"
-                                                onClick={() => handleAccept(request.requestId)}
+                                                onClick={() =>
+                                                    handleAccept(
+                                                        requestId
+                                                    )
+                                                }
+                                                title="Accept Pickup"
                                             >
                                                 <FaCheck />
                                                 Accept
                                             </button>
 
+
                                             <button
+                                                type="button"
                                                 className="reject-btn"
-                                                onClick={() => handleReject(request.requestId)}
+                                                onClick={() =>
+                                                    handleReject(
+                                                        requestId
+                                                    )
+                                                }
+                                                title="Reject Pickup"
                                             >
                                                 <FaTimes />
                                                 Reject
@@ -161,19 +445,21 @@ const PendingRequests = ({ selectedRequest, setSelectedRequest }) => {
 
                                     </tr>
 
-                                ))
+                                );
 
-                            ) : (
+                            })
 
-                                <tr>
-                                    <td colSpan="6">
-                                        No Pending Waste Requests
-                                    </td>
-                                </tr>
+                        ) : (
 
-                            )
+                            <tr>
 
-                        }
+                                <td colSpan="7">
+                                    No Pending Waste Requests
+                                </td>
+
+                            </tr>
+
+                        )}
 
                     </tbody>
 

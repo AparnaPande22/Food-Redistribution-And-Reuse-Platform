@@ -1,3 +1,4 @@
+
 package com.food.service;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,6 @@ import com.food.entities.Request;
 import com.food.entities.RequestStatus;
 import com.food.entities.Role;
 import com.food.entities.User;
-import com.food.mapper.RequestMapper;
 import com.food.mapper.WasteMapper;
 import com.food.repository.RequestRepository;
 import com.food.repository.UserRepository;
@@ -26,141 +26,302 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WasteServiceImplementation implements WasteService {
 
-	private final RequestRepository reqRepo;
-	private final UserRepository userRepo;
-	private final RequestMapper requestMapper;
-	private final WasteMapper wasteMapper;
+    private final RequestRepository reqRepo;
+    private final UserRepository userRepo;
+    private final WasteMapper wasteMapper;
 
-	@Override
-	public WasteResponseDTO markAsWaste(Long requestId) {
 
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request Not Found"));
+    // ============================================================
+    // MARK REQUEST AS WASTE
+    // ============================================================
 
-		if (request.getStatus() != RequestStatus.REJECTED && request.getStatus() != RequestStatus.EXPIRED
-				&& request.getStatus() != RequestStatus.MATCH_FAILED) {
+    @Override
+    public WasteResponseDTO markAsWaste(Long requestId) {
 
-			throw new IllegalArgumentException("Only rejected or expired donations can be marked as waste.");
-		}
+        Request request = reqRepo.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Request not found with id: " + requestId)
+                );
 
-		request.setStatus(RequestStatus.MARKED_FOR_WASTE);
-		Request saved = reqRepo.save(request);
+        if (request.getStatus() != RequestStatus.REJECTED
+                && request.getStatus() != RequestStatus.EXPIRED
+                && request.getStatus() != RequestStatus.MATCH_FAILED) {
 
-		WasteResponseDTO dto = wasteMapper.toWasteDTO(saved);
-		return dto;
-	}
+            throw new IllegalArgumentException(
+                    "Only rejected, expired or match-failed donations can be marked as waste."
+            );
+        }
 
-	@Override
-	public WasteResponseDTO assignWastePartner(WasteAssignmentDTO dto) {
-		Request request = reqRepo.findById(dto.getRequestId())
-				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+        request.setStatus(RequestStatus.MARKED_FOR_WASTE);
 
-		if (request.getStatus() != RequestStatus.MARKED_FOR_WASTE) {
-			throw new IllegalArgumentException("Only requests marked for waste can be assigned to a waste partner.");
-		}
+        Request savedRequest = reqRepo.save(request);
 
-		User partner = userRepo.findById(dto.getWastePartnerId())
-				.orElseThrow(() -> new ResourceNotFoundException("Waste Partner not found"));
+        return wasteMapper.toWasteDTO(savedRequest);
+    }
 
-		if (partner.getAccountType() != Role.BIOGAS_PARTNER) {
-			throw new IllegalArgumentException("User is not a Waste Partner");
-		}
 
-		request.setWastePartner(partner);
-		request.setWasteAssignedDate(LocalDateTime.now());
-		request.setWasteRemarks(dto.getRemarks());
-		request.setStatus(RequestStatus.WASTE_ASSIGNED);
+    // ============================================================
+    // ASSIGN WASTE TO BIOGAS PARTNER
+    // ============================================================
 
-		Request saved = reqRepo.save(request);
+    @Override
+    public WasteResponseDTO assignWastePartner(
+            WasteAssignmentDTO dto) {
 
-		return wasteMapper.toWasteDTO(saved);
-	}
+        Request request = reqRepo.findById(dto.getRequestId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found with id: " + dto.getRequestId()
+                        )
+                );
 
-	@Override
-	public List<WasteResponseDTO> getWasteQueue() {
+        if (request.getStatus() != RequestStatus.MARKED_FOR_WASTE) {
 
-		List<Request> requests = reqRepo.findByStatus(RequestStatus.MARKED_FOR_WASTE);
+            throw new IllegalArgumentException(
+                    "Only requests marked for waste can be assigned to a waste partner."
+            );
+        }
 
-		return requests.stream().map(wasteMapper::toWasteDTO).toList();
-	}
+        User partner = userRepo.findById(dto.getWastePartnerId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Waste partner not found with id: "
+                                        + dto.getWastePartnerId()
+                        )
+                );
 
-	@Override
-	public List<WasteResponseDTO> getAssignedWaste(Long partnerId) {
+        if (partner.getAccountType() != Role.BIOGAS_PARTNER) {
 
-		User partner = userRepo.findById(partnerId)
-				.orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
+            throw new IllegalArgumentException(
+                    "Selected user is not a Biogas Partner."
+            );
+        }
 
-		return reqRepo.findByWastePartner(partner).stream().map(wasteMapper::toWasteDTO).toList();
-	}
+        request.setWastePartner(partner);
 
-	@Override
-	public WasteResponseDTO processWaste(Long requestId, WasteProcessingDTO dto) {
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+        request.setWasteAssignedDate(
+                LocalDateTime.now()
+        );
 
-		request.setBiogasGenerated(dto.getBiogasGenerated());
-		request.setFertilizerGenerated(dto.getFertilizerGenerated());
-		request.setWasteProcessedDate(LocalDateTime.now());
-		request.setWasteRemarks(dto.getRemarks());
-		request.setStatus(RequestStatus.WASTE_PROCESSED);
+        request.setWasteRemarks(
+                dto.getRemarks()
+        );
 
-		Request saved = reqRepo.save(request);
+        request.setStatus(
+                RequestStatus.WASTE_ASSIGNED
+        );
 
-		return wasteMapper.toWasteDTO(saved);
-	}
+        Request savedRequest = reqRepo.save(request);
 
-	@Override
-	public WasteResponseDTO unassignWastePartner(Long requestId) {
+        return wasteMapper.toWasteDTO(savedRequest);
+    }
 
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-		request.setWastePartner(null);
-		request.setWasteAssignedDate(null);
-		request.setWasteRemarks(null);
-		request.setStatus(RequestStatus.MARKED_FOR_WASTE);
+    // ============================================================
+    // GET PENDING WASTE QUEUE
+    // ============================================================
 
-		Request saved = reqRepo.save(request);
+    @Override
+    public List<WasteResponseDTO> getWasteQueue() {
 
-		return wasteMapper.toWasteDTO(saved);
-	}
+        List<Request> requests =
+                reqRepo.findByStatus(
+                        RequestStatus.MARKED_FOR_WASTE
+                );
 
-	@Override
-	public List<WasteResponseDTO> getWasteHistory() {
+        return requests.stream()
+                .map(wasteMapper::toWasteDTO)
+                .toList();
+    }
 
-		return reqRepo.findByStatus(RequestStatus.WASTE_PROCESSED).stream().map(wasteMapper::toWasteDTO).toList();
-	}
 
-	@Override
-	public WasteResponseDTO rejectWastePickup(Long requestId, String remarks) {
+    // ============================================================
+    // GET ASSIGNED WASTE
+    // ============================================================
 
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+    @Override
+    public List<WasteResponseDTO> getAssignedWaste(
+            Long partnerId) {
 
-		request.setWasteRemarks(remarks);
-		request.setStatus(RequestStatus.MARKED_FOR_WASTE);
-		request.setWastePartner(null);
+        User partner = userRepo.findById(partnerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Partner not found with id: " + partnerId
+                        )
+                );
 
-		Request saved = reqRepo.save(request);
+        return reqRepo.findByWastePartner(partner)
+                .stream()
+                .map(wasteMapper::toWasteDTO)
+                .toList();
+    }
 
-		return wasteMapper.toWasteDTO(saved);
-	}
 
-	@Override
-	public List<WasteResponseDTO> getProcessedWaste() {
-		return reqRepo.findByStatus(RequestStatus.WASTE_PROCESSED).stream().map(wasteMapper::toWasteDTO).toList();
-	}
+    // ============================================================
+    // PROCESS WASTE
+    // ============================================================
 
-	@Override
-	public WasteResponseDTO getProcessedWasteById(Long requestId) {
+    @Override
+    public WasteResponseDTO processWaste(
+            Long requestId,
+            WasteProcessingDTO dto) {
 
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+        Request request = reqRepo.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found with id: " + requestId
+                        )
+                );
 
-		if (request.getStatus() != RequestStatus.WASTE_PROCESSED) {
-			throw new IllegalArgumentException("Waste is not processed yet");
-		}
+        if (request.getStatus() != RequestStatus.WASTE_ASSIGNED) {
 
-		return wasteMapper.toWasteDTO(request);
-	}
+            throw new IllegalArgumentException(
+                    "Only assigned waste requests can be processed."
+            );
+        }
+
+        request.setBiogasGenerated(
+                dto.getBiogasGenerated()
+        );
+
+        request.setFertilizerGenerated(
+                dto.getFertilizerGenerated()
+        );
+
+        request.setWasteProcessedDate(
+                LocalDateTime.now()
+        );
+
+        request.setWasteRemarks(
+                dto.getRemarks()
+        );
+
+        request.setStatus(
+                RequestStatus.WASTE_PROCESSED
+        );
+
+        Request savedRequest = reqRepo.save(request);
+
+        return wasteMapper.toWasteDTO(savedRequest);
+    }
+
+
+    // ============================================================
+    // UNASSIGN WASTE PARTNER
+    // ============================================================
+
+    @Override
+    public WasteResponseDTO unassignWastePartner(
+            Long requestId) {
+
+        Request request = reqRepo.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found with id: " + requestId
+                        )
+                );
+
+        request.setWastePartner(null);
+
+        request.setWasteAssignedDate(null);
+
+        request.setWasteRemarks(null);
+
+        request.setStatus(
+                RequestStatus.MARKED_FOR_WASTE
+        );
+
+        Request savedRequest = reqRepo.save(request);
+
+        return wasteMapper.toWasteDTO(savedRequest);
+    }
+
+
+    // ============================================================
+    // WASTE HISTORY
+    // ============================================================
+
+    @Override
+    public List<WasteResponseDTO> getWasteHistory() {
+
+        return reqRepo
+                .findByStatus(RequestStatus.WASTE_PROCESSED)
+                .stream()
+                .map(wasteMapper::toWasteDTO)
+                .toList();
+    }
+
+
+    // ============================================================
+    // REJECT WASTE PICKUP
+    // ============================================================
+
+    @Override
+    public WasteResponseDTO rejectWastePickup(
+            Long requestId,
+            String remarks) {
+
+        Request request = reqRepo.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found with id: " + requestId
+                        )
+                );
+
+        request.setWasteRemarks(remarks);
+
+        request.setWastePartner(null);
+
+        request.setWasteAssignedDate(null);
+
+        request.setStatus(
+                RequestStatus.MARKED_FOR_WASTE
+        );
+
+        Request savedRequest = reqRepo.save(request);
+
+        return wasteMapper.toWasteDTO(savedRequest);
+    }
+
+
+    // ============================================================
+    // GET PROCESSED WASTE
+    // ============================================================
+
+    @Override
+    public List<WasteResponseDTO> getProcessedWaste() {
+
+        return reqRepo
+                .findByStatus(RequestStatus.WASTE_PROCESSED)
+                .stream()
+                .map(wasteMapper::toWasteDTO)
+                .toList();
+    }
+
+
+    // ============================================================
+    // GET PROCESSED WASTE BY ID
+    // ============================================================
+
+    @Override
+    public WasteResponseDTO getProcessedWasteById(
+            Long requestId) {
+
+        Request request = reqRepo.findById(requestId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Request not found with id: " + requestId
+                        )
+                );
+
+        if (request.getStatus() != RequestStatus.WASTE_PROCESSED) {
+
+            throw new IllegalArgumentException(
+                    "Waste is not processed yet."
+            );
+        }
+
+        return wasteMapper.toWasteDTO(request);
+    }
 }
+

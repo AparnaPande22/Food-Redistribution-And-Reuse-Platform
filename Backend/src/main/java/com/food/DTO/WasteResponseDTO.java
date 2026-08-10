@@ -1,39 +1,41 @@
+
 package com.food.DTO;
 
 import java.time.LocalDateTime;
 
-import com.food.entities.RequestStatus;
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class WasteResponseDTO {
 
-	private Long requestId;
+    private Long requestId;
 
-	private String donorName;
+    private Long donorId;
+    private String donorName;
+    private String donorEmail;
+    private String donorPhone;
 
-	private String pickupAddress;
+    private String pickupAddress;
+    private Long estimatedMeals;
 
-	private Long estimatedMeals;
+    private String status;
 
-	private RequestStatus status;
+    private Long wastePartnerId;
+    private String wastePartnerName;
 
-	private Long wastePartnerId;
+    private LocalDateTime wasteAssignedDate;
+    private LocalDateTime wasteProcessedDate;
 
-	private String wastePartnerName;
+    private Double biogasGenerated;
+    private Double fertilizerGenerated;
 
-	private LocalDateTime wasteAssignedDate;
+    private String remarks;
 
-	private LocalDateTime wasteProcessedDate;
-
-	private Double biogasGenerated;
-
-	private Double fertilizerGenerated;
-
-	private String wasteRemarks;
-
-	private String wasteReason;
+    private Double paymentAmount;
 }

@@ -100,6 +100,117 @@
     opacity:.9;
 }
 
+
+/* =========================================
+   PENDING WASTE REQUESTS TABLE
+   ========================================= */
+
+.pending-container table thead th {
+    background-color: #173a2d;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 14px 12px;
+    text-align: left;
+    border: none;
+}
+
+.pending-container table thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.pending-container table thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+
+/* =========================================
+   PAY NOW BUTTON
+   Small compact button
+   ========================================= */
+
+.pending-container .pay-now-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    padding: 6px 10px;
+
+    min-width: 78px;
+    height: 32px;
+
+    border: none;
+    border-radius: 5px;
+
+    background: #173a2d;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.pending-container .pay-now-btn svg {
+    font-size: 12px;
+}
+
+.pending-container .pay-now-btn:hover {
+    background: #245640;
+    transform: translateY(-1px);
+}
+
+.pending-container .pay-now-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================
+   PAID LABEL
+   ========================================= */
+
+.pending-container .payment-paid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 9px;
+
+    border-radius: 5px;
+
+    background: #e1f4e7;
+    color: #1f7a43;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   ACTION BUTTONS
+   ========================================= */
+
+.pending-container .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pending-container .action-buttons button {
+    font-size: 12px;
+}
+
+
 @media(max-width:768px){
 
 .pending-container th,

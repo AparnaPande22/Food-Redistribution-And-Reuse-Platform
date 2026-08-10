@@ -1,3 +1,4 @@
+
 package com.food.mapper;
 
 import org.springframework.stereotype.Component;
@@ -7,35 +8,106 @@ import com.food.entities.Request;
 
 @Component
 public class WasteMapper {
-	public WasteResponseDTO toWasteDTO(Request request) {
 
-		WasteResponseDTO dto = new WasteResponseDTO();
+    public WasteResponseDTO toWasteDTO(Request request) {
 
-		dto.setRequestId(request.getId());
+        WasteResponseDTO dto = new WasteResponseDTO();
 
-		dto.setDonorName(request.getUser().getName());
+        // =====================================================
+        // REQUEST INFORMATION
+        // =====================================================
 
-		dto.setPickupAddress(request.getPickUpAddress());
+        dto.setRequestId(request.getId());
 
-		dto.setEstimatedMeals(request.getEstimatedMeals());
+        dto.setPickupAddress(request.getPickUpAddress());
 
-		dto.setStatus(request.getStatus());
+        dto.setEstimatedMeals(request.getEstimatedMeals());
 
-		if (request.getWastePartner() != null) {
-			dto.setWastePartnerId(request.getWastePartner().getId());
-			dto.setWastePartnerName(request.getWastePartner().getName());
-		}
 
-		dto.setWasteAssignedDate(request.getWasteAssignedDate());
+        // =====================================================
+        // DONOR INFORMATION
+        // =====================================================
 
-		dto.setWasteProcessedDate(request.getWasteProcessedDate());
+        if (request.getUser() != null) {
 
-		dto.setBiogasGenerated(request.getBiogasGenerated());
+            dto.setDonorId(
+                    request.getUser().getId()
+            );
 
-		dto.setFertilizerGenerated(request.getFertilizerGenerated());
+            dto.setDonorName(
+                    request.getUser().getName()
+            );
 
-		dto.setWasteRemarks(request.getWasteRemarks());
+            dto.setDonorEmail(
+                    request.getUser().getEmail()
+            );
 
-		return dto;
-	}
+            dto.setDonorPhone(
+                    request.getUser().getPhone()
+            );
+        }
+
+
+        // =====================================================
+        // STATUS
+        // =====================================================
+
+        if (request.getStatus() != null) {
+            dto.setStatus(
+                    request.getStatus().toString()
+            );
+        }
+
+
+        // =====================================================
+        // WASTE PARTNER
+        // =====================================================
+
+        if (request.getWastePartner() != null) {
+
+            dto.setWastePartnerId(
+                    request.getWastePartner().getId()
+            );
+
+            dto.setWastePartnerName(
+                    request.getWastePartner().getName()
+            );
+        }
+
+
+        // =====================================================
+        // WASTE INFORMATION
+        // =====================================================
+
+        dto.setWasteAssignedDate(
+                request.getWasteAssignedDate()
+        );
+
+        dto.setWasteProcessedDate(
+                request.getWasteProcessedDate()
+        );
+
+        dto.setBiogasGenerated(
+                request.getBiogasGenerated()
+        );
+
+        dto.setFertilizerGenerated(
+                request.getFertilizerGenerated()
+        );
+
+        dto.setRemarks(
+                request.getWasteRemarks()
+        );
+
+
+        // =====================================================
+        // PAYMENT
+        // =====================================================
+
+        dto.setPaymentAmount(20.0);
+
+
+        return dto;
+    }
 }
+
