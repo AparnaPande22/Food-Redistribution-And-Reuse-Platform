@@ -1,4 +1,3 @@
-
 package com.food.security;
 
 import java.util.List;
@@ -28,207 +27,286 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomJwtVerificationFilter jwtAuthenticationFilter;
+private final CustomJwtVerificationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain securityFilterChain(
+        HttpSecurity http) throws Exception {
 
-        http
+    http
 
-            // ==================================================
-            // CORS
-            // ==================================================
-            .cors(cors ->
-                cors.configurationSource(
-                    corsConfigurationSource()
-                )
+        // ==================================================
+        // CORS
+        // ==================================================
+        .cors(cors ->
+            cors.configurationSource(
+                corsConfigurationSource()
+            )
+        )
+
+        // ==================================================
+        // CSRF
+        // ==================================================
+        .csrf(csrf ->
+            csrf.disable()
+        )
+
+        // ==================================================
+        // STATELESS
+        // ==================================================
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS
+            )
+        )
+
+        // ==================================================
+        // AUTHORIZATION
+        // ==================================================
+        .authorizeHttpRequests(request -> request
+
+            // ------------------------------------------------
+            // CORS PREFLIGHT
+            // ------------------------------------------------
+            .requestMatchers(
+                HttpMethod.OPTIONS,
+                "/**"
+            ).permitAll()
+
+            // ------------------------------------------------
+            // PUBLIC
+            // ------------------------------------------------
+            .requestMatchers(
+                "/api/auth/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**"
+            ).permitAll()
+
+            // =================================================
+            // ADMIN ONLY
+            // =================================================
+
+            .requestMatchers(
+                "/api/admin/**"
+            ).hasRole("ADMIN")
+
+            .requestMatchers(
+                "/api/users/**"
+            ).hasRole("ADMIN")
+
+            .requestMatchers(
+                "/api/activity-logs/**"
+            ).hasRole("ADMIN")
+
+            .requestMatchers(
+                "/api/documents/**"
+            ).hasRole("ADMIN")
+
+            // =================================================
+            // DONOR
+            // =================================================
+
+            .requestMatchers(
+                "/api/donor/**"
+            ).hasAnyRole(
+                "DONOR",
+                "ADMIN"
             )
 
-            // ==================================================
-            // CSRF
-            // ==================================================
-            .csrf(csrf ->
-                csrf.disable()
+            .requestMatchers(
+                "/api/media/**"
+            ).hasAnyRole(
+                "DONOR",
+                "ADMIN"
             )
 
-            // ==================================================
-            // STATELESS SESSION
-            // ==================================================
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS
-                )
+            // =================================================
+            // REQUESTS
+            // =================================================
+
+            .requestMatchers(
+                HttpMethod.GET,
+                "/api/requests/active"
+            ).hasAnyRole(
+                "RECEIVER",
+                "ADMIN"
             )
 
-            // ==================================================
-            // AUTHORIZATION
-            // ==================================================
-            .authorizeHttpRequests(request -> request
-
-                // --------------------------------------------------
-                // CORS PREFLIGHT
-                // --------------------------------------------------
-                .requestMatchers(
-                    HttpMethod.OPTIONS,
-                    "/**"
-                ).permitAll()
-
-                // --------------------------------------------------
-                // PUBLIC AUTH APIs
-                // --------------------------------------------------
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**"
-                ).permitAll()
-
-                // ==================================================
-                // ADMIN
-                // ==================================================
-                .requestMatchers(
-                    "/api/admin/**"
-                ).hasRole("ADMIN")
-
-                .requestMatchers(
-                    "/api/users/**"
-                ).hasRole("ADMIN")
-
-                .requestMatchers(
-                    "/api/activity-logs/**"
-                ).hasRole("ADMIN")
-
-                .requestMatchers(
-                    "/api/documents/**"
-                ).hasRole("ADMIN")
-
-                // ==================================================
-                // DONOR
-                // ==================================================
-                .requestMatchers(
-                    "/api/donor/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "DONOR"
-                )
-
-                .requestMatchers(
-                    "/api/media/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "DONOR"
-                )
-
-                // ==================================================
-                // REQUESTS
-                // IMPORTANT:
-                // Controller = /api/requests/**
-                // ==================================================
-                .requestMatchers(
-                    "/api/requests/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "DONOR",
-                    "RECEIVER",
-                    "BIOGAS_PARTNER"
-                )
-
-                // ==================================================
-                // REQUEST ITEM
-                // ==================================================
-                .requestMatchers(
-                    "/api/request-item/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "DONOR",
-                    "RECEIVER"
-                )
-
-                // ==================================================
-                // VOLUNTEER
-                // ==================================================
-                .requestMatchers(
-                    "/api/deliveries/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "VOLUNTEER"
-                )
-
-                .requestMatchers(
-                    "/api/match/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "VOLUNTEER",
-                    "RECEIVER"
-                )
-
-                // ==================================================
-                // BIOGAS
-                // ==================================================
-                .requestMatchers(
-                    "/api/waste/**"
-                ).hasAnyRole(
-                    "ADMIN",
-                    "BIOGAS_PARTNER"
-                )
-
-                // ==================================================
-                // DASHBOARD
-                // ==================================================
-                .requestMatchers(
-                    "/api/dashboard/**"
-                ).authenticated()
-
-                // ==================================================
-                // NOTIFICATION
-                // ==================================================
-                .requestMatchers(
-                    "/api/notification/**"
-                ).authenticated()
-
-                // ==================================================
-                // DELIVERY OUTCOME
-                // ==================================================
-                .requestMatchers(
-                    "/api/delivery-outcomes/**"
-                ).authenticated()
-
-                // ==================================================
-                // EVERYTHING ELSE
-                // ==================================================
-                .anyRequest().authenticated()
+            .requestMatchers(
+                "/api/requests/**"
+            ).hasAnyRole(
+                "DONOR",
+                "RECEIVER",
+                "ADMIN"
             )
 
-            // ==================================================
-            // JWT FILTER
-            // ==================================================
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+            // =================================================
+            // REQUEST ITEMS
+            // =================================================
 
-        return http.build();
-    }
+            .requestMatchers(
+                "/api/request-item/**"
+            ).hasAnyRole(
+                "DONOR",
+                "RECEIVER",
+                "ADMIN"
+            )
 
-    // ======================================================
-    // CORS CONFIGURATION
-    // ======================================================
+            // =================================================
+            // MATCHING
+            // =================================================
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+            // Admin approves/rejects and assigns
+            .requestMatchers(
+                "/api/match/*/approve",
+                "/api/match/*/reject",
+                "/api/match/*/assign-delivery"
+            ).hasRole("ADMIN")
 
-        CorsConfiguration configuration =
+            // Receiver can create/view their matching requests
+            .requestMatchers(
+                HttpMethod.POST,
+                "/api/match/**"
+            ).hasAnyRole(
+                "RECEIVER",
+                "ADMIN"
+            )
+
+            .requestMatchers(
+                HttpMethod.GET,
+                "/api/match/**"
+            ).hasAnyRole(
+                "RECEIVER",
+                "VOLUNTEER",
+                "ADMIN"
+            )
+
+            // =================================================
+            // DELIVERIES
+            // =================================================
+
+            .requestMatchers(
+                "/api/deliveries/**"
+            ).hasAnyRole(
+                "VOLUNTEER",
+                "ADMIN"
+            )
+
+            // =================================================
+            // WASTE / INDUSTRY
+            // =================================================
+
+            .requestMatchers(
+                "/api/waste/**"
+            ).hasAnyRole(
+                "BIOGAS_PARTNER",
+                "ADMIN"
+            )
+
+            // =================================================
+            // DASHBOARDS
+            // =================================================
+
+            .requestMatchers(
+                "/api/dashboard/admin/**"
+            ).hasRole("ADMIN")
+
+            .requestMatchers(
+                "/api/dashboard/donor/**"
+            ).hasAnyRole(
+                "DONOR",
+                "ADMIN"
+            )
+
+            .requestMatchers(
+                "/api/dashboard/receiver/**"
+            ).hasAnyRole(
+                "RECEIVER",
+                "ADMIN"
+            )
+
+            .requestMatchers(
+                "/api/dashboard/volunteer/**"
+            ).hasAnyRole(
+                "VOLUNTEER",
+                "ADMIN"
+            )
+
+            .requestMatchers(
+                "/api/dashboard/waste-dashboard/**"
+            ).hasAnyRole(
+                "BIOGAS_PARTNER",
+                "ADMIN"
+            )
+
+            .requestMatchers(
+                "/api/dashboard/impact",
+                "/api/dashboard/statistics"
+            ).hasAnyRole(
+                "ADMIN",
+                "DONOR",
+                "RECEIVER",
+                "VOLUNTEER",
+                "BIOGAS_PARTNER"
+            )
+
+            // =================================================
+            // NOTIFICATIONS
+            // =================================================
+
+            .requestMatchers(
+                "/api/notification/**"
+            ).authenticated()
+
+            // =================================================
+            // DELIVERY OUTCOME
+            // =================================================
+
+            .requestMatchers(
+                "/api/delivery-outcomes/**"
+            ).hasAnyRole(
+                "VOLUNTEER",
+                "ADMIN"
+            )
+
+            // =================================================
+            // EVERYTHING ELSE
+            // =================================================
+
+            .anyRequest().authenticated()
+        )
+
+        // ==================================================
+        // JWT
+        // ==================================================
+
+        .addFilterBefore(
+            jwtAuthenticationFilter,
+            UsernamePasswordAuthenticationFilter.class
+        );
+
+    return http.build();
+}
+
+// ======================================================
+// CORS
+// ======================================================
+
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+
+    CorsConfiguration configuration =
             new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(
+    configuration.setAllowedOriginPatterns(
             List.of(
                 "http://localhost:5173",
                 "http://localhost:5174"
             )
-        );
+    );
 
-        configuration.setAllowedMethods(
+    configuration.setAllowedMethods(
             List.of(
                 "GET",
                 "POST",
@@ -236,49 +314,50 @@ public class SecurityConfig {
                 "DELETE",
                 "OPTIONS"
             )
-        );
+    );
 
-        configuration.setAllowedHeaders(
+    configuration.setAllowedHeaders(
             List.of("*")
-        );
+    );
 
-        configuration.setExposedHeaders(
+    configuration.setExposedHeaders(
             List.of("*")
-        );
+    );
 
-        configuration.setAllowCredentials(true);
+    configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
+    UrlBasedCorsConfigurationSource source =
             new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration(
+    source.registerCorsConfiguration(
             "/**",
             configuration
-        );
+    );
 
-        return source;
-    }
-
-    // ======================================================
-    // PASSWORD ENCODER
-    // ======================================================
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-
-        return new BCryptPasswordEncoder();
-    }
-
-    // ======================================================
-    // AUTHENTICATION MANAGER
-    // ======================================================
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config)
-            throws Exception {
-
-        return config.getAuthenticationManager();
-    }
+    return source;
 }
 
+// ======================================================
+// PASSWORD ENCODER
+// ======================================================
+
+@Bean
+public PasswordEncoder passwordEncoder() {
+
+    return new BCryptPasswordEncoder();
+}
+
+// ======================================================
+// AUTHENTICATION MANAGER
+// ======================================================
+
+@Bean
+public AuthenticationManager authenticationManager(
+        AuthenticationConfiguration config)
+        throws Exception {
+
+    return config.getAuthenticationManager();
+}
+
+
+}

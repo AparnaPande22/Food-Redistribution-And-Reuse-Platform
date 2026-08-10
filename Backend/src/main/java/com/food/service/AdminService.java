@@ -3,26 +3,30 @@ package com.food.service;
 import java.util.List;
 
 import com.food.DTO.AdminDashboardDTO;
+import com.food.DTO.AdminDonationDTO;
 import com.food.DTO.RequestResponseDTO;
-import com.food.DTO.UserDTO;
+import com.food.DTO.UserSummaryDTO;
 import com.food.entities.Matches;
 import com.food.entities.UserStatus;
 
 public interface AdminService {
 
-	public List<UserDTO> findPendingUsers(UserStatus status);
+List<UserSummaryDTO> findPendingUsers(UserStatus status);
 
-	UserDTO approveUser(Long userId);
+UserSummaryDTO approveUser(Long userId);
 
-	UserDTO rejectUser(Long userId);
+UserSummaryDTO rejectUser(Long userId);
 
-	List<RequestResponseDTO> findPendingRequests();
+List<RequestResponseDTO> findPendingRequests();
 
-	RequestResponseDTO approveRequest(Long requestId);
+RequestResponseDTO approveRequest(Long requestId);
 
-	RequestResponseDTO rejectRequest(Long requestId);
+RequestResponseDTO rejectRequest(Long requestId);
 
-	List<Matches> getMatchingQueue();
+List<Matches> getMatchingQueue();
 
-	AdminDashboardDTO getAnalytics();
+AdminDashboardDTO getAnalytics();
+
+List<AdminDonationDTO> findAllDonations();
+
 }

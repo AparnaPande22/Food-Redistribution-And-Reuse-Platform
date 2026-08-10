@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.food.DTO.UserDTO;
-import com.food.repository.UserRepository;
+import com.food.DTO.UserSummaryDTO;
+import com.food.entities.User;
 import com.food.service.UserServiceImpl;
 
 import jakarta.validation.Valid;
@@ -25,58 +26,95 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class UserController {
 
-	private final UserRepository userRepository;
+private final UserServiceImpl userService;
 
-	private final AuthController authController;
+@PostMapping
+public ResponseEntity<?> addNewUser(
+        @Valid @RequestBody UserDTO request) {
 
-	private final UserServiceImpl userService;
+    return ResponseEntity.ok(
+            userService.addNewUser(request)
+    );
+}
 
-	@PostMapping
-	public ResponseEntity<?> addNewUser(@Valid @RequestBody UserDTO request) {
-		return ResponseEntity.ok(userService.addNewUser(request));
-	}
+@GetMapping("/{id}")
+public ResponseEntity<UserSummaryDTO> findById(
+        @Positive(message = "Id must be greater than 0")
+        @PathVariable Long id) {
 
-	@GetMapping("/{id}")
-	public ResponseEntity<?> findById(@Positive(message = "Id must be greater than 0") @PathVariable Long id) {
-		return ResponseEntity.ok(userService.findById(id));
-	}
+    User user = userService.findById(id);
 
-//get all users
-	@GetMapping
-	public ResponseEntity<?> findAllUsers() {
-		return ResponseEntity.ok(userService.findAllUsers());
-	}
+    return ResponseEntity.ok(
+            toSummary(user)
+    );
+}
 
-//Find by email
-	@GetMapping("/email/{email}")
-	public ResponseEntity<?> findByEmail(@PathVariable String email) {
-		return ResponseEntity.ok(userService.findByEmail(email));
-	}
+@GetMapping
+public ResponseEntity<?> findAllUsers() {
 
-//Update User
-	@PutMapping("/{id}")
-	public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO request) {
-		return ResponseEntity.ok(userService.updateUser(id, request));
-	}
+    return ResponseEntity.ok(
+            userService.findAllUsers()
+                    .stream()
+                    .map(this::toSummary)
+                    .toList()
+    );
+}
 
-//Delete user
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-		return ResponseEntity.ok(userService.deleteUser(id));
-	}
+@GetMapping("/email/{email}")
+public ResponseEntity<UserSummaryDTO> findByEmail(
+        @PathVariable String email) {
 
-//update profile
-	@PutMapping("/profile")
-	public ResponseEntity<?> updateProfile(@Valid @RequestBody UserDTO request) {
+    User user = userService.findByEmail(email);
 
-		return ResponseEntity.ok(userService.updateProfile(request));
-	}
+    return ResponseEntity.ok(
+            toSummary(user)
+    );
+}
 
-//	@PutMapping("/location")
-//	public ResponseEntity<?> updateLocation(@RequestBody LocationDTO locationDTO, Authentication authentication) {
-//
-//		userService.updateLocation(authentication.getName(), locationDTO);
-//
-//		return ResponseEntity.ok("Location Updated Successfully");
-//	}
+@PutMapping("/{id}")
+public ResponseEntity<?> updateUser(
+        @PathVariable Long id,
+        @Valid @RequestBody UserDTO request) {
+
+    return ResponseEntity.ok(
+            userService.updateUser(id, request)
+    );
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<?> deleteUser(
+        @PathVariable Long id) {
+
+    return ResponseEntity.ok(
+            userService.deleteUser(id)
+    );
+}
+
+@PutMapping("/profile")
+public ResponseEntity<?> updateProfile(
+        @Valid @RequestBody UserDTO request) {
+
+    return ResponseEntity.ok(
+            userService.updateProfile(request)
+    );
+}
+
+private UserSummaryDTO toSummary(User user) {
+
+    UserSummaryDTO dto = new UserSummaryDTO();
+
+    dto.setId(user.getId());
+    dto.setName(user.getName());
+    dto.setEmail(user.getEmail());
+    dto.setPhone(user.getPhone());
+    dto.setAccountType(user.getAccountType());
+    dto.setTeamRole(user.getTeamRole());
+    dto.setStatus(user.getStatus());
+    dto.setAddress(user.getAddress());
+    dto.setCity(user.getCity());
+    dto.setCreatedAt(user.getCreatedAt());
+
+    return dto;
+}
+
 }

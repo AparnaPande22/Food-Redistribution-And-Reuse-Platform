@@ -6,18 +6,23 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.food.DTO.AdminDashboardDTO;
+import com.food.DTO.AdminDonationDTO;
+import com.food.DTO.RequestItemDTO;
 import com.food.DTO.RequestResponseDTO;
-import com.food.DTO.UserDTO;
+import com.food.DTO.UserSummaryDTO;
 import com.food.Exception.ResourceNotFoundException;
 import com.food.entities.DeliveryStatus;
 import com.food.entities.MatchStatus;
 import com.food.entities.Matches;
 import com.food.entities.Request;
+import com.food.entities.RequestItems;
 import com.food.entities.RequestStatus;
+import com.food.entities.RequestType;
 import com.food.entities.User;
 import com.food.entities.UserStatus;
 import com.food.repository.DeliveryRepository;
 import com.food.repository.MatchesRepository;
+import com.food.repository.RequestItemRepository;
 import com.food.repository.RequestRepository;
 import com.food.repository.UserRepository;
 
@@ -29,182 +34,337 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
-	private final UserRepository userRepo;
-	private final RequestRepository reqRepo;
-	private final MatchesRepository matchRepo;
-	private final DeliveryRepository deliveryRepo;
+private final UserRepository userRepo;
+private final RequestRepository reqRepo;
+private final MatchesRepository matchRepo;
+private final DeliveryRepository deliveryRepo;
+private final RequestItemRepository requestItemRepo;
 
-	@Override
-	public List<UserDTO> findPendingUsers(UserStatus status) {
+// =========================================================
+// ADMIN - USERS
+// =========================================================
 
-		List<User> users = userRepo.findByStatus(UserStatus.PENDING);
+@Override
+public List<UserSummaryDTO> findPendingUsers(UserStatus status) {
 
-		List<UserDTO> userDTO = new ArrayList<>();
+    List<User> users = userRepo.findByStatus(status);
 
-		for (User user : users) {
+    List<UserSummaryDTO> result = new ArrayList<>();
 
-			UserDTO dto = new UserDTO();
+    for (User user : users) {
+        result.add(toUserSummary(user));
+    }
 
-			dto.setName(user.getName());
-			dto.setEmail(user.getEmail());
-			dto.setPhone(user.getPhone());
-			dto.setAccountType(user.getAccountType());
-			dto.setAddress(user.getAddress());
-			dto.setCity(user.getCity());
-			dto.setPassword(user.getPasswordHash());
-			dto.setStatus(user.getStatus());
+    return result;
+}
 
-			userDTO.add(dto);
-		}
+@Override
+public UserSummaryDTO approveUser(Long userId) {
 
-		return userDTO;
-	}
+    User user = userRepo.findById(userId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "User Not Found"
+                    )
+            );
 
-	@Override
-	public UserDTO approveUser(Long userId) {
+    user.setStatus(UserStatus.APPROVED);
 
-		User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+    userRepo.save(user);
 
-		user.setStatus(UserStatus.APPROVED);
+    return toUserSummary(user);
+}
 
-		userRepo.save(user);
+@Override
+public UserSummaryDTO rejectUser(Long userId) {
 
-		UserDTO dto = new UserDTO();
+    User user = userRepo.findById(userId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "User Not Found"
+                    )
+            );
 
-		dto.setName(user.getName());
-		dto.setEmail(user.getEmail());
-		dto.setPhone(user.getPhone());
-		dto.setAccountType(user.getAccountType());
-		dto.setAddress(user.getAddress());
-		dto.setCity(user.getCity());
-		dto.setPassword(user.getPasswordHash());
-		dto.setStatus(user.getStatus());
+    user.setStatus(UserStatus.REJECTED);
 
-		return dto;
-	}
+    userRepo.save(user);
 
-	@Override
-	public UserDTO rejectUser(Long userId) {
-		User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+    return toUserSummary(user);
+}
 
-		user.setStatus(UserStatus.REJECTED);
+// =========================================================
+// ADMIN - DONATIONS
+// =========================================================
 
-		userRepo.save(user);
+@Override
+public List<AdminDonationDTO> findAllDonations() {
 
-		UserDTO dto = new UserDTO();
+    return reqRepo.findAll()
+            .stream()
+            .filter(request ->
+                    request.getRequestType() == RequestType.DONATION
+            )
+            .map(this::toAdminDonation)
+            .toList();
+}
 
-		dto.setName(user.getName());
-		dto.setEmail(user.getEmail());
-		dto.setPhone(user.getPhone());
-		dto.setAccountType(user.getAccountType());
-		dto.setAddress(user.getAddress());
-		dto.setCity(user.getCity());
-		dto.setPassword(user.getPasswordHash());
-		dto.setStatus(user.getStatus());
+private AdminDonationDTO toAdminDonation(Request request) {
 
-		return dto;
-	}
+    AdminDonationDTO dto = new AdminDonationDTO();
 
-	@Override
-	public List<RequestResponseDTO> findPendingRequests() {
+    dto.setDonationId(request.getId());
+    dto.setStatus(request.getStatus());
+    dto.setFoodCategory(request.getFoodCategory());
+    dto.setMealPreference(request.getMealPreference());
+    dto.setEstimatedMeals(request.getEstimatedMeals());
+    dto.setPickupAddress(request.getPickUpAddress());
+    dto.setDeliveryAvailable(
+            request.isDeliveryAvailable()
+    );
+    dto.setNeededBy(request.getNeededBy());
+    dto.setCreatedAt(request.getCreatedAt());
+    dto.setLatitude(request.getLatitude());
+    dto.setLongitude(request.getLongitude());
 
-		List<Request> requests = reqRepo.findByStatus(RequestStatus.PENDING);
+    // -----------------------------------------------------
+    // DONOR
+    // -----------------------------------------------------
 
-		List<RequestResponseDTO> requestList = new ArrayList<>();
+    User donor = request.getUser();
 
-		for (Request request : requests) {
+    if (donor != null) {
+        dto.setDonor(toUserSummary(donor));
+    }
 
-			RequestResponseDTO dto = new RequestResponseDTO();
+    // -----------------------------------------------------
+    // FOOD ITEMS
+    // -----------------------------------------------------
 
-			dto.setId(request.getId());
-			dto.setRequestType(request.getRequestType());
-			dto.setStatus(request.getStatus());
-			dto.setMealPreference(request.getMealPreference());
-			dto.setEstimatedMeals(request.getEstimatedMeals());
-			dto.setPickUpAddress(request.getPickUpAddress());
-			dto.setDeliveryAvailable(request.isDeliveryAvailable());
-			dto.setNeededBy(request.getNeededBy());
-			dto.setNotes(request.getNotes());
-			dto.setCreatedAt(request.getCreatedAt());
+    List<RequestItems> items =
+            requestItemRepo.findByRequestId(request.getId());
 
-			requestList.add(dto);
-		}
+    List<RequestItemDTO> itemDTOs =
+            items.stream()
+                    .map(this::toRequestItemDTO)
+                    .toList();
 
-		return requestList;
-	}
+    dto.setItems(itemDTOs);
 
-	@Override
-	public RequestResponseDTO approveRequest(Long requestId) {
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request Not Found"));
+    return dto;
+}
 
-		request.setStatus(RequestStatus.APPROVED);
+private RequestItemDTO toRequestItemDTO(
+        RequestItems item) {
 
-		reqRepo.save(request);
+    RequestItemDTO dto = new RequestItemDTO();
 
-		RequestResponseDTO dto = new RequestResponseDTO();
+    dto.setId(item.getId());
 
-		dto.setId(request.getId());
-		dto.setRequestType(request.getRequestType());
-		dto.setStatus(request.getStatus());
-		dto.setMealPreference(request.getMealPreference());
-		dto.setEstimatedMeals(request.getEstimatedMeals());
-		dto.setNeededBy(request.getNeededBy());
-		dto.setCreatedAt(request.getCreatedAt());
-		dto.setNotes(request.getNotes());
-		dto.setPickUpAddress(request.getPickUpAddress());
+    if (item.getRequest() != null) {
+        dto.setRequestId(
+                item.getRequest().getId()
+        );
+    }
 
-		return dto;
-	}
+    dto.setItemName(item.getItemName());
+    dto.setFoodCategory(item.getFoodCategory());
+    dto.setQuantity(item.getQuantity());
+    dto.setUnit(item.getUnit());
+    dto.setExpiryTime(item.getExpiryTime());
 
-	@Override
-	public RequestResponseDTO rejectRequest(Long requestId) {
-		Request request = reqRepo.findById(requestId)
-				.orElseThrow(() -> new ResourceNotFoundException("Request Not Found"));
+    return dto;
+}
 
-		request.setStatus(RequestStatus.REJECTED);
+private UserSummaryDTO toUserSummary(User user) {
 
-		reqRepo.save(request);
+    UserSummaryDTO dto = new UserSummaryDTO();
 
-		RequestResponseDTO dto = new RequestResponseDTO();
+    dto.setId(user.getId());
+    dto.setName(user.getName());
+    dto.setEmail(user.getEmail());
+    dto.setPhone(user.getPhone());
+    dto.setAccountType(user.getAccountType());
+    dto.setTeamRole(user.getTeamRole());
+    dto.setStatus(user.getStatus());
+    dto.setAddress(user.getAddress());
+    dto.setCity(user.getCity());
+    dto.setCreatedAt(user.getCreatedAt());
 
-		dto.setId(request.getId());
-		dto.setRequestType(request.getRequestType());
-		dto.setStatus(request.getStatus());
-		dto.setMealPreference(request.getMealPreference());
-		dto.setEstimatedMeals(request.getEstimatedMeals());
-		dto.setNeededBy(request.getNeededBy());
-		dto.setCreatedAt(request.getCreatedAt());
-		dto.setNotes(request.getNotes());
-		dto.setPickUpAddress(request.getPickUpAddress());
+    return dto;
+}
 
-		return dto;
-	}
+// =========================================================
+// ADMIN - PENDING REQUESTS
+// =========================================================
 
-	@Override
-	public List<Matches> getMatchingQueue() {
-		return matchRepo.findByMatchStatus(MatchStatus.PENDING);
-	}
+@Override
+public List<RequestResponseDTO> findPendingRequests() {
 
-	@Override
-	public AdminDashboardDTO getAnalytics() {
-		AdminDashboardDTO dto = new AdminDashboardDTO();
+    List<Request> requests =
+            reqRepo.findByStatus(RequestStatus.PENDING);
 
-		dto.setTotalUsers(userRepo.count());
+    List<RequestResponseDTO> requestList =
+            new ArrayList<>();
 
-		dto.setPendingUsers(userRepo.countByStatus(UserStatus.PENDING));
+    for (Request request : requests) {
 
-		dto.setTotalRequests(reqRepo.count());
+        RequestResponseDTO dto =
+                toRequestResponseDTO(request);
 
-		dto.setPendingRequests(reqRepo.countByStatus(RequestStatus.PENDING));
+        requestList.add(dto);
+    }
 
-		dto.setTotalMatches(matchRepo.count());
+    return requestList;
+}
 
-		dto.setTotalDeliveries(deliveryRepo.count());
+// =========================================================
+// ADMIN - APPROVE REQUEST
+// =========================================================
 
-		dto.setCompletedDeliveries(deliveryRepo.countByStatus(DeliveryStatus.COMPLETED));
+@Override
+public RequestResponseDTO approveRequest(
+        Long requestId) {
 
-		return dto;
-	}
+    Request request = reqRepo.findById(requestId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Request Not Found"
+                    )
+            );
+
+    request.setStatus(RequestStatus.APPROVED);
+
+    reqRepo.save(request);
+
+    return toRequestResponseDTO(request);
+}
+
+// =========================================================
+// ADMIN - REJECT REQUEST
+// =========================================================
+
+@Override
+public RequestResponseDTO rejectRequest(
+        Long requestId) {
+
+    Request request = reqRepo.findById(requestId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Request Not Found"
+                    )
+            );
+
+    request.setStatus(RequestStatus.REJECTED);
+
+    reqRepo.save(request);
+
+    return toRequestResponseDTO(request);
+}
+
+private RequestResponseDTO toRequestResponseDTO(
+        Request request) {
+
+    RequestResponseDTO dto =
+            new RequestResponseDTO();
+
+    dto.setId(request.getId());
+    dto.setRequestType(
+            request.getRequestType()
+    );
+    dto.setStatus(
+            request.getStatus()
+    );
+    dto.setMealPreference(
+            request.getMealPreference()
+    );
+    dto.setFoodCategory(
+            request.getFoodCategory()
+    );
+    dto.setEstimatedMeals(
+            request.getEstimatedMeals()
+    );
+    dto.setPickUpAddress(
+            request.getPickUpAddress()
+    );
+    dto.setDeliveryAvailable(
+            request.isDeliveryAvailable()
+    );
+    dto.setNeededBy(
+            request.getNeededBy()
+    );
+    dto.setNotes(
+            request.getNotes()
+    );
+    dto.setCreatedAt(
+            request.getCreatedAt()
+    );
+    dto.setLatitude(
+            request.getLatitude()
+    );
+    dto.setLongitude(
+            request.getLongitude()
+    );
+
+    return dto;
+}
+
+// =========================================================
+// ADMIN - MATCHING QUEUE
+// =========================================================
+
+@Override
+public List<Matches> getMatchingQueue() {
+
+    return matchRepo.findByMatchStatus(
+            MatchStatus.PENDING
+    );
+}
+
+// =========================================================
+// ADMIN - ANALYTICS
+// =========================================================
+
+@Override
+public AdminDashboardDTO getAnalytics() {
+
+    AdminDashboardDTO dto =
+            new AdminDashboardDTO();
+
+    dto.setTotalUsers(
+            userRepo.count()
+    );
+
+    dto.setPendingUsers(
+            userRepo.countByStatus(
+                    UserStatus.PENDING
+            )
+    );
+
+    dto.setTotalRequests(
+            reqRepo.count()
+    );
+
+    dto.setPendingRequests(
+            reqRepo.countByStatus(
+                    RequestStatus.PENDING
+            )
+    );
+
+    dto.setTotalMatches(
+            matchRepo.count()
+    );
+
+    dto.setTotalDeliveries(
+            deliveryRepo.count()
+    );
+
+    dto.setCompletedDeliveries(
+            deliveryRepo.countByStatus(
+                    DeliveryStatus.COMPLETED
+            )
+    );
+
+    return dto;
+}
 
 }

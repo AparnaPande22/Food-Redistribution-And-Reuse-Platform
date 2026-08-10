@@ -54,3 +54,8 @@ export const getMatchingQueue = async () => {
     const res = await api.get("/admin/matching-queue");
     return res.data;
 };
+
+export const getAdminDonations = async () => {
+    const res = await api.get("/admin/donations");
+    return res.data;
+};

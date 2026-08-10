@@ -108,24 +108,24 @@ function AdminMatchingQueuePage() {
                             </thead>
                             <tbody>
                                 {queue.map((item) => (
-                                    <tr key={item.id}>
-                                        <td>#{item.id}</td>
+                                    <tr key={item.matchId}>
+                                        <td>#{item.matchId}</td>
                                         <td>#{item.requestId || item.request?.id || "N/A"}</td>
                                         <td>
-                                            <span className="status">{item.status || "PENDING"}</span>
+                                            <span className="status">{item.matchStatus || "PENDING"}</span>
                                         </td>
                                         <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "Today"}</td>
                                         <td style={{ whiteSpace: "nowrap" }}>
-                                            {item.status === "PENDING" || !item.status ? (
+                                            {item.matchStatus === "PENDING" || !item.matchStatus ? (
                                                 <>
                                                     <button
-                                                        onClick={() => handleApprove(item.id)}
+                                                        onClick={() => handleApprove(item.matchId)}
                                                         style={{ marginRight: 6, background: "#16a34a", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer" }}
                                                     >
                                                         Approve
                                                     </button>
                                                     <button
-                                                        onClick={() => handleReject(item.id)}
+                                                        onClick={() => handleReject(item.matchId)}
                                                         style={{ background: "#dc2626", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer" }}
                                                     >
                                                         Reject
@@ -136,12 +136,12 @@ function AdminMatchingQueuePage() {
                                             )}
                                         </td>
                                         <td>
-                                            {item.status === "APPROVED" ? (
+                                            {item.matchStatus === "APPROVED" ? (
                                                 <div style={{ display: "flex", gap: 6 }}>
                                                     <select
-                                                        value={assignChoice[item.id] || ""}
+                                                        value={assignChoice[item.matchId] || ""}
                                                         onChange={(e) =>
-                                                            setAssignChoice({ ...assignChoice, [item.id]: e.target.value })
+                                                            setAssignChoice({ ...assignChoice, [item.matchId]: e.target.value })
                                                         }
                                                         style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #d1d5db" }}
                                                     >
@@ -153,7 +153,7 @@ function AdminMatchingQueuePage() {
                                                         ))}
                                                     </select>
                                                     <button
-                                                        onClick={() => handleAssign(item.id)}
+                                                        onClick={() => handleAssign(item.matchId)}
                                                         style={{ background: "#2563eb", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer" }}
                                                     >
                                                         Assign

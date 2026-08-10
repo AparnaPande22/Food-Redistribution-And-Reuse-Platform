@@ -19,54 +19,85 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
-	private final AdminService adminService;
 
-	// pending users
-	@GetMapping("/pending-users")
-	public ResponseEntity<?> findPendingUsers() {
-		return ResponseEntity.ok(adminService.findPendingUsers(UserStatus.PENDING));
-	}
+private final AdminService adminService;
 
-	// approve user
-	@PutMapping("/users/{id}/approve")
-	public ResponseEntity<?> approveUser(@PathVariable Long id) {
-		return ResponseEntity.ok(adminService.approveUser(id));
-	}
+@GetMapping("/pending-users")
+public ResponseEntity<?> findPendingUsers() {
 
-	// reject user
-	@PutMapping("/users/{id}/reject")
-	public ResponseEntity<?> rejectUser(@PathVariable Long id) {
-		return ResponseEntity.ok(adminService.rejectUser(id));
-	}
+    return ResponseEntity.ok(
+            adminService.findPendingUsers(
+                    UserStatus.PENDING
+            )
+    );
+}
 
-	// pending request
-	@GetMapping("/pending-requests")
-	public ResponseEntity<?> pendingRequests() {
-		return ResponseEntity.ok(adminService.findPendingRequests());
-	}
+@PutMapping("/users/{id}/approve")
+public ResponseEntity<?> approveUser(
+        @PathVariable Long id) {
 
-	// approve request
-	@PutMapping("/requests/{id}/approve")
-	public ResponseEntity<?> approveRequest(@PathVariable Long id) {
-		return ResponseEntity.ok(adminService.approveRequest(id));
-	}
+    return ResponseEntity.ok(
+            adminService.approveUser(id)
+    );
+}
 
-	// reject request
-	@PutMapping("/requests/{id}/reject")
-	public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
-		return ResponseEntity.ok(adminService.rejectRequest(id));
-	}
+@PutMapping("/users/{id}/reject")
+public ResponseEntity<?> rejectUser(
+        @PathVariable Long id) {
 
-	// matching queue
-	@GetMapping("/matching-queue")
-	public ResponseEntity<?> matchingQueue() {
-		return ResponseEntity.ok(adminService.getMatchingQueue());
-	}
+    return ResponseEntity.ok(
+            adminService.rejectUser(id)
+    );
+}
 
-	// admin analytics
-	@GetMapping("/analytics")
-	public ResponseEntity<?> analytics() {
-		return ResponseEntity.ok(adminService.getAnalytics());
-	}
+@GetMapping("/donations")
+public ResponseEntity<?> donations() {
+
+    return ResponseEntity.ok(
+            adminService.findAllDonations()
+    );
+}
+
+@GetMapping("/pending-requests")
+public ResponseEntity<?> pendingRequests() {
+
+    return ResponseEntity.ok(
+            adminService.findPendingRequests()
+    );
+}
+
+@PutMapping("/requests/{id}/approve")
+public ResponseEntity<?> approveRequest(
+        @PathVariable Long id) {
+
+    return ResponseEntity.ok(
+            adminService.approveRequest(id)
+    );
+}
+
+@PutMapping("/requests/{id}/reject")
+public ResponseEntity<?> rejectRequest(
+        @PathVariable Long id) {
+
+    return ResponseEntity.ok(
+            adminService.rejectRequest(id)
+    );
+}
+
+@GetMapping("/matching-queue")
+public ResponseEntity<?> matchingQueue() {
+
+    return ResponseEntity.ok(
+            adminService.getMatchingQueue()
+    );
+}
+
+@GetMapping("/analytics")
+public ResponseEntity<?> analytics() {
+
+    return ResponseEntity.ok(
+            adminService.getAnalytics()
+    );
+}
 
 }
